@@ -170,7 +170,7 @@ de proyecto (`home-inspect-dev`), así que no toca nada de producción.
 
    ```dotenv
    AUTH_ISSUER_URI=http://host.docker.internal:9000
-   APP_BASE_URL=http://localhost:8080
+   PUBLIC_URL=http://localhost:8080
    COOKIE_SECURE=false
    ```
 
@@ -181,7 +181,7 @@ de proyecto (`home-inspect-dev`), así que no toca nada de producción.
    docker compose -f docker-compose.yml -f docker-compose.dev.yml ps    # espera a "healthy"
    ```
 
-4. Abre <http://localhost:8080> y entra con `AUTH_ADMIN_USERNAME` / `AUTH_ADMIN_PASSWORD`
+4. Abre <http://localhost:8080> y entra con `ADMIN_USERNAME` / `ADMIN_PASSWORD`
    (ver [primer acceso](#primer-acceso-del-administrador)).
 
 Para pararlo: `docker compose -f docker-compose.yml -f docker-compose.dev.yml down`
@@ -216,13 +216,19 @@ Genera los secretos con `openssl rand -base64 32` y rellena el `.env`
 
 ¿Dónde está tu PostgreSQL?
 
-- **En el propio host de Docker:** `DB_HOST=host.docker.internal`. Los servicios ya incluyen
+La conexión se define con una URL JDBC completa por servicio, igual que en featuretoggle
+(`AUTH_DB_URL` / `AUTH_DB_USERNAME` / `AUTH_DB_PASSWORD` y `APP_DB_URL` / `APP_DB_USERNAME` / `APP_DB_PASSWORD`;
+dentro de cada contenedor se llaman `DB_URL` / `DB_USERNAME` / `DB_PASSWORD`).
+
+- **En el propio host de Docker:** host `host.docker.internal`
+  (`AUTH_DB_URL=jdbc:postgresql://host.docker.internal:5432/homeinspect_auth`). Los servicios ya incluyen
   `extra_hosts: host-gateway`. Comprueba que Postgres escucha en la IP del puente de Docker
   (`listen_addresses`) y que `pg_hba.conf` permite esa red.
 - **En otro contenedor:** une los servicios a su red con `docker-compose.dbnet.yml`:
 
   ```dotenv
-  DB_HOST=nombre-del-contenedor-postgres
+  AUTH_DB_URL=jdbc:postgresql://nombre-del-contenedor-postgres:5432/homeinspect_auth
+  APP_DB_URL=jdbc:postgresql://nombre-del-contenedor-postgres:5432/homeinspect_app
   DB_NETWORK=nombre-de-su-red          # docker network ls
   COMPOSE_FILE=docker-compose.yml:docker-compose.dbnet.yml
   ```
@@ -234,7 +240,7 @@ contenedor `app`. Usa dos subdominios, uno por servicio, detrás del proxy:
 
 ```dotenv
 AUTH_ISSUER_URI=https://auth.midominio.casa
-APP_BASE_URL=https://inspect.midominio.casa
+PUBLIC_URL=https://inspect.midominio.casa
 COOKIE_SECURE=true
 ```
 
@@ -299,6 +305,41 @@ git checkout v1.x.y
 docker compose up -d --build   # Flyway aplica las migraciones
 ```
 
+### Desplegar con Coolify
+
+`docker-compose.coolify.yml` es el mismo stack preparado para Coolify: no publica puertos en el host
+(el proxy de Coolify enruta los dominios, así no choca con otras apps como featuretoggle en el 8080)
+y marca como obligatorias las variables sin valor por defecto.
+
+1. Prepara PostgreSQL con `db/init.sql` ([paso 1](#1-preparar-postgresql-una-sola-vez)).
+2. En Coolify: **New Resource → Public/Private Repository** con el repositorio y la rama/tag a desplegar,
+   *Build Pack* **Docker Compose** y *Docker Compose Location* `/docker-compose.coolify.yml`.
+3. En **Environment Variables** rellena (Coolify las detecta del compose):
+
+   ```dotenv
+   AUTH_DB_URL=jdbc:postgresql://<host-postgres>:5432/homeinspect_auth
+   AUTH_DB_USERNAME=homeinspect_auth
+   AUTH_DB_PASSWORD=<secreto>
+   APP_DB_URL=jdbc:postgresql://<host-postgres>:5432/homeinspect_app
+   APP_DB_USERNAME=homeinspect_app
+   APP_DB_PASSWORD=<secreto>
+   AUTH_ISSUER_URI=https://auth.midominio.casa
+   PUBLIC_URL=https://inspect.midominio.casa
+   ADMIN_USERNAME=admin
+   ADMIN_PASSWORD=<secreto>
+   AUTH_KEYSTORE_PASSWORD=<secreto>
+   WEB_CLIENT_SECRET=<secreto>
+   ADMIN_API_CLIENT_SECRET=<secreto>
+   ```
+
+   Son los mismos nombres que en featuretoggle (`*_DB_URL`, `*_DB_USERNAME`, `*_DB_PASSWORD`, `PUBLIC_URL`,
+   `ADMIN_*`). Si Postgres es otro recurso de Coolify, activa **Connect to Predefined Network** y usa su
+   nombre interno como `<host-postgres>`; si está en el host, `host.docker.internal`.
+4. En cada servicio asigna su dominio con el puerto interno: `auth-server` → `https://auth.midominio.casa:9000`,
+   `app` → `https://inspect.midominio.casa:8080`. Tienen que coincidir con `AUTH_ISSUER_URI` y `PUBLIC_URL`.
+5. **Deploy**. El contenedor `app` descarga la configuración del `auth-server` en `AUTH_ISSUER_URI`, así que esa
+   URL tiene que resolverse también desde el servidor (DNS local o túnel de Cloudflare).
+
 ### Volúmenes
 
 | Volumen | Montado en | Contenido |
@@ -316,18 +357,18 @@ keytool -genkeypair -alias jwt-signing -keyalg RSA -keysize 2048 -validity 3650 
 
 ## Variables de entorno
 
-Todas se definen en `.env` (ver `.env.example`).
+Todas se definen en `.env` (ver `.env.example`) o, en Coolify, en la pestaña *Environment Variables*.
+Los nombres siguen la convención de featuretoggle.
 
 | Variable | Por defecto | Descripción |
 |----------|-------------|-------------|
-| `DB_HOST` / `DB_PORT` | `host.docker.internal` / `5432` | Servidor PostgreSQL |
-| `AUTH_DB_NAME` / `AUTH_DB_USER` / `AUTH_DB_PASSWORD` | `homeinspect_auth` / `homeinspect_auth` / — | Base de datos del `auth-server` |
-| `APP_DB_NAME` / `APP_DB_USER` / `APP_DB_PASSWORD` | `homeinspect_app` / `homeinspect_app` / — | Base de datos de la `app` |
+| `AUTH_DB_URL` / `AUTH_DB_USERNAME` / `AUTH_DB_PASSWORD` | `jdbc:postgresql://host.docker.internal:5432/homeinspect_auth` / `homeinspect_auth` / — | Base de datos del `auth-server` (en el contenedor: `DB_URL` / `DB_USERNAME` / `DB_PASSWORD`) |
+| `APP_DB_URL` / `APP_DB_USERNAME` / `APP_DB_PASSWORD` | `jdbc:postgresql://host.docker.internal:5432/homeinspect_app` / `homeinspect_app` / — | Base de datos de la `app` (en el contenedor: `DB_URL` / `DB_USERNAME` / `DB_PASSWORD`) |
 | `DB_NETWORK` | — | Red Docker de tu Postgres (con `docker-compose.dbnet.yml`) |
 | `AUTH_ISSUER_URI` | — | URL pública del `auth-server`, la misma para el navegador y para la `app` |
-| `APP_BASE_URL` | — | URL pública de la `app` (redirección OAuth2 y vuelta del logout) |
+| `PUBLIC_URL` | — | URL pública de la `app` (redirección OAuth2 y vuelta del logout) |
 | `AUTH_PORT` / `APP_PORT` | `9000` / `8080` | Puertos publicados en el host |
-| `AUTH_ADMIN_USERNAME` / `AUTH_ADMIN_PASSWORD` | `admin` / — | Administrador inicial |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` / `ADMIN_NAME` | `admin` / — / `Administrador` | Administrador inicial |
 | `AUTH_MFA_ENABLED` | `false` | Cada usuario puede activar la verificación en dos pasos |
 | `AUTH_MFA_REQUIRED` | `false` | Verificación en dos pasos obligatoria para todos |
 | `AUTH_KEYSTORE_PASSWORD` | — | Contraseña de la clave de firma JWT (mín. 8 caracteres) |
@@ -343,16 +384,16 @@ Ajustes avanzados, con valores por defecto razonables: `SESSION_TIMEOUT` (sesió
 
 ## Primer acceso del administrador
 
-1. En el primer arranque, el `auth-server` crea el usuario `AUTH_ADMIN_USERNAME` con la contraseña
-   `AUTH_ADMIN_PASSWORD` y rol `ADMIN`. Si el usuario ya existe, no se modifica.
+1. En el primer arranque, el `auth-server` crea el usuario `ADMIN_USERNAME` con la contraseña
+   `ADMIN_PASSWORD` y rol `ADMIN`. Si el usuario ya existe, no se modifica.
 2. Abre la URL de la app: te redirige a la página de login del servidor de acceso.
 3. Entra con esas credenciales. Se te pedirá **cambiar la contraseña** antes de continuar
    (mínimo 10 caracteres, con letras y números).
 4. Crea a los inspectores en **Administración → Usuarios**. Cada uno recibe una contraseña temporal,
    que se muestra una sola vez, y deberá cambiarla en su primer acceso.
 
-Una vez creado el administrador puedes quitar `AUTH_ADMIN_PASSWORD` del `.env`.
-Si se te olvida la contraseña del único administrador, crea otro cambiando `AUTH_ADMIN_USERNAME`
+Una vez creado el administrador puedes quitar `ADMIN_PASSWORD` del `.env`.
+Si se te olvida la contraseña del único administrador, crea otro cambiando `ADMIN_USERNAME`
 y reiniciando el `auth-server`.
 
 ## Backup y restauración

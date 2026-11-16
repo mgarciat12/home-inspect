@@ -1,0 +1,69 @@
+# Coolify deployment (Docker Compose build pack).
+#   - In Coolify set "Docker Compose Location" to /docker-compose.coolify.yml
+#   - Assign a domain to each service in the UI: auth-server -> port 9000, app -> port 8080
+#     (no host ports are published, so it never clashes with other apps such as featuretoggle on 8080)
+#   - Fill the variables in the Environment Variables tab; the ones marked ":?" are required.
+#   - Postgres in another Coolify resource: enable "Connect to Predefined Network" and use its
+#     internal host name in AUTH_DB_URL / APP_DB_URL.
+# Inside each container the connection uses DB_URL / DB_USERNAME / DB_PASSWORD (same names as featuretoggle).
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth-server/Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_URL: ${AUTH_DB_URL:?}
+      DB_USERNAME: ${AUTH_DB_USERNAME:-homeinspect_auth}
+      DB_PASSWORD: ${AUTH_DB_PASSWORD:?}
+      AUTH_ISSUER_URI: ${AUTH_ISSUER_URI:?}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      AUTH_KEYS_DIR: /data/keys
+      AUTH_KEYSTORE_PASSWORD: ${AUTH_KEYSTORE_PASSWORD:?}
+      WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET:?}
+      WEB_REDIRECT_URI: ${PUBLIC_URL:?}/login/oauth2/code/home-inspect
+      WEB_POST_LOGOUT_REDIRECT_URI: ${PUBLIC_URL:?}/
+      ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET:?}
+      AUTH_MFA_ENABLED: ${AUTH_MFA_ENABLED:-false}
+      AUTH_MFA_REQUIRED: ${AUTH_MFA_REQUIRED:-false}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      TZ: ${TZ:-Europe/Madrid}
+    expose:
+      - "9000"
+    volumes:
+      - auth-keys:/data/keys
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      auth-server:
+        condition: service_healthy
+    environment:
+      DB_URL: ${APP_DB_URL:?}
+      DB_USERNAME: ${APP_DB_USERNAME:-homeinspect_app}
+      DB_PASSWORD: ${APP_DB_PASSWORD:?}
+      AUTH_ISSUER_URI: ${AUTH_ISSUER_URI:?}
+      WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET:?}
+      ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET:?}
+      UPLOAD_DIR: /data/uploads
+      UPLOAD_MAX_FILE_SIZE: ${UPLOAD_MAX_FILE_SIZE:-15MB}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      SPRING_PROFILES_ACTIVE: ${APP_PROFILES:-}
+      TZ: ${TZ:-Europe/Madrid}
+    expose:
+      - "8080"
+    volumes:
+      - uploads:/data/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  uploads:
+  auth-keys:

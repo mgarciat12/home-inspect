@@ -2,9 +2,9 @@ spring:
   application:
     name: home-inspect
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${APP_DB_NAME:homeinspect_app}
-    username: ${APP_DB_USER:homeinspect_app}
-    password: ${APP_DB_PASSWORD:homeinspect_app}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/homeinspect_app}
+    username: ${DB_USERNAME:homeinspect_app}
+    password: ${DB_PASSWORD:homeinspect_app}
   jpa:
     open-in-view: false
     hibernate:

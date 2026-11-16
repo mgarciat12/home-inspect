@@ -22,13 +22,18 @@ DEST="$(cd "$DEST" && pwd)"
 NET_ARGS=(--add-host=host.docker.internal:host-gateway)
 [ -n "${DB_NETWORK:-}" ] && NET_ARGS+=(--network "$DB_NETWORK")
 
-dump() { # name user password
-  echo "· pg_dump $1"
+dump() { # jdbc-url user password
+  local uri="${1#jdbc:}" name
+  uri="${uri%%\?*}"            # JDBC-only parameters are not valid for libpq
+  name="${uri##*/}"
+  echo "· pg_dump $name"
   docker run --rm "${NET_ARGS[@]}" -e PGPASSWORD="$3" -v "$DEST":/backup "$PG_CLIENT_IMAGE" \
-    pg_dump -h "$DB_HOST" -p "${DB_PORT:-5432}" -U "$2" -d "$1" -Fc -f "/backup/$1.dump"
+    pg_dump -d "$uri" -U "$2" -Fc -f "/backup/$name.dump"
 }
-dump "${AUTH_DB_NAME:-homeinspect_auth}" "${AUTH_DB_USER:-homeinspect_auth}" "$AUTH_DB_PASSWORD"
-dump "${APP_DB_NAME:-homeinspect_app}" "${APP_DB_USER:-homeinspect_app}" "$APP_DB_PASSWORD"
+dump "${AUTH_DB_URL:-jdbc:postgresql://host.docker.internal:5432/homeinspect_auth}" \
+  "${AUTH_DB_USERNAME:-homeinspect_auth}" "$AUTH_DB_PASSWORD"
+dump "${APP_DB_URL:-jdbc:postgresql://host.docker.internal:5432/homeinspect_app}" \
+  "${APP_DB_USERNAME:-homeinspect_app}" "$APP_DB_PASSWORD"
 
 archive() { # volume file
   echo "· volume $1"

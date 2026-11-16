@@ -161,7 +161,7 @@ public class AuthUserService {
     @Transactional
     public void bootstrapAdmin(String username, String password, String displayName) {
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-            log.warn("AUTH_ADMIN_USERNAME / AUTH_ADMIN_PASSWORD not set: no initial administrator created");
+            log.warn("ADMIN_USERNAME / ADMIN_PASSWORD not set: no initial administrator created");
             return;
         }
         String normalized = username.trim().toLowerCase();

@@ -9,11 +9,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      AUTH_DB_NAME: ${AUTH_DB_NAME:-homeinspect_auth}
-      AUTH_DB_USER: ${AUTH_DB_USER:-homeinspect_auth}
+      AUTH_DB_USERNAME: ${AUTH_DB_USERNAME:-homeinspect_auth}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
-      APP_DB_NAME: ${APP_DB_NAME:-homeinspect_app}
-      APP_DB_USER: ${APP_DB_USER:-homeinspect_app}
+      APP_DB_USERNAME: ${APP_DB_USERNAME:-homeinspect_app}
       APP_DB_PASSWORD: ${APP_DB_PASSWORD}
     ports:
       - "127.0.0.1:5433:5432"
@@ -32,15 +30,13 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_URL: jdbc:postgresql://postgres:5432/homeinspect_auth
       COOKIE_SECURE: "false"
       THYMELEAF_CACHE: "false"
 
   app:
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_URL: jdbc:postgresql://postgres:5432/homeinspect_app
       COOKIE_SECURE: "false"
       THYMELEAF_CACHE: "false"
 

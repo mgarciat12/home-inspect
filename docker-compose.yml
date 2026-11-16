@@ -1,12 +1,10 @@
 # Production stack: authorization server + application.
-# PostgreSQL is NOT included: both services connect to your existing server (DB_HOST / DB_PORT).
-#   - Postgres on the Docker host        -> DB_HOST=host.docker.internal (extra_hosts below)
+# PostgreSQL is NOT included: both services connect to your existing server (AUTH_DB_URL / APP_DB_URL).
+#   - Postgres on the Docker host        -> jdbc:postgresql://host.docker.internal:5432/... (extra_hosts below)
 #   - Postgres in another container      -> also use docker-compose.dbnet.yml to join its network
+# Inside each container the connection uses DB_URL / DB_USERNAME / DB_PASSWORD (same names as featuretoggle).
+# Deploying with Coolify? Use docker-compose.coolify.yml instead (no host ports, Coolify's proxy routes the domains).
 name: home-inspect
-
-x-db: &db-env
-  DB_HOST: ${DB_HOST:-host.docker.internal}
-  DB_PORT: ${DB_PORT:-5432}
 
 services:
   auth-server:
@@ -16,18 +14,18 @@ services:
     image: home-inspect/auth-server:latest
     restart: unless-stopped
     environment:
-      <<: *db-env
-      AUTH_DB_NAME: ${AUTH_DB_NAME:-homeinspect_auth}
-      AUTH_DB_USER: ${AUTH_DB_USER:-homeinspect_auth}
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?set AUTH_DB_PASSWORD in .env}
+      DB_URL: ${AUTH_DB_URL:-jdbc:postgresql://host.docker.internal:5432/homeinspect_auth}
+      DB_USERNAME: ${AUTH_DB_USERNAME:-homeinspect_auth}
+      DB_PASSWORD: ${AUTH_DB_PASSWORD:?set AUTH_DB_PASSWORD in .env}
       AUTH_ISSUER_URI: ${AUTH_ISSUER_URI:?set AUTH_ISSUER_URI in .env}
-      AUTH_ADMIN_USERNAME: ${AUTH_ADMIN_USERNAME:-admin}
-      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
       AUTH_KEYS_DIR: /data/keys
       AUTH_KEYSTORE_PASSWORD: ${AUTH_KEYSTORE_PASSWORD:?set AUTH_KEYSTORE_PASSWORD in .env}
       WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET:?set WEB_CLIENT_SECRET in .env}
-      WEB_REDIRECT_URI: ${APP_BASE_URL:?set APP_BASE_URL in .env}/login/oauth2/code/home-inspect
-      WEB_POST_LOGOUT_REDIRECT_URI: ${APP_BASE_URL}/
+      WEB_REDIRECT_URI: ${PUBLIC_URL:?set PUBLIC_URL in .env}/login/oauth2/code/home-inspect
+      WEB_POST_LOGOUT_REDIRECT_URI: ${PUBLIC_URL}/
       ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET:?set ADMIN_API_CLIENT_SECRET in .env}
       AUTH_MFA_ENABLED: ${AUTH_MFA_ENABLED:-false}
       AUTH_MFA_REQUIRED: ${AUTH_MFA_REQUIRED:-false}
@@ -50,10 +48,9 @@ services:
       auth-server:
         condition: service_healthy
     environment:
-      <<: *db-env
-      APP_DB_NAME: ${APP_DB_NAME:-homeinspect_app}
-      APP_DB_USER: ${APP_DB_USER:-homeinspect_app}
-      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      DB_URL: ${APP_DB_URL:-jdbc:postgresql://host.docker.internal:5432/homeinspect_app}
+      DB_USERNAME: ${APP_DB_USERNAME:-homeinspect_app}
+      DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
       AUTH_ISSUER_URI: ${AUTH_ISSUER_URI}
       WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET}
       ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET}

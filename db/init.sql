@@ -8,6 +8,7 @@
 --
 -- Optional variables (defaults shown): auth_db=homeinspect_auth auth_user=homeinspect_auth
 --                                      app_db=homeinspect_app   app_user=homeinspect_app
+-- (database names must match AUTH_DB_URL / APP_DB_URL, users AUTH_DB_USERNAME / APP_DB_USERNAME)
 
 \set ON_ERROR_STOP on
 
