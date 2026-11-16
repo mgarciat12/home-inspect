@@ -1,5 +1,6 @@
 # home-inspect
 
+[![Release](https://img.shields.io/github/v/release/mgarciat12/home-inspect)](https://github.com/mgarciat12/home-inspect/releases)
 ![Java 25](https://img.shields.io/badge/Java-25-007396?logo=openjdk&logoColor=white)
 ![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?logo=springboot&logoColor=white)
 ![Bootstrap 5.3.9](https://img.shields.io/badge/Bootstrap-5.3.9-7952B3?logo=bootstrap&logoColor=white)
@@ -29,6 +30,7 @@ Docker Compose · Testcontainers
 - [Backup y restauración](#backup-y-restauración)
 - [Personalizar el catálogo del informe](#personalizar-el-catálogo-del-informe)
 - [Desarrollo](#desarrollo)
+- [Versiones](#versiones)
 - [Licencia](#licencia)
 
 ## Estado del proyecto
@@ -204,7 +206,7 @@ Flyway crea las tablas al arrancar cada servicio.
 ### 2. Configurar `.env`
 
 ```bash
-git clone https://github.com/mgarciat12/home-inspect.git
+git clone --branch v1.0.0 https://github.com/mgarciat12/home-inspect.git
 cd home-inspect
 cp .env.example .env
 ```
@@ -289,10 +291,11 @@ docker compose logs -f app
 
 `app` espera a que `auth-server` esté *healthy*. Los dos tienen `restart: unless-stopped`.
 
-**Actualizar** a una versión nueva:
+**Actualizar** a una versión nueva (haz antes un [backup](#backup-y-restauración)):
 
 ```bash
-git pull
+git fetch --tags
+git checkout v1.x.y
 docker compose up -d --build   # Flyway aplica las migraciones
 ```
 
@@ -473,6 +476,15 @@ home-inspect/
 
 Todos los textos de la interfaz están en `messages.properties`. Para traducirla, añade
 `messages_en.properties` y cambia `spring.web.locale-resolver` a `accept-header` en `application.yml`.
+
+## Versiones
+
+Las versiones siguen [Semantic Versioning](https://semver.org). Cada versión es un tag `vX.Y.Z` con sus
+notas y los jars de los dos servicios en la página de [Releases](https://github.com/mgarciat12/home-inspect/releases).
+
+| Versión | Novedades |
+|---------|-----------|
+| [v1.0.0](https://github.com/mgarciat12/home-inspect/releases/tag/v1.0.0) | Primera versión: servidor de acceso OAuth2/OIDC con 2FA opcional, informes según el SOP con editor y autoguardado, fotos, resumen de hallazgos, PDF y despliegue con Docker |
 
 ## Licencia
 
