@@ -181,6 +181,19 @@ public class PhotoService {
         return result;
     }
 
+    /** Files of every photo of a report, by photo id (PDF generation; access checked by the caller). */
+    @Transactional(readOnly = true)
+    public Map<Long, Path> files(long reportId, Variant variant) {
+        Map<Long, Path> result = new HashMap<>();
+        for (Photo photo : photos.findByReportId(reportId)) {
+            Path path = storage.photo(reportId, variant == Variant.THUMB ? photo.thumbnailFile() : photo.optimizedFile());
+            if (path.toFile().isFile()) {
+                result.put(photo.getId(), path);
+            }
+        }
+        return result;
+    }
+
     /** Removes the photo directory once the report deletion is committed. */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     void onReportDeleted(ReportDeleted event) {

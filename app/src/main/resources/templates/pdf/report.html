@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<!--/* Print template rendered by OpenHTMLtoPDF: must stay well-formed XHTML (close every tag, <img/>, <br/>),
+       CSS 2.1 + paged media only (tables instead of flex / grid). Images come as file: URIs from PdfService. */-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="#{doc.title} + ' ' + ${doc.number}">Informe</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 24mm 16mm 20mm 16mm;
+            @top-center { content: element(header); }
+            @bottom-center { content: element(footer); }
+        }
+        @page :first {
+            @top-center { content: none; }
+        }
+        body {
+            font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif;
+            font-size: 9.5pt;
+            line-height: 1.4;
+            color: #1f2933;
+        }
+        .running-header { position: running(header); width: 100%; font-size: 8pt; color: #52606d;
+            border-bottom: 0.5pt solid #cbd2d9; padding-bottom: 2mm; }
+        .running-footer { position: running(footer); width: 100%; font-size: 7.5pt; color: #7b8794;
+            border-top: 0.5pt solid #cbd2d9; padding-top: 2mm; }
+        .running-header table, .running-footer table { width: 100%; border-collapse: collapse; }
+        .pageno::before { content: counter(page); }
+        .pages::before { content: counter(pages); }
+        .right { text-align: right; }
+        .muted { color: #7b8794; }
+        .mono { font-family: 'DejaVu Sans Mono', Courier, monospace; }
+        .pre { white-space: pre-line; }
+
+        h1 { font-size: 24pt; font-weight: bold; margin: 0 0 2mm 0; color: #0f766e; }
+        h2 { font-size: 13pt; font-weight: bold; color: #0f766e; border-bottom: 1.2pt solid #0f766e;
+            padding-bottom: 1.5mm; margin: 8mm 0 4mm 0; page-break-after: avoid; }
+        h3 { font-size: 10.5pt; margin: 0; page-break-after: avoid; }
+
+        /* Cover */
+        .cover { page-break-after: always; }
+        .cover-brand { width: 100%; border-collapse: collapse; margin-bottom: 18mm; }
+        .cover-brand td { vertical-align: top; }
+        .logo { max-height: 18mm; max-width: 60mm; }
+        .company-name { font-size: 12pt; font-weight: bold; }
+        .cover-address { font-size: 13pt; margin: 0 0 8mm 0; color: #3e4c59; }
+        .cover-photo { width: 100%; max-height: 105mm; margin-bottom: 8mm; }
+        .facts { width: 100%; border-collapse: collapse; }
+        .facts th { text-align: left; width: 38%; color: #52606d; font-weight: normal; padding: 1.8mm 0;
+            border-bottom: 0.5pt solid #e4e7eb; }
+        .facts td { padding: 1.8mm 0; border-bottom: 0.5pt solid #e4e7eb; font-weight: bold; }
+
+        /* Ratings */
+        .rating { display: inline-block; padding: 0.6mm 2mm; border-radius: 1.2mm; color: #ffffff;
+            font-size: 8pt; font-weight: bold; }
+        .rating-SATISFACTORY { background-color: #15803d; }
+        .rating-MAINTENANCE { background-color: #0369a1; }
+        .rating-REPAIR { background-color: #c2410c; }
+        .rating-SAFETY_HAZARD { background-color: #b91c1c; }
+        .rating-SPECIALIST { background-color: #7e22ce; }
+        .state { display: inline-block; padding: 0.6mm 2mm; border-radius: 1.2mm; font-size: 8pt;
+            border: 0.5pt solid #9aa5b1; color: #52606d; }
+        .legend { width: 100%; border-collapse: collapse; }
+        .legend td { padding: 1.5mm 2mm 1.5mm 0; vertical-align: top; }
+        .legend td.badge-cell { width: 52mm; }
+
+        /* Summary */
+        .summary-start { page-break-before: always; }
+        .group-title { margin: 5mm 0 2mm 0; }
+        .finding { width: 100%; border-collapse: collapse; margin-bottom: 2mm; page-break-inside: avoid;
+            background-color: #f5f7fa; }
+        .finding td { padding: 2mm; vertical-align: top; }
+        .finding td.bar { width: 1.2mm; padding: 0; }
+        .bar-SAFETY_HAZARD { background-color: #b91c1c; }
+        .bar-REPAIR { background-color: #c2410c; }
+        .bar-SPECIALIST { background-color: #7e22ce; }
+        .bar-MAINTENANCE { background-color: #0369a1; }
+        .finding td.thumb { width: 26mm; }
+        .finding img { width: 24mm; }
+        .finding-label { font-weight: bold; }
+
+        /* General data */
+        .data { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+        .data th { text-align: left; width: 40%; font-weight: normal; color: #52606d; padding: 1.4mm 2mm 1.4mm 0;
+            border-bottom: 0.5pt solid #e4e7eb; vertical-align: top; }
+        .data td { padding: 1.4mm 0; border-bottom: 0.5pt solid #e4e7eb; vertical-align: top; }
+        .two-cols { width: 100%; border-collapse: collapse; }
+        .two-cols > tbody > tr > td { width: 50%; vertical-align: top; }
+        .two-cols > tbody > tr > td.gap { width: 6mm; }
+        .subtitle { font-size: 8pt; text-transform: uppercase; color: #7b8794; letter-spacing: 0.4pt;
+            margin: 0 0 1.5mm 0; }
+
+        /* Sections and items */
+        .sections-start { page-break-before: always; }
+        .section-meta { width: 100%; border-collapse: collapse; margin-bottom: 3mm; font-size: 8.5pt; }
+        .section-meta th { text-align: left; width: 30%; font-weight: normal; color: #52606d; vertical-align: top;
+            padding: 0.8mm 2mm 0.8mm 0; }
+        .item { padding: 3mm 0; border-bottom: 0.5pt solid #e4e7eb; }
+        .item-head { width: 100%; border-collapse: collapse; page-break-inside: avoid; page-break-after: avoid; }
+        .item-head td { vertical-align: middle; }
+        .item-head td.ref { width: 11mm; color: #7b8794; font-size: 8.5pt; }
+        .item-head td.badges { text-align: right; width: 70mm; }
+        .fields { width: 100%; border-collapse: collapse; margin-top: 1.5mm; font-size: 8.5pt; }
+        .fields th { text-align: left; width: 30%; font-weight: normal; color: #52606d; vertical-align: top;
+            padding: 0.6mm 2mm 0.6mm 0; }
+        .fields td { padding: 0.6mm 0; vertical-align: top; }
+        .observations { margin: 1.5mm 0 0 0; }
+        .photos { width: 100%; border-collapse: separate; border-spacing: 0 2.5mm; margin-top: 1mm; }
+        .photos tr { page-break-inside: avoid; }
+        .photos td { width: 50%; vertical-align: top; }
+        .photos td.photo-gap { width: 4mm; }
+        .photos img { width: 100%; max-height: 80mm; }
+        .caption { font-size: 7.5pt; color: #52606d; margin-top: 0.8mm; }
+
+        /* Signature */
+        .signature { margin-top: 10mm; page-break-inside: avoid; }
+        .signature img { max-height: 28mm; max-width: 70mm; }
+        .legal { margin-top: 8mm; font-size: 7.5pt; color: #7b8794; }
+    </style>
+</head>
+<body>
+
+<!-- Running header / footer (repeated on every page) -->
+<div class="running-header">
+    <table><tr>
+        <td th:text="${doc.property.fullAddress()}">Dirección</td>
+        <td class="right"><span th:text="#{report.number}">Nº de informe</span> <span class="mono" th:text="${doc.number}">2026-0001</span></td>
+    </tr></table>
+</div>
+<div class="running-footer">
+    <table><tr>
+        <td>
+            <span th:text="${doc.company.name} ?: 'home-inspect'">Empresa</span>
+            <span th:if="${doc.company.phone}" th:text="' · ' + ${doc.company.phone}"></span>
+            <span th:if="${doc.company.email}" th:text="' · ' + ${doc.company.email}"></span>
+            <span th:if="${doc.company.website}" th:text="' · ' + ${doc.company.website}"></span>
+        </td>
+        <td class="right"><span th:text="#{pdf.page}">Página</span> <span class="pageno"></span> <span th:text="#{pdf.of}">de</span> <span class="pages"></span></td>
+    </tr></table>
+</div>
+
+<!-- 1. Cover -->
+<div class="cover">
+    <table class="cover-brand"><tr>
+        <td>
+            <img class="logo" th:if="${logoSrc}" th:src="${logoSrc}" alt=""/>
+            <div class="company-name" th:unless="${logoSrc}" th:text="${doc.company.name} ?: 'home-inspect'">Empresa</div>
+            <div class="muted" th:if="${logoSrc != null and doc.company.name != null}" th:text="${doc.company.name}">Empresa</div>
+            <div class="muted" th:if="${doc.company.address}" th:text="${doc.company.address}">Dirección</div>
+            <div class="muted" th:if="${doc.company.taxId}" th:text="${doc.company.taxId}">NIF</div>
+        </td>
+        <td class="right">
+            <div class="muted" th:text="#{report.number}">Nº de informe</div>
+            <div class="mono" style="font-size: 12pt; font-weight: bold;" th:text="${doc.number}">2026-0001</div>
+        </td>
+    </tr></table>
+
+    <h1 th:text="#{doc.title}">Informe de inspección de vivienda</h1>
+    <p class="cover-address" th:text="${doc.property.fullAddress()}">Dirección</p>
+    <img class="cover-photo" th:if="${doc.cover != null and photoSrc[doc.cover.id] != null}" th:src="${photoSrc[doc.cover.id]}" alt=""/>
+
+    <table class="facts">
+        <tr><th th:text="#{doc.date}">Fecha</th><td th:text="${#temporals.format(doc.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</td></tr>
+        <tr><th th:text="#{doc.client}">Cliente</th><td th:text="${doc.client.name} ?: '—'">cliente</td></tr>
+        <tr><th th:text="#{report.inspector}">Inspector</th><td th:text="${doc.inspector.name}">inspector</td></tr>
+        <tr th:if="${doc.status.name() == 'DRAFT'}"><th th:text="#{pdf.status}">Estado</th><td th:text="#{pdf.draft}">Borrador</td></tr>
+    </table>
+</div>
+
+<!-- 2. Scope and limitations -->
+<div th:if="${doc.company.scopeText}">
+    <h2 th:text="#{doc.scope}">Alcance y limitaciones</h2>
+    <p class="pre" th:text="${doc.company.scopeText}">Texto</p>
+</div>
+
+<!-- 3. Legend -->
+<h2 th:text="#{doc.legend}">Leyenda de valoraciones</h2>
+<table class="legend">
+    <tr th:each="rt : ${ratings}">
+        <td class="badge-cell"><span class="rating" th:classappend="'rating-' + ${rt}" th:text="#{'enum.Rating.' + ${rt}}">Correcto</span></td>
+        <td th:text="#{'doc.legend.' + ${rt}}">Descripción</td>
+    </tr>
+</table>
+
+<!-- 4. Findings summary -->
+<div class="summary-start">
+    <h2><span th:text="#{doc.summary}">Resumen de hallazgos</span> (<span th:text="${doc.findingCount()}">0</span>)</h2>
+    <p class="muted" th:if="${#lists.isEmpty(doc.findings)}" th:text="#{doc.summary.none}">Sin hallazgos.</p>
+    <div th:each="group : ${doc.findings}">
+        <div class="group-title">
+            <span class="rating" th:classappend="'rating-' + ${group.rating}" th:text="#{'enum.Rating.' + ${group.rating}}">Peligro</span>
+            <span class="muted" th:text="#{doc.summary.count(${#lists.size(group.findings)})}">2 elementos</span>
+        </div>
+        <table class="finding" th:each="f : ${group.findings}"><tr>
+            <td class="bar" th:classappend="'bar-' + ${group.rating}"></td>
+            <td class="thumb" th:if="${f.photo != null and thumbSrc[f.photo.id] != null}"><img th:src="${thumbSrc[f.photo.id]}" alt=""/></td>
+            <td>
+                <div class="finding-label" th:text="${f.label()}">1.2 Tejado › Canalones</div>
+                <div th:if="${f.excerpt}" th:text="${f.excerpt}">Observación</div>
+                <div class="muted" th:if="${f.recommendation}">
+                    <span th:text="#{item.recommendation}">Recomendación</span>: <span th:text="#{'enum.Recommendation.' + ${f.recommendation}}">Reparar</span>
+                </div>
+            </td>
+        </tr></table>
+    </div>
+</div>
+
+<!-- 5. General data -->
+<h2 th:text="#{doc.general}">Datos generales</h2>
+<table class="two-cols"><tr>
+    <td>
+        <p class="subtitle" th:text="#{report.header.property}">Inmueble</p>
+        <table class="data">
+            <tr><th th:text="#{report.address}">Dirección</th><td th:text="${doc.property.fullAddress()}"></td></tr>
+            <tr><th th:text="#{report.propertyType}">Tipo</th><td th:text="${doc.property.type} ? #{'enum.PropertyType.' + ${doc.property.type}} : '—'"></td></tr>
+            <tr><th th:text="#{report.yearBuilt}">Año</th><td th:text="${doc.property.yearBuilt} ?: '—'"></td></tr>
+            <tr><th th:text="#{report.areaM2}">m²</th><td th:text="${doc.property.areaM2} ? ${#numbers.formatDecimal(doc.property.areaM2, 1, 'POINT', 0, 'COMMA')} : '—'"></td></tr>
+            <tr><th th:text="#{report.floors}">Plantas</th><td th:text="${doc.property.floors} ?: '—'"></td></tr>
+            <tr><th th:text="#{report.occupancy}">Ocupación</th><td th:text="${doc.property.occupancy} ? #{'enum.Occupancy.' + ${doc.property.occupancy}} : '—'"></td></tr>
+            <tr><th th:text="#{report.peoplePresent}">Presentes</th><td th:text="${doc.property.peoplePresent} ?: '—'"></td></tr>
+        </table>
+    </td>
+    <td class="gap"></td>
+    <td>
+        <p class="subtitle" th:text="#{report.header.client}">Cliente</p>
+        <table class="data">
+            <tr><th th:text="#{report.clientName}">Nombre</th><td th:text="${doc.client.name} ?: '—'"></td></tr>
+            <tr><th th:text="#{report.clientEmail}">Email</th><td th:text="${doc.client.email} ?: '—'"></td></tr>
+            <tr><th th:text="#{report.clientPhone}">Teléfono</th><td th:text="${doc.client.phone} ?: '—'"></td></tr>
+        </table>
+        <p class="subtitle" th:text="#{report.header.conditions}">Condiciones</p>
+        <table class="data">
+            <tr><th th:text="#{report.inspectedAt}">Fecha</th><td th:text="${#temporals.format(doc.inspectedAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+            <tr><th th:text="#{report.weather}">Tiempo</th><td th:text="${doc.conditions.weather} ? #{'enum.Weather.' + ${doc.conditions.weather}} : '—'"></td></tr>
+            <tr><th th:text="#{report.temperatureC}">Temperatura</th><td th:text="${doc.conditions.temperatureC} ? ${#numbers.formatDecimal(doc.conditions.temperatureC, 1, 'POINT', 1, 'COMMA')} + ' ºC' : '—'"></td></tr>
+            <tr><th th:text="#{report.soilCondition}">Suelo</th><td th:text="${doc.conditions.soil} ? #{'enum.SoilCondition.' + ${doc.conditions.soil}} : '—'"></td></tr>
+        </table>
+    </td>
+</tr></table>
+
+<!-- 6. Detailed sections -->
+<div class="sections-start">
+    <div th:each="s : ${doc.sections}">
+        <h2 th:text="${s.number} + '. ' + ${s.title}">1. Tejado</h2>
+        <p class="muted" th:if="${s.notApplicable}" th:text="#{doc.section.na}">No aplica.</p>
+        <div th:unless="${s.notApplicable}">
+            <table class="section-meta" th:if="${s.inspectionMethod != null or s.generalLimitations != null}">
+                <tr th:if="${s.inspectionMethod}"><th th:text="#{report.section.method}">Método</th><td th:text="${s.inspectionMethod}"></td></tr>
+                <tr th:if="${s.generalLimitations}"><th th:text="#{report.section.limitations}">Limitaciones</th><td class="pre" th:text="${s.generalLimitations}"></td></tr>
+            </table>
+            <p class="pre" th:if="${s.generalComments}" th:text="${s.generalComments}">Comentarios</p>
+
+            <div class="item" th:each="it : ${s.items}">
+                <table class="item-head"><tr>
+                    <td class="ref mono" th:text="${it.reference}">1.1</td>
+                    <td><h3 th:text="${it.title}">Cubierta</h3></td>
+                    <td class="badges">
+                        <span class="rating" th:if="${it.rating}" th:classappend="'rating-' + ${it.rating}" th:text="#{'enum.Rating.' + ${it.rating}}">Reparar</span>
+                        <span class="state" th:if="${it.status != null and it.status.name() != 'INSPECTED'}" th:text="#{'enum.ItemStatus.' + ${it.status}}">No presente</span>
+                        <span class="state" th:if="${it.status == null}" th:text="#{doc.item.pending}">Sin completar</span>
+                    </td>
+                </tr></table>
+                <table class="fields" th:if="${!#lists.isEmpty(it.allMaterials()) or !#lists.isEmpty(it.limitations) or it.limitationText != null or it.recommendation != null or it.recommendationText != null}">
+                    <tr th:unless="${#lists.isEmpty(it.allMaterials())}">
+                        <th th:text="#{item.materials}">Material</th><td th:text="${#strings.listJoin(it.allMaterials(), ', ')}"></td>
+                    </tr>
+                    <tr th:if="${!#lists.isEmpty(it.limitations) or it.limitationText != null}">
+                        <th th:text="#{item.limitations}">Limitaciones</th>
+                        <td><span th:text="${#strings.listJoin(it.limitations, ', ')}"></span><span th:if="${!#lists.isEmpty(it.limitations) and it.limitationText != null}">. </span><span th:text="${it.limitationText}"></span></td>
+                    </tr>
+                    <tr th:if="${it.recommendation != null or it.recommendationText != null}">
+                        <th th:text="#{item.recommendation}">Recomendación</th>
+                        <td><span th:if="${it.recommendation}" th:text="#{'enum.Recommendation.' + ${it.recommendation}}"></span><span th:if="${it.recommendation != null and it.recommendationText != null}">. </span><span th:text="${it.recommendationText}"></span></td>
+                    </tr>
+                </table>
+                <p class="observations pre" th:if="${it.observations}" th:text="${it.observations}">Observaciones</p>
+
+                <!-- Photos: grid of 2 columns -->
+                <table class="photos" th:unless="${#lists.isEmpty(it.photos)}">
+                    <tr th:each="row : ${#numbers.sequence(0, (#lists.size(it.photos) - 1) / 2)}">
+                        <th:block th:with="left=${it.photos[row * 2]}, right=${row * 2 + 1 < #lists.size(it.photos)} ? ${it.photos[row * 2 + 1]} : null">
+                            <td>
+                                <img th:if="${photoSrc[left.id]}" th:src="${photoSrc[left.id]}" alt=""/>
+                                <div class="caption" th:if="${left.caption}" th:text="${left.caption}">Pie</div>
+                            </td>
+                            <td class="photo-gap"></td>
+                            <td>
+                                <th:block th:if="${right}">
+                                    <img th:if="${photoSrc[right.id]}" th:src="${photoSrc[right.id]}" alt=""/>
+                                    <div class="caption" th:if="${right.caption}" th:text="${right.caption}">Pie</div>
+                                </th:block>
+                            </td>
+                        </th:block>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 7. Signature -->
+<div class="signature">
+    <p class="muted" th:text="#{doc.signature.text}">Firmado por el inspector.</p>
+    <img th:if="${signatureSrc}" th:src="${signatureSrc}" alt=""/>
+    <div style="font-weight: bold;" th:text="${doc.inspector.name}">Inspector</div>
+    <div class="muted" th:text="${#temporals.format(doc.finalizedAt ?: doc.inspectedAt, 'dd/MM/yyyy')}">fecha</div>
+</div>
+
+<div class="legal pre" th:if="${doc.company.legalText}" th:text="${doc.company.legalText}">Texto legal</div>
+
+</body>
+</html>

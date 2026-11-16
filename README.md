@@ -43,7 +43,7 @@ El desarrollo va por fases:
 | 4 | Modelo del informe, catálogo del SOP y editor con autoguardado | ✅ |
 | 5 | Subida y gestión de fotos, firma del inspector | ✅ |
 | 6 | Resumen automático de hallazgos y vista previa | ✅ |
-| 7 | Exportación a PDF | ⏳ |
+| 7 | Exportación a PDF | ✅ |
 | 8 | Ajustes de empresa, biblioteca de comentarios editable, MFA opcional, repaso de seguridad | ⏳ |
 
 ## Funcionalidades
@@ -84,6 +84,13 @@ El desarrollo va por fases:
   y una miniatura. Las secciones marcadas como «no aplica» no se incluyen.
 - **Vista previa** en HTML con la misma estructura que el PDF: portada, alcance y limitaciones, leyenda,
   resumen, datos generales, secciones detalladas con fotos y firma.
+
+**PDF**
+- Se genera con OpenHTMLtoPDF a partir de una plantilla Thymeleaf de impresión (`templates/pdf/report.html`).
+- A4, cabecera con dirección y nº de informe en cada página, pie con los datos de la empresa y «Página X de Y».
+- Fotos en cuadrícula de 2 columnas con su pie, usando la versión optimizada (el PDF ocupa poco).
+- Fuentes DejaVu incrustadas: cualquier acento o símbolo se ve igual en todos los visores.
+- Nombre del archivo: `informe-<nº>-<calle>.pdf`. Se descarga desde la vista del informe o la vista previa.
 - Modo claro, oscuro o automático.
 
 ## Arquitectura

@@ -15,8 +15,9 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -q -pl app -am package -DskipTest
 # ---- runtime ----
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /opt/home-inspect
-# heif-thumbnailer converts HEIC photos (iPhone) to PNG before processing
-RUN apk add --no-cache libheif-tools libheif-libde265
+# heif-thumbnailer converts HEIC photos (iPhone) to PNG before processing;
+# DejaVu fonts are embedded in the PDF (full accent / symbol coverage)
+RUN apk add --no-cache libheif-tools libheif-libde265 font-dejavu
 RUN addgroup -S homeinspect && adduser -S -G homeinspect -u 1001 homeinspect
 RUN mkdir -p /data/uploads && chown homeinspect:homeinspect /data/uploads
 COPY --from=build /workspace/application.jar application.jar

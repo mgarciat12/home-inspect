@@ -85,3 +85,6 @@ home-inspect:
     jpeg-quality: 0.85
     # Command used to convert HEIC to PNG (installed in the Docker image); empty = HEIC rejected
     heic-command: ${HEIC_COMMAND:heif-thumbnailer}
+  pdf:
+    # TTF fonts embedded in the PDF (DejaVu, installed in the Docker image); Helvetica if missing
+    font-dir: ${PDF_FONT_DIR:/usr/share/fonts/dejavu}

@@ -4,3 +4,6 @@ home-inspect:
   photos:
     # No libheif in the build container: HEIC is rejected with a clear message
     heic-command: ""
+  pdf:
+    # DejaVu path in the maven:eclipse-temurin build image
+    font-dir: /usr/share/fonts/truetype/dejavu

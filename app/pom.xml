@@ -72,6 +72,12 @@
             <artifactId>imageio-jpeg</artifactId>
         </dependency>
 
+        <!-- PDF from an XHTML Thymeleaf template -->
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+        </dependency>
+
         <!-- Persistence -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
