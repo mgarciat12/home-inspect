@@ -50,7 +50,7 @@ class AdminUsersWebTests {
 
     static RemoteUser remote(long id, String username, Role role, boolean enabled) {
         return new RemoteUser(id, username, "Name " + username, username + "@example.test", role, enabled,
-                false, false, null, Instant.now());
+                false, false, null, false, Instant.now());
     }
 
     @Test

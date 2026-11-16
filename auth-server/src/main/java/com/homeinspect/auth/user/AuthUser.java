@@ -54,6 +54,16 @@ public class AuthUser {
     @Column(name = "locked_until")
     private Instant lockedUntil;
 
+    /** TOTP secret, encrypted (see TotpService). */
+    @Column(name = "totp_secret")
+    private String totpSecret;
+
+    @Column(name = "totp_enabled")
+    private boolean totpEnabled;
+
+    @Column(name = "totp_last_step")
+    private Long totpLastStep;
+
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 

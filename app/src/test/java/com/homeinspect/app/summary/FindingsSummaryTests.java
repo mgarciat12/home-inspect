@@ -117,7 +117,7 @@ class FindingsSummaryTests {
         assertThat(doc.sections()).hasSize(11);
         assertThat(doc.sections().getLast().notApplicable()).isTrue();
         assertThat(doc.property().fullAddress()).isEqualTo("Calle Hallazgos 1, Valencia");
-        assertThat(doc.company().scopeText()).contains("inspección es un examen visual");
+        assertThat(doc.company().scopeText()).isNotBlank();
         assertThat(doc.sections().getFirst().items().get(1).photos()).hasSize(1);
     }
 

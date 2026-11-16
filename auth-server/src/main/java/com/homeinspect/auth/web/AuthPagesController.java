@@ -9,9 +9,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,7 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 class AuthPagesController {
 
     private final AuthUserService users;
-    private final RequestCache requestCache = new HttpSessionRequestCache();
+    private final LoginFlow flow;
+    private final com.homeinspect.auth.mfa.TotpService totp;
 
     @GetMapping("/login")
     String login() {
@@ -33,18 +31,21 @@ class AuthPagesController {
     }
 
     @GetMapping("/")
-    String home() {
+    String home(Authentication authentication, Model model) {
+        model.addAttribute("mfaActive", totp.active());
+        model.addAttribute("mfaRequired", totp.required());
+        model.addAttribute("mfaEnabled", totp.isEnabled(authentication.getName()));
         return "index";
     }
 
-    @GetMapping(PasswordChangeRequiredFilter.CHANGE_PATH)
+    @GetMapping("/password/change")
     String changePasswordForm(@ModelAttribute("form") ChangePasswordForm form, HttpSession session, Model model) {
         model.addAttribute("required", isRequired(session));
         model.addAttribute("minLength", PasswordPolicy.MIN_LENGTH);
         return "password-change";
     }
 
-    @PostMapping(PasswordChangeRequiredFilter.CHANGE_PATH)
+    @PostMapping("/password/change")
     String changePassword(@Valid @ModelAttribute("form") ChangePasswordForm form, BindingResult result,
                           Authentication authentication, HttpServletRequest request, HttpServletResponse response,
                           Model model) {
@@ -64,17 +65,14 @@ class AuthPagesController {
             result.rejectValue(field, e.code());
             return "password-change";
         }
-        session.removeAttribute(PasswordChangeRequiredFilter.SESSION_ATTRIBUTE);
-        // Resume the original request (e.g. the OAuth2 authorization of the app)
-        SavedRequest saved = requestCache.getRequest(request, response);
-        if (saved != null) {
-            requestCache.removeRequest(request, response);
-            return "redirect:" + saved.getRedirectUrl();
+        if (isRequired(session)) {
+            // Next pending step, or back to the original request (e.g. the OAuth2 authorization of the app)
+            return "redirect:" + flow.proceed(request, response, authentication.getName());
         }
         return "redirect:/?passwordChanged";
     }
 
     private static boolean isRequired(HttpSession session) {
-        return Boolean.TRUE.equals(session.getAttribute(PasswordChangeRequiredFilter.SESSION_ATTRIBUTE));
+        return session.getAttribute(LoginStepFilter.SESSION_ATTRIBUTE) == LoginStep.PASSWORD_CHANGE;
     }
 }

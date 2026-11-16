@@ -36,6 +36,7 @@
                             <span class="badge text-bg-danger ms-1" th:unless="${user.enabled}" th:text="#{admin.user.state.disabled}">Desactivado</span>
                             <span class="badge text-bg-warning ms-1" th:if="${user.locked}" th:text="#{admin.user.state.locked}">Bloqueado</span>
                             <span class="badge text-bg-info ms-1" th:if="${user.mustChangePassword}" th:text="#{admin.user.state.temporary}">Contraseña temporal</span>
+                            <span class="badge text-bg-light border ms-1" th:if="${user.mfaEnabled}"><i class="bi bi-shield-check me-1"></i><span th:text="#{admin.user.state.mfa}">2FA</span></span>
                         </div>
                         <div class="small text-body-secondary text-truncate">
                             <span class="font-monospace" th:text="${user.username}">usuario</span>
@@ -50,6 +51,12 @@
                               th:attr="data-confirm=#{admin.user.passwordReset.confirm(${user.username})}">
                             <button type="submit" class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-key"></i><span class="ms-1" th:text="#{admin.user.passwordReset.action}">Resetear contraseña</span>
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/users/{id}/mfa-reset(id=${user.id})}" method="post" th:if="${user.mfaEnabled}"
+                              th:attr="data-confirm=#{admin.user.mfaReset.confirm(${user.username})}">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-shield-x"></i><span class="ms-1" th:text="#{admin.user.mfaReset.action}">Quitar 2FA</span>
                             </button>
                         </form>
                         <form th:action="@{/admin/users/{id}/enabled(id=${user.id})}" method="post" th:unless="${user.username == me}">

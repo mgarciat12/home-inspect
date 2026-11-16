@@ -61,6 +61,21 @@ class HomeInspectApplicationTests {
     }
 
     @Test
+    void securityHeaders() throws Exception {
+        mvc.perform(get("/reports").with(users.login("home.headers", Role.INSPECTOR)))
+                .andExpect(header().string("Content-Security-Policy", containsString("script-src 'self';")))
+                .andExpect(header().string("X-Content-Type-Options", "nosniff"))
+                .andExpect(header().exists("X-Frame-Options"))
+                .andExpect(header().string("Cache-Control", containsString("no-store")));
+    }
+
+    @Test
+    void onlyTheHealthEndpointOfActuatorIsExposed() throws Exception {
+        mvc.perform(get("/actuator/env").with(users.login("home.actuator", Role.ADMIN))).andExpect(status().isNotFound());
+        mvc.perform(get("/actuator/health")).andExpect(content().string(org.hamcrest.Matchers.not(containsString("components"))));
+    }
+
+    @Test
     void healthIsPublic() throws Exception {
         mvc.perform(get("/actuator/health")).andExpect(status().isOk());
     }

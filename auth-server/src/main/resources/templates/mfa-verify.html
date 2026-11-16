@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{mfa.verify.title})}"></head>
+<body class="auth-bg">
+<div class="position-absolute top-0 end-0 p-3"><div th:replace="~{fragments/layout :: themeSelector}"></div></div>
+<main class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">
+    <div th:replace="~{fragments/layout :: brand}"></div>
+    <div class="card auth-card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h2 class="h5 mb-2" th:text="#{mfa.verify.title}">Verificación en dos pasos</h2>
+            <p class="small text-body-secondary" th:text="#{mfa.verify.text}">Introduce el código.</p>
+            <div class="alert alert-danger d-flex gap-2" role="alert" th:if="${error}">
+                <i class="bi bi-exclamation-triangle-fill"></i><span th:text="#{mfa.error.code}">Código incorrecto.</span>
+            </div>
+            <form th:action="@{/mfa/verify}" method="post">
+                <input type="text" name="code" class="form-control form-control-lg text-center font-monospace mb-3"
+                       inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" required autofocus
+                       th:aria-label="#{mfa.code}" placeholder="000000">
+                <button type="submit" class="btn btn-primary btn-lg w-100" th:text="#{mfa.verify.submit}">Verificar</button>
+            </form>
+            <form th:action="@{/logout}" method="post" class="mt-3 text-center">
+                <button type="submit" class="btn btn-link btn-sm text-body-secondary" th:text="#{action.logout}">Cerrar sesión</button>
+            </form>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

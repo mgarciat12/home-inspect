@@ -27,6 +27,14 @@ public class ActiveUserFilter extends OncePerRequestFilter {
         this.profiles = profiles;
     }
 
+    /** Static resources do not need the database check. */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        return path.startsWith("/css/") || path.startsWith("/js/") || path.startsWith("/webjars/")
+                || path.startsWith("/img/") || path.equals("/favicon.ico");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {

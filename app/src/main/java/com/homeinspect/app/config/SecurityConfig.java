@@ -57,7 +57,7 @@ class SecurityConfig {
                 .addFilterBefore(new ActiveUserFilter(profiles), AuthorizationFilter.class)
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
-                                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+                                "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
                                         + "img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'self'"))
                         .referrerPolicy(referrer -> referrer.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)));

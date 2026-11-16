@@ -62,6 +62,10 @@ public class AdminUserService {
         return client.resetPassword(id);
     }
 
+    public RemoteUser resetMfa(long id) {
+        return client.resetMfa(id);
+    }
+
     private static boolean isSelf(RemoteUser user, CurrentUser admin) {
         return user.username().equals(admin.subject());
     }

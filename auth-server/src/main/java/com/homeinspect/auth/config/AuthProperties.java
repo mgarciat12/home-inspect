@@ -19,7 +19,8 @@ public record AuthProperties(
         Keys keys,
         Admin admin,
         Clients clients,
-        Lockout lockout) {
+        Lockout lockout,
+        Mfa mfa) {
 
     /** JWT signing keys, persisted in a directory (Docker volume). */
     public record Keys(Path dir, String password) {
@@ -38,6 +39,18 @@ public record AuthProperties(
 
     /** {@code home-inspect-admin-api}: client credentials, scope users.admin. */
     public record AdminApiClient(String secret) {
+    }
+
+    /**
+     * Two-step verification with an authenticator app (TOTP). {@code enabled}: users can activate it
+     * and it is asked to those who did; {@code required}: every user must set it up at next login.
+     */
+    public record Mfa(@DefaultValue("false") boolean enabled, @DefaultValue("false") boolean required,
+                      @DefaultValue("home-inspect") String issuerName) {
+
+        public boolean active() {
+            return enabled || required;
+        }
     }
 
     /** Temporary lock after too many failed logins. */

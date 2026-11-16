@@ -1,42 +1,33 @@
 package com.homeinspect.auth.web;
 
-import com.homeinspect.auth.user.AuthUser;
-import com.homeinspect.auth.user.AuthUserService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 /**
- * After a successful login, users with a temporary password are sent to the password change page;
- * the original request (usually the OAuth2 authorization request) is kept and resumed afterwards.
+ * After the password: continues with the pending steps (two-step code, password change...) or
+ * resumes the original request, which is kept meanwhile.
  */
 @Component
-public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+@RequiredArgsConstructor
+public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final AuthUserService users;
-
-    LoginSuccessHandler(AuthUserService users) {
-        this.users = users;
-        setDefaultTargetUrl("/");
-    }
+    private final LoginFlow flow;
+    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws ServletException, IOException {
-        boolean mustChange = users.findByUsername(authentication.getName())
-                .map(AuthUser::isMustChangePassword)
-                .orElse(false);
-        if (mustChange) {
-            request.getSession().setAttribute(PasswordChangeRequiredFilter.SESSION_ATTRIBUTE, Boolean.TRUE);
-            clearAuthenticationAttributes(request);
-            getRedirectStrategy().sendRedirect(request, response, PasswordChangeRequiredFilter.CHANGE_PATH);
-            return;
-        }
-        super.onAuthenticationSuccess(request, response, authentication);
+                                        Authentication authentication) throws IOException {
+        request.getSession().removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+        flow.startLogin(request.getSession());
+        redirectStrategy.sendRedirect(request, response, flow.proceed(request, response, authentication.getName()));
     }
 }

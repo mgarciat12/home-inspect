@@ -127,6 +127,17 @@ class AdminUserController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/{id}/mfa-reset")
+    String resetMfa(@PathVariable long id, RedirectAttributes redirect) {
+        try {
+            users.resetMfa(id);
+            redirect.addFlashAttribute("message", message("admin.user.mfaReset"));
+        } catch (AdminApiException e) {
+            redirect.addFlashAttribute("error", message(e.code()));
+        }
+        return "redirect:/admin/users";
+    }
+
     /** API errors while loading a page (e.g. unknown user): back to the list with the message. */
     @org.springframework.web.bind.annotation.ExceptionHandler(AdminApiException.class)
     String apiError(AdminApiException e, RedirectAttributes redirect) {

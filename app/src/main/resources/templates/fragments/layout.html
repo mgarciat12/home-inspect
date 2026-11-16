@@ -6,15 +6,7 @@
     <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
     <title th:text="${title} + ' · home-inspect'">home-inspect</title>
-    <script>
-        // Apply the saved (or system) color mode before the page paints
-        (function () {
-            var mode = null;
-            try { mode = localStorage.getItem('hi-theme'); } catch (e) { }
-            if (!mode || mode === 'auto') mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-bs-theme', mode);
-        })();
-    </script>
+    <script th:src="@{/js/theme-init.js}"></script>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
     <link rel="stylesheet" th:href="@{/css/app.css}">

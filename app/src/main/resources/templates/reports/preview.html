@@ -20,6 +20,7 @@
         <section class="doc-cover">
             <div class="d-flex flex-wrap justify-content-between gap-2 mb-4">
                 <div>
+                    <img class="doc-logo mb-1" th:if="${doc.company.hasLogo}" th:src="@{/settings/logo}" alt="">
                     <div class="fw-semibold" th:text="${doc.company.name} ?: 'home-inspect'">Empresa</div>
                     <div class="small text-body-secondary" th:if="${doc.company.phone != null or doc.company.email != null}">
                         <span th:text="${doc.company.phone}"></span><span th:if="${doc.company.phone != null and doc.company.email != null}"> · </span><span th:text="${doc.company.email}"></span>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{comments.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4" style="max-width: 56rem">
+    <h1 class="h3 mb-1" th:text="#{comments.title}">Biblioteca de comentarios</h1>
+    <p class="text-body-secondary" th:text="#{comments.lead}">Frases que se insertan con un clic.</p>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form th:action="@{/admin/comments}" method="get" class="mb-3">
+        <label class="form-label small text-body-secondary" for="section" th:text="#{report.section.choose}">Sección</label>
+        <select class="form-select form-select-lg" id="section" name="section" data-autosubmit>
+            <option th:each="s : ${sections}" th:value="${s.code}" th:selected="${s.code == current}" th:text="${s.number} + '. ' + ${s.title}">1. Tejado</option>
+        </select>
+        <noscript><button type="submit" class="btn btn-outline-primary mt-2" th:text="#{action.search}">Ver</button></noscript>
+    </form>
+
+    <div class="card border-0 shadow-sm mb-3" th:each="item : ${items}" th:id="'item-' + ${item.itemId}">
+        <div class="card-body">
+            <h2 class="h6 mb-3"><span class="font-monospace text-body-secondary me-2" th:text="${item.reference}">1.1</span><span th:text="${item.title}">Cubierta</span></h2>
+            <div class="mb-3" th:each="c, st : ${item.comments}">
+                <form th:action="@{/admin/comments/{id}(id=${c.id})}" method="post">
+                    <input type="hidden" name="itemId" th:value="${item.itemId}">
+                    <textarea class="form-control mb-1" name="text" rows="2" maxlength="2000" required th:text="${c.text}" th:aria-label="#{comments.text}"></textarea>
+                    <div class="d-flex flex-wrap gap-1">
+                        <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-check2"></i><span class="ms-1" th:text="#{action.save}">Guardar</span></button>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" formnovalidate th:formaction="@{/admin/comments/{id}/move(id=${c.id},up=true)}" th:disabled="${st.first}" th:title="#{photo.moveLeft}"><i class="bi bi-arrow-up"></i></button>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" formnovalidate th:formaction="@{/admin/comments/{id}/move(id=${c.id},up=false)}" th:disabled="${st.last}" th:title="#{photo.moveRight}"><i class="bi bi-arrow-down"></i></button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger ms-auto" th:formaction="@{/admin/comments/{id}/delete(id=${c.id})}"
+                                formnovalidate th:attr="data-confirm-click=#{comments.delete.confirm}"><i class="bi bi-trash"></i><span class="ms-1" th:text="#{action.delete}">Eliminar</span></button>
+                    </div>
+                </form>
+            </div>
+            <p class="small text-body-secondary fst-italic" th:if="${#lists.isEmpty(item.comments)}" th:text="#{comments.none}">Sin comentarios.</p>
+            <form th:action="@{/admin/comments}" method="post" class="border-top pt-3">
+                <input type="hidden" name="itemId" th:value="${item.itemId}">
+                <textarea class="form-control mb-1" name="text" rows="2" maxlength="2000" required th:placeholder="#{comments.new}" th:aria-label="#{comments.new}"></textarea>
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i><span th:text="#{comments.add}">Añadir</span></button>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

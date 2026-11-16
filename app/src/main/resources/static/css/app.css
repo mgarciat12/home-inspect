@@ -458,3 +458,8 @@ textarea.form-control {
     .app-navbar, .app-footer { display: none !important; }
     .report-doc { box-shadow: none !important; padding: 0; }
 }
+.doc-logo {
+    display: block;
+    max-height: 3.5rem;
+    max-width: 14rem;
+}

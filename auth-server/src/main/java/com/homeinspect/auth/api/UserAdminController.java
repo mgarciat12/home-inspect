@@ -6,6 +6,7 @@ import com.homeinspect.auth.api.UserDtos.RoleRequest;
 import com.homeinspect.auth.api.UserDtos.UpdateUserRequest;
 import com.homeinspect.auth.api.UserDtos.UserResponse;
 import com.homeinspect.auth.api.UserDtos.UserWithPasswordResponse;
+import com.homeinspect.auth.mfa.TotpService;
 import com.homeinspect.auth.user.AuthUserService;
 import com.homeinspect.auth.user.AuthUserService.NewUser;
 import com.homeinspect.auth.user.AuthUserService.UserChanges;
@@ -35,6 +36,7 @@ import java.util.List;
 class UserAdminController {
 
     private final AuthUserService users;
+    private final TotpService totp;
     private final Clock clock;
 
     @GetMapping
@@ -76,6 +78,14 @@ class UserAdminController {
     @PostMapping("/{id}/password-reset")
     UserWithPasswordResponse resetPassword(@PathVariable long id) {
         return withPassword(users.resetPassword(id));
+    }
+
+    /** Removes the two-step verification of a user (e.g. lost phone); they can set it up again. */
+    @PostMapping("/{id}/mfa-reset")
+    UserResponse resetMfa(@PathVariable long id) {
+        users.get(id); // 404 if unknown
+        totp.reset(id);
+        return UserResponse.of(users.get(id), clock.instant());
     }
 
     private UserWithPasswordResponse withPassword(UserWithPassword result) {

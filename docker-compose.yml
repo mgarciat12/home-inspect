@@ -29,6 +29,8 @@ services:
       WEB_REDIRECT_URI: ${APP_BASE_URL:?set APP_BASE_URL in .env}/login/oauth2/code/home-inspect
       WEB_POST_LOGOUT_REDIRECT_URI: ${APP_BASE_URL}/
       ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET:?set ADMIN_API_CLIENT_SECRET in .env}
+      AUTH_MFA_ENABLED: ${AUTH_MFA_ENABLED:-false}
+      AUTH_MFA_REQUIRED: ${AUTH_MFA_REQUIRED:-false}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
       TZ: ${TZ:-Europe/Madrid}
     ports:

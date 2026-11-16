@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{mfa.setup.title})}"></head>
+<body class="auth-bg">
+<div class="position-absolute top-0 end-0 p-3"><div th:replace="~{fragments/layout :: themeSelector}"></div></div>
+<main class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">
+    <div th:replace="~{fragments/layout :: brand}"></div>
+    <div class="card auth-card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h2 class="h5 mb-2" th:text="#{mfa.setup.title}">Activar verificación en dos pasos</h2>
+            <div class="alert alert-info small" th:if="${required}" th:text="#{mfa.setup.required}">Obligatorio.</div>
+            <ol class="small ps-3">
+                <li th:text="#{mfa.setup.step1}">Instala una app de autenticación.</li>
+                <li th:text="#{mfa.setup.step2}">Escanea el código QR.</li>
+                <li th:text="#{mfa.setup.step3}">Escribe el código de 6 cifras.</li>
+            </ol>
+            <div class="text-center mb-3">
+                <img class="bg-white p-2 rounded border" th:src="@{/mfa/setup/qr}" width="220" height="220" th:alt="#{mfa.setup.qr}">
+            </div>
+            <p class="small text-body-secondary mb-1" th:text="#{mfa.setup.manual}">O introduce esta clave:</p>
+            <p class="font-monospace text-center fw-semibold user-select-all" th:text="${secret}">ABCD EFGH</p>
+            <div class="alert alert-danger" role="alert" th:if="${error}" th:text="#{mfa.error.code}">Código incorrecto.</div>
+            <form th:action="@{/mfa/setup}" method="post">
+                <input type="text" name="code" class="form-control form-control-lg text-center font-monospace mb-3"
+                       inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" required
+                       th:aria-label="#{mfa.code}" placeholder="000000">
+                <button type="submit" class="btn btn-primary btn-lg w-100" th:text="#{mfa.setup.submit}">Activar</button>
+            </form>
+            <div class="text-center mt-3">
+                <a class="btn btn-link btn-sm text-body-secondary" th:unless="${required}" th:href="@{/}" th:text="#{action.cancel}">Cancelar</a>
+                <form th:action="@{/logout}" method="post" th:if="${required}">
+                    <button type="submit" class="btn btn-link btn-sm text-body-secondary" th:text="#{action.logout}">Cerrar sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

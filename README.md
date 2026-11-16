@@ -44,7 +44,7 @@ El desarrollo va por fases:
 | 5 | Subida y gestión de fotos, firma del inspector | ✅ |
 | 6 | Resumen automático de hallazgos y vista previa | ✅ |
 | 7 | Exportación a PDF | ✅ |
-| 8 | Ajustes de empresa, biblioteca de comentarios editable, MFA opcional, repaso de seguridad | ⏳ |
+| 8 | Ajustes de empresa, biblioteca de comentarios editable, 2FA opcional, datos demo, repaso de seguridad | ✅ |
 
 ## Funcionalidades
 
@@ -57,6 +57,9 @@ El desarrollo va por fases:
 - Panel de administración: crear, editar, activar/desactivar usuarios, cambiar rol y resetear contraseña.
   Desactivar a un usuario o cambiar su rol cierra su sesión abierta.
 - Clientes, autorizaciones y clave de firma persistentes: las sesiones sobreviven a reinicios.
+- **Verificación en dos pasos** (TOTP: Google Authenticator, Microsoft Authenticator, Aegis, FreeOTP…),
+  desactivada por defecto: opcional por usuario (`AUTH_MFA_ENABLED`) u obligatoria para todos
+  (`AUTH_MFA_REQUIRED`). Alta con código QR; el administrador puede quitarla si alguien pierde el móvil.
 
 **Informes**
 - Numeración anual automática (`2026-0001`), cabecera con cliente, inmueble y condiciones.
@@ -91,6 +94,13 @@ El desarrollo va por fases:
 - Fotos en cuadrícula de 2 columnas con su pie, usando la versión optimizada (el PDF ocupa poco).
 - Fuentes DejaVu incrustadas: cualquier acento o símbolo se ve igual en todos los visores.
 - Nombre del archivo: `informe-<nº>-<calle>.pdf`. Se descarga desde la vista del informe o la vista previa.
+
+**Administración**
+- **Empresa y textos**: nombre, logo, dirección, teléfono, email, web, NIF, texto de alcance y texto legal
+  (aparecen en la portada y el pie del PDF).
+- **Biblioteca de comentarios**: añadir, editar, ordenar y borrar las frases predefinidas de cada elemento.
+- **Datos de demostración**: con `APP_PROFILES=demo` y la base de datos vacía se crea un informe de
+  ejemplo con valoraciones, observaciones y fotos de prueba (visible para los administradores).
 - Modo claro, oscuro o automático.
 
 ## Arquitectura
@@ -315,6 +325,8 @@ Todas se definen en `.env` (ver `.env.example`).
 | `APP_BASE_URL` | — | URL pública de la `app` (redirección OAuth2 y vuelta del logout) |
 | `AUTH_PORT` / `APP_PORT` | `9000` / `8080` | Puertos publicados en el host |
 | `AUTH_ADMIN_USERNAME` / `AUTH_ADMIN_PASSWORD` | `admin` / — | Administrador inicial |
+| `AUTH_MFA_ENABLED` | `false` | Cada usuario puede activar la verificación en dos pasos |
+| `AUTH_MFA_REQUIRED` | `false` | Verificación en dos pasos obligatoria para todos |
 | `AUTH_KEYSTORE_PASSWORD` | — | Contraseña de la clave de firma JWT (mín. 8 caracteres) |
 | `WEB_CLIENT_SECRET` | — | Secreto del cliente `home-inspect-web` |
 | `ADMIN_API_CLIENT_SECRET` | — | Secreto del cliente `home-inspect-admin-api` |
@@ -382,6 +394,32 @@ docker run --rm -v home-inspect_auth-keys:/data -v "$PWD/$B":/backup alpine:3 \
 docker compose start auth-server app
 ```
 
+## Seguridad
+
+Resumen de las medidas aplicadas (repaso de la fase 8):
+
+| Área | Medida |
+|------|--------|
+| Autenticación | OAuth 2.1 / OIDC con Authorization Code + PKCE obligatorio; contraseñas BCrypt; política de contraseñas; bloqueo 15 min tras 5 fallos (también con códigos 2FA); 2FA TOTP opcional |
+| Pasos de login | Contraseña temporal y 2FA se resuelven **antes** de emitir el código de autorización (filtro previo a Spring Security) |
+| Tokens | Clave RSA persistente y cifrada; roles leídos de la BD al emitir cada token; ningún token para usuarios desactivados; al desactivar, cambiar rol o resetear contraseña/2FA se revocan sus autorizaciones |
+| Sesiones | Cookies `HttpOnly`, `SameSite=Lax`, `Secure` configurable, nombres distintos por servicio; un usuario desactivado o con rol cambiado pierde la sesión de la app en su siguiente petición |
+| Autorización | Un inspector solo ve y edita sus informes (comprobado en la capa de servicio; un id ajeno responde 404); administración con `@PreAuthorize` además de la regla de URL; informes finalizados bloqueados |
+| API de usuarios | Resource server con scope `users.admin`, solo `client_credentials` de la app |
+| Web | CSRF en todos los formularios y en el autoguardado (cabecera); CSP sin scripts en línea (`script-src 'self'`); `X-Frame-Options`, `nosniff`, `Referrer-Policy`; sin `th:utext` |
+| Ficheros | Tipo real por contenido; límite de tamaño; protección ante imágenes gigantes; re-codificación sin metadatos (sin GPS); rutas generadas (sin entrada del usuario); imágenes solo para quien puede ver el informe |
+| Infraestructura | Contenedores sin root; solo `/actuator/health` expuesto y sin detalles; secretos solo por variables de entorno; Postgres sin publicar; cada servicio con su usuario y su base de datos |
+
+Recomendaciones para el despliegue:
+
+- Publica la app y el servidor de acceso **solo por HTTPS** (`COOKIE_SECURE=true`) y no expongas los puertos
+  8080/9000 fuera del host (bind a `127.0.0.1` o cortafuegos).
+- Activa `AUTH_MFA_ENABLED=true` (o `AUTH_MFA_REQUIRED=true`) si accedes desde fuera de tu red.
+- Guarda `AUTH_KEYSTORE_PASSWORD` en un lugar seguro: sin ella no se puede descifrar la clave de firma
+  ni los secretos 2FA de un backup.
+- Ten en cuenta que la página de login informa de que una cuenta está bloqueada o desactivada
+  (más claro para el usuario, a cambio de revelar que el usuario existe).
+
 ## Personalizar el catálogo del informe
 
 Las secciones, los elementos, las opciones de material, las limitaciones y los comentarios iniciales
@@ -391,8 +429,8 @@ Al arrancar, la `app` sincroniza ese fichero con la base de datos por `code`:
 - Los elementos nuevos aparecen en los informes nuevos y en los borradores existentes.
 - Se actualizan los títulos, el orden y las opciones.
 - Lo que quites del fichero se **desactiva**, no se borra: los informes antiguos lo conservan.
-- Los comentarios del fichero solo se cargan al crear el elemento. Después se editan desde el panel
-  de administración (fase 8).
+- Los comentarios del fichero solo se cargan al crear el elemento. Después se editan en
+  **Administración → Biblioteca de comentarios**.
 
 No cambies el `code` de un elemento ya usado. Si un texto contiene `: `, ponlo entre comillas.
 

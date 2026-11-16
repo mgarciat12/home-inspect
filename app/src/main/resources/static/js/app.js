@@ -43,3 +43,14 @@ document.addEventListener('click', function (event) {
         setTimeout(function () { button.innerHTML = original; }, 1200);
     });
 });
+
+// <select data-autosubmit>: submits its form on change
+document.addEventListener('change', function (event) {
+    if (event.target.matches('[data-autosubmit]')) event.target.form.submit();
+});
+
+// <button data-confirm-click="message">: confirmation before this specific button submits
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-confirm-click]');
+    if (button && !confirm(button.dataset.confirmClick)) event.preventDefault();
+});

@@ -8,10 +8,23 @@
     <div class="card auth-card border-0 shadow-sm">
         <div class="card-body p-4 text-center">
             <div class="alert alert-success" th:if="${param.passwordChanged}" th:text="#{password.changed}">Contraseña cambiada.</div>
+            <div class="alert alert-success" th:if="${param.mfaEnabled}" th:text="#{mfa.enabled}">2FA activada.</div>
+            <div class="alert alert-success" th:if="${param.mfaDisabled}" th:text="#{mfa.disabled}">2FA desactivada.</div>
+            <div class="alert alert-danger" th:if="${param.mfaError}" th:text="#{mfa.error.disable}">No se pudo.</div>
             <p class="mb-1" th:text="#{home.signedInAs}">Has iniciado sesión como</p>
             <p class="fw-semibold fs-5" sec:authentication="name">usuario</p>
             <p class="text-body-secondary small" th:text="#{home.hint}">Este es el servidor de acceso.</p>
             <div class="d-grid gap-2">
+                <a class="btn btn-outline-primary" th:href="@{/mfa/setup}" th:if="${mfaActive and !mfaEnabled}">
+                    <i class="bi bi-shield-lock me-1"></i><span th:text="#{mfa.setup.title}">Activar 2FA</span></a>
+                <div class="text-start border rounded p-3" th:if="${mfaActive and mfaEnabled}">
+                    <div class="small mb-2"><i class="bi bi-shield-check text-success me-1"></i><span th:text="#{mfa.status.on}">2FA activa</span></div>
+                    <form th:action="@{/mfa/disable}" method="post" th:unless="${mfaRequired}" class="d-grid gap-2">
+                        <input type="password" name="password" class="form-control form-control-sm" required autocomplete="current-password" th:placeholder="#{password.current}">
+                        <input type="text" name="code" class="form-control form-control-sm" required inputmode="numeric" autocomplete="one-time-code" th:placeholder="#{mfa.code}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" th:text="#{mfa.disable}">Desactivar</button>
+                    </form>
+                </div>
                 <a class="btn btn-outline-primary" th:href="@{/password/change}"><i class="bi bi-key me-1"></i><span th:text="#{password.heading}">Cambiar contraseña</span></a>
                 <form th:action="@{/logout}" method="post" class="d-grid">
                     <button type="submit" class="btn btn-link text-body-secondary" th:text="#{action.logout}">Cerrar sesión</button>

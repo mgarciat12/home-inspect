@@ -25,7 +25,8 @@ public class AuthServerUsersClient {
     }
 
     public record RemoteUser(Long id, String username, String displayName, String email, Role role, boolean enabled,
-                             boolean mustChangePassword, boolean locked, Instant lockedUntil, Instant createdAt) {
+                             boolean mustChangePassword, boolean locked, Instant lockedUntil, boolean mfaEnabled,
+                             Instant createdAt) {
     }
 
     public record RemoteUserWithPassword(RemoteUser user, String temporaryPassword) {
@@ -72,6 +73,12 @@ public class AuthServerUsersClient {
         return call(() -> restClient.post().uri("/api/users/{id}/password-reset", id).retrieve()
                 .onStatus(HttpStatusCode::isError, this::fail)
                 .body(RemoteUserWithPassword.class));
+    }
+
+    public RemoteUser resetMfa(long id) {
+        return call(() -> restClient.post().uri("/api/users/{id}/mfa-reset", id).retrieve()
+                .onStatus(HttpStatusCode::isError, this::fail)
+                .body(RemoteUser.class));
     }
 
     private void fail(org.springframework.http.HttpRequest request,

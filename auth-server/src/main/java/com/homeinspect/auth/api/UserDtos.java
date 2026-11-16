@@ -17,12 +17,12 @@ final class UserDtos {
 
     record UserResponse(Long id, String username, String displayName, String email, Role role,
                         boolean enabled, boolean mustChangePassword, boolean locked, Instant lockedUntil,
-                        Instant createdAt) {
+                        boolean mfaEnabled, Instant createdAt) {
 
         static UserResponse of(AuthUser user, Instant now) {
             return new UserResponse(user.getId(), user.getUsername(), user.getDisplayName(), user.getEmail(),
                     user.getRole(), user.isEnabled(), user.isMustChangePassword(), user.isLocked(now),
-                    user.isLocked(now) ? user.getLockedUntil() : null, user.getCreatedAt());
+                    user.isLocked(now) ? user.getLockedUntil() : null, user.isTotpEnabled(), user.getCreatedAt());
         }
     }
 
