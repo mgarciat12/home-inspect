@@ -356,3 +356,105 @@ textarea.form-control {
     border-radius: var(--bs-border-radius);
     padding: 0.5rem;
 }
+
+/* ---- Report preview ---- */
+.report-doc {
+    background: var(--hi-surface);
+    border-radius: var(--bs-border-radius-lg);
+    padding: clamp(1rem, 4vw, 3rem);
+}
+.doc-cover {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.doc-cover-photo {
+    width: 100%;
+    max-height: 26rem;
+    object-fit: cover;
+    border-radius: var(--bs-border-radius);
+}
+.doc-facts dt {
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+}
+.doc-section {
+    padding-top: 2rem;
+}
+.doc-h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding-bottom: 0.4rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--hi-brand);
+}
+.doc-text {
+    white-space: pre-line;
+}
+.doc-legend {
+    display: grid;
+    gap: 0.5rem;
+}
+.doc-legend .badge {
+    min-width: 11rem;
+    text-align: left;
+    white-space: normal;
+}
+.doc-finding {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--hi-soft);
+    border-radius: var(--bs-border-radius);
+    border-left: 4px solid var(--hi-rating, var(--bs-border-color));
+}
+.border-rating-SAFETY_HAZARD { --hi-rating: var(--hi-rating-SAFETY_HAZARD); }
+.border-rating-REPAIR { --hi-rating: var(--hi-rating-REPAIR); }
+.border-rating-SPECIALIST { --hi-rating: var(--hi-rating-SPECIALIST); }
+.border-rating-MAINTENANCE { --hi-rating: var(--hi-rating-MAINTENANCE); }
+.doc-finding-thumb {
+    width: 4.5rem;
+    height: 3.4rem;
+    object-fit: cover;
+    border-radius: 0.35rem;
+    flex-shrink: 0;
+}
+.doc-table th {
+    width: 45%;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+.doc-item {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.doc-item:last-child {
+    border-bottom: 0;
+}
+.doc-photos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+.doc-photos figure {
+    margin: 0;
+}
+.doc-photos img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 0.4rem;
+}
+.doc-photos figcaption {
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.25rem;
+}
+.doc-signature {
+    margin-top: 1rem;
+}
+@media print {
+    .app-navbar, .app-footer { display: none !important; }
+    .report-doc { box-shadow: none !important; padding: 0; }
+}

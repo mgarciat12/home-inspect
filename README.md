@@ -42,7 +42,7 @@ El desarrollo va por fases:
 | 3 | `app` como cliente OAuth2: login, logout, roles y panel de administración de usuarios | ✅ |
 | 4 | Modelo del informe, catálogo del SOP y editor con autoguardado | ✅ |
 | 5 | Subida y gestión de fotos, firma del inspector | ✅ |
-| 6 | Resumen automático de hallazgos y vista previa | ⏳ |
+| 6 | Resumen automático de hallazgos y vista previa | ✅ |
 | 7 | Exportación a PDF | ⏳ |
 | 8 | Ajustes de empresa, biblioteca de comentarios editable, MFA opcional, repaso de seguridad | ⏳ |
 
@@ -76,6 +76,14 @@ El desarrollo va por fases:
 - Pie de foto, orden, foto de portada y borrado. Las imágenes solo se sirven a usuarios con acceso al informe.
 - Al borrar una foto o un informe se eliminan sus ficheros del disco.
 - Cada inspector sube su firma en **Mi perfil**; aparecerá en el PDF.
+
+**Resumen y vista previa**
+- **Resumen de hallazgos** automático: todos los elementos valorados como *Peligro para la seguridad*,
+  *Reparar*, *Requiere evaluación por especialista* o *Mantenimiento*, agrupados por gravedad (peligro primero),
+  con su referencia (`1.2 Tejado › Canalones y bajantes`), un extracto de la observación, la recomendación
+  y una miniatura. Las secciones marcadas como «no aplica» no se incluyen.
+- **Vista previa** en HTML con la misma estructura que el PDF: portada, alcance y limitaciones, leyenda,
+  resumen, datos generales, secciones detalladas con fotos y firma.
 - Modo claro, oscuro o automático.
 
 ## Arquitectura

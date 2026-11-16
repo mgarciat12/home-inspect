@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{preview.title(${doc.number})})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-3 py-lg-4" style="max-width: 60rem">
+
+    <!-- Toolbar -->
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3 d-print-none">
+        <a class="btn btn-outline-secondary" th:href="@{/reports/{id}/edit(id=${doc.id})}"><i class="bi bi-pencil me-1"></i><span th:text="#{preview.backToEditor}">Volver al editor</span></a>
+        <a class="btn btn-primary" th:href="@{/reports/{id}/pdf(id=${doc.id})}"><i class="bi bi-file-earmark-pdf me-1"></i><span th:text="#{report.pdf}">Descargar PDF</span></a>
+        <span class="badge ms-auto" th:classappend="${doc.status.name() == 'FINAL'} ? 'text-bg-success' : 'text-bg-secondary'"
+              th:text="#{'enum.ReportStatus.' + ${doc.status}}">Borrador</span>
+    </div>
+    <div class="alert alert-warning small d-print-none" th:if="${doc.status.name() == 'DRAFT'}" th:text="#{preview.draft}">Borrador.</div>
+
+    <article class="report-doc shadow-sm">
+
+        <!-- 1. Cover -->
+        <section class="doc-cover">
+            <div class="d-flex flex-wrap justify-content-between gap-2 mb-4">
+                <div>
+                    <div class="fw-semibold" th:text="${doc.company.name} ?: 'home-inspect'">Empresa</div>
+                    <div class="small text-body-secondary" th:if="${doc.company.phone != null or doc.company.email != null}">
+                        <span th:text="${doc.company.phone}"></span><span th:if="${doc.company.phone != null and doc.company.email != null}"> · </span><span th:text="${doc.company.email}"></span>
+                    </div>
+                </div>
+                <div class="text-end small">
+                    <div class="text-body-secondary" th:text="#{report.number}">Nº de informe</div>
+                    <div class="font-monospace fw-semibold" th:text="${doc.number}">2026-0001</div>
+                </div>
+            </div>
+            <h1 class="display-6 fw-semibold mb-1" th:text="#{doc.title}">Informe de inspección de vivienda</h1>
+            <p class="lead mb-4" th:text="${doc.property.fullAddress()}">Dirección</p>
+            <img class="doc-cover-photo mb-4" th:if="${doc.cover}" th:src="@{${doc.cover.url}}" th:alt="${doc.cover.caption} ?: #{photo.cover}">
+            <dl class="row doc-facts mb-0">
+                <dt class="col-sm-4" th:text="#{doc.date}">Fecha</dt>
+                <dd class="col-sm-8" th:text="${#temporals.format(doc.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</dd>
+                <dt class="col-sm-4" th:text="#{doc.client}">Cliente</dt>
+                <dd class="col-sm-8" th:text="${doc.client.name} ?: '—'">cliente</dd>
+                <dt class="col-sm-4" th:text="#{report.inspector}">Inspector</dt>
+                <dd class="col-sm-8" th:text="${doc.inspector.name}">inspector</dd>
+            </dl>
+        </section>
+
+        <!-- 2. Scope and limitations -->
+        <section class="doc-section" th:if="${doc.company.scopeText}">
+            <h2 class="doc-h2" th:text="#{doc.scope}">Alcance y limitaciones</h2>
+            <p class="doc-text" th:text="${doc.company.scopeText}">Texto</p>
+        </section>
+
+        <!-- 3. Legend -->
+        <section class="doc-section">
+            <h2 class="doc-h2" th:text="#{doc.legend}">Leyenda de valoraciones</h2>
+            <div class="doc-legend">
+                <div class="d-flex gap-2 align-items-start" th:each="rt : ${ratings}">
+                    <span class="badge rating-badge" th:classappend="'rating-' + ${rt}" th:text="#{'enum.Rating.' + ${rt}}">Correcto</span>
+                    <span class="small" th:text="#{'doc.legend.' + ${rt}}">Descripción</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Findings summary -->
+        <section class="doc-section">
+            <h2 class="doc-h2"><span th:text="#{doc.summary}">Resumen de hallazgos</span>
+                <span class="badge text-bg-light border ms-1" th:text="${doc.findingCount()}">0</span></h2>
+            <p class="text-body-secondary" th:if="${#lists.isEmpty(doc.findings)}" th:text="#{doc.summary.none}">Sin hallazgos.</p>
+            <div class="mb-3" th:each="group : ${doc.findings}">
+                <h3 class="h6 d-flex align-items-center gap-2 mt-3">
+                    <span class="badge rating-badge" th:classappend="'rating-' + ${group.rating}" th:text="#{'enum.Rating.' + ${group.rating}}">Peligro</span>
+                    <span class="text-body-secondary small" th:text="#{doc.summary.count(${#lists.size(group.findings)})}">2 elementos</span>
+                </h3>
+                <div class="doc-finding" th:each="f : ${group.findings}" th:classappend="'border-rating-' + ${group.rating}">
+                    <img class="doc-finding-thumb" th:if="${f.photo}" th:src="@{${f.photo.thumbnailUrl}}" alt="">
+                    <div class="min-w-0">
+                        <a class="fw-semibold text-decoration-none" th:href="'#doc-item-' + ${f.itemId}" th:text="${f.label()}">1.2 Tejado › Canalones</a>
+                        <div class="small" th:if="${f.excerpt}" th:text="${f.excerpt}">Observación</div>
+                        <div class="small text-body-secondary" th:if="${f.recommendation}">
+                            <span th:text="#{item.recommendation}">Recomendación</span>: <span th:text="#{'enum.Recommendation.' + ${f.recommendation}}">Reparar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. General data -->
+        <section class="doc-section">
+            <h2 class="doc-h2" th:text="#{doc.general}">Datos generales</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <h3 class="h6 text-uppercase text-body-secondary" th:text="#{report.header.property}">Inmueble</h3>
+                    <table class="table table-sm doc-table">
+                        <tr><th th:text="#{report.address}">Dirección</th><td th:text="${doc.property.fullAddress()}"></td></tr>
+                        <tr><th th:text="#{report.propertyType}">Tipo</th><td th:text="${doc.property.type} ? #{'enum.PropertyType.' + ${doc.property.type}} : '—'"></td></tr>
+                        <tr><th th:text="#{report.yearBuilt}">Año</th><td th:text="${doc.property.yearBuilt} ?: '—'"></td></tr>
+                        <tr><th th:text="#{report.areaM2}">m²</th><td th:text="${doc.property.areaM2} ? ${#numbers.formatDecimal(doc.property.areaM2, 1, 'POINT', 0, 'COMMA')} : '—'"></td></tr>
+                        <tr><th th:text="#{report.floors}">Plantas</th><td th:text="${doc.property.floors} ?: '—'"></td></tr>
+                        <tr><th th:text="#{report.occupancy}">Ocupación</th><td th:text="${doc.property.occupancy} ? #{'enum.Occupancy.' + ${doc.property.occupancy}} : '—'"></td></tr>
+                        <tr><th th:text="#{report.peoplePresent}">Presentes</th><td th:text="${doc.property.peoplePresent} ?: '—'"></td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h3 class="h6 text-uppercase text-body-secondary" th:text="#{report.header.client}">Cliente</h3>
+                    <table class="table table-sm doc-table">
+                        <tr><th th:text="#{report.clientName}">Nombre</th><td th:text="${doc.client.name} ?: '—'"></td></tr>
+                        <tr><th th:text="#{report.clientEmail}">Email</th><td th:text="${doc.client.email} ?: '—'"></td></tr>
+                        <tr><th th:text="#{report.clientPhone}">Teléfono</th><td th:text="${doc.client.phone} ?: '—'"></td></tr>
+                    </table>
+                    <h3 class="h6 text-uppercase text-body-secondary" th:text="#{report.header.conditions}">Condiciones</h3>
+                    <table class="table table-sm doc-table">
+                        <tr><th th:text="#{report.inspectedAt}">Fecha</th><td th:text="${#temporals.format(doc.inspectedAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+                        <tr><th th:text="#{report.weather}">Tiempo</th><td th:text="${doc.conditions.weather} ? #{'enum.Weather.' + ${doc.conditions.weather}} : '—'"></td></tr>
+                        <tr><th th:text="#{report.temperatureC}">Temperatura</th><td th:text="${doc.conditions.temperatureC} ? ${#numbers.formatDecimal(doc.conditions.temperatureC, 1, 'POINT', 1, 'COMMA')} + ' ºC' : '—'"></td></tr>
+                        <tr><th th:text="#{report.soilCondition}">Suelo</th><td th:text="${doc.conditions.soil} ? #{'enum.SoilCondition.' + ${doc.conditions.soil}} : '—'"></td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Detailed sections -->
+        <section class="doc-section" th:each="s : ${doc.sections}" th:id="'doc-section-' + ${s.code}">
+            <h2 class="doc-h2"><span th:text="${s.number} + '. ' + ${s.title}">1. Tejado</span></h2>
+            <p class="text-body-secondary fst-italic" th:if="${s.notApplicable}" th:text="#{doc.section.na}">No aplica.</p>
+            <th:block th:unless="${s.notApplicable}">
+                <dl class="row small mb-2" th:if="${s.inspectionMethod != null or s.generalLimitations != null}">
+                    <th:block th:if="${s.inspectionMethod}">
+                        <dt class="col-sm-4" th:text="#{report.section.method}">Método</dt><dd class="col-sm-8" th:text="${s.inspectionMethod}"></dd>
+                    </th:block>
+                    <th:block th:if="${s.generalLimitations}">
+                        <dt class="col-sm-4" th:text="#{report.section.limitations}">Limitaciones</dt><dd class="col-sm-8 doc-text" th:text="${s.generalLimitations}"></dd>
+                    </th:block>
+                </dl>
+                <p class="doc-text" th:if="${s.generalComments}" th:text="${s.generalComments}">Comentarios</p>
+
+                <div class="doc-item" th:each="it : ${s.items}" th:id="'doc-item-' + ${it.id}">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                        <span class="font-monospace small text-body-secondary" th:text="${it.reference}">1.1</span>
+                        <h3 class="h6 mb-0 flex-grow-1" th:text="${it.title}">Cubierta</h3>
+                        <span class="badge rating-badge" th:if="${it.rating}" th:classappend="'rating-' + ${it.rating}" th:text="#{'enum.Rating.' + ${it.rating}}">Reparar</span>
+                        <span class="badge text-bg-light border" th:if="${it.status != null and it.status.name() != 'INSPECTED'}" th:text="#{'enum.ItemStatus.' + ${it.status}}">No presente</span>
+                        <span class="badge text-bg-light border text-body-secondary" th:if="${it.status == null}" th:text="#{doc.item.pending}">Sin completar</span>
+                    </div>
+                    <dl class="row small mb-1">
+                        <th:block th:unless="${#lists.isEmpty(it.allMaterials())}">
+                            <dt class="col-sm-3" th:text="#{item.materials}">Material</dt>
+                            <dd class="col-sm-9" th:text="${#strings.listJoin(it.allMaterials(), ', ')}"></dd>
+                        </th:block>
+                        <th:block th:if="${!#lists.isEmpty(it.limitations) or it.limitationText != null}">
+                            <dt class="col-sm-3" th:text="#{item.limitations}">Limitaciones</dt>
+                            <dd class="col-sm-9">
+                                <span th:text="${#strings.listJoin(it.limitations, ', ')}"></span><span th:if="${!#lists.isEmpty(it.limitations) and it.limitationText != null}">. </span><span th:text="${it.limitationText}"></span>
+                            </dd>
+                        </th:block>
+                        <th:block th:if="${it.recommendation != null or it.recommendationText != null}">
+                            <dt class="col-sm-3" th:text="#{item.recommendation}">Recomendación</dt>
+                            <dd class="col-sm-9">
+                                <span th:if="${it.recommendation}" th:text="#{'enum.Recommendation.' + ${it.recommendation}}"></span><span th:if="${it.recommendation != null and it.recommendationText != null}">. </span><span th:text="${it.recommendationText}"></span>
+                            </dd>
+                        </th:block>
+                    </dl>
+                    <p class="doc-text mb-2" th:if="${it.observations}" th:text="${it.observations}">Observaciones</p>
+                    <div class="doc-photos" th:unless="${#lists.isEmpty(it.photos)}">
+                        <figure th:each="p : ${it.photos}">
+                            <a th:href="@{${p.url}}" target="_blank" rel="noopener"><img th:src="@{${p.url}}" th:alt="${p.caption} ?: ${it.title}" loading="lazy"></a>
+                            <figcaption th:if="${p.caption}" th:text="${p.caption}">Pie</figcaption>
+                        </figure>
+                    </div>
+                </div>
+            </th:block>
+        </section>
+
+        <!-- 7. Signature -->
+        <section class="doc-section doc-signature">
+            <p class="small text-body-secondary mb-2" th:text="#{doc.signature.text}">Firmado por el inspector.</p>
+            <img class="signature-preview" th:if="${doc.inspector.hasSignature}" th:src="@{/reports/{id}/signature(id=${doc.id})}" th:alt="#{profile.signature}">
+            <div class="fw-semibold mt-2" th:text="${doc.inspector.name}">Inspector</div>
+            <div class="small text-body-secondary" th:text="${#temporals.format(doc.finalizedAt ?: doc.inspectedAt, 'dd/MM/yyyy')}">fecha</div>
+        </section>
+
+        <footer class="small text-body-secondary border-top pt-3 mt-4" th:if="${doc.company.legalText}">
+            <p class="doc-text mb-0" th:text="${doc.company.legalText}">Texto legal</p>
+        </footer>
+    </article>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

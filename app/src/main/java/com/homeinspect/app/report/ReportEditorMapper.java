@@ -22,7 +22,7 @@ import java.util.Map;
 /** Builds the editor view from the entities (inside the service transaction). */
 @Component
 @RequiredArgsConstructor
-class ReportEditorMapper {
+public class ReportEditorMapper {
 
     private final CatalogService catalog;
     private final PhotoService photos;
@@ -93,14 +93,14 @@ class ReportEditorMapper {
                 itemViews, previous, next);
     }
 
-    static List<ReportSection> orderedSections(Report report) {
+    public static List<ReportSection> orderedSections(Report report) {
         return report.getSections().stream()
                 .sorted(Comparator.comparingInt((ReportSection s) -> s.getDefinition().getPosition())
                         .thenComparing(ReportSection::getId, Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
     }
 
-    static List<ReportItem> orderedItems(ReportSection section) {
+    public static List<ReportItem> orderedItems(ReportSection section) {
         return section.getItems().stream()
                 .sorted(Comparator.comparingInt((ReportItem i) -> i.getDefinition().getPosition())
                         .thenComparing(ReportItem::getId, Comparator.nullsLast(Comparator.naturalOrder())))
