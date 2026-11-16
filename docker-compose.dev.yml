@@ -1,0 +1,48 @@
+# Local development override: adds a throwaway PostgreSQL with both databases.
+# Separate project name, so it never touches the production containers or volumes.
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+name: home-inspect-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      AUTH_DB_NAME: ${AUTH_DB_NAME:-homeinspect_auth}
+      AUTH_DB_USER: ${AUTH_DB_USER:-homeinspect_auth}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      APP_DB_NAME: ${APP_DB_NAME:-homeinspect_app}
+      APP_DB_USER: ${APP_DB_USER:-homeinspect_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - ./db/init.sql:/db/init.sql:ro
+      - ./db/dev-init.sh:/docker-entrypoint-initdb.d/10-home-inspect.sh:ro
+      - dev-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  auth-server:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      COOKIE_SECURE: "false"
+      THYMELEAF_CACHE: "false"
+
+  app:
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      COOKIE_SECURE: "false"
+      THYMELEAF_CACHE: "false"
+
+volumes:
+  dev-postgres:

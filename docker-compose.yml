@@ -1,0 +1,72 @@
+# Production stack: authorization server + application.
+# PostgreSQL is NOT included: both services connect to your existing server (DB_HOST / DB_PORT).
+#   - Postgres on the Docker host        -> DB_HOST=host.docker.internal (extra_hosts below)
+#   - Postgres in another container      -> also use docker-compose.dbnet.yml to join its network
+name: home-inspect
+
+x-db: &db-env
+  DB_HOST: ${DB_HOST:-host.docker.internal}
+  DB_PORT: ${DB_PORT:-5432}
+
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth-server/Dockerfile
+    image: home-inspect/auth-server:latest
+    restart: unless-stopped
+    environment:
+      <<: *db-env
+      AUTH_DB_NAME: ${AUTH_DB_NAME:-homeinspect_auth}
+      AUTH_DB_USER: ${AUTH_DB_USER:-homeinspect_auth}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?set AUTH_DB_PASSWORD in .env}
+      AUTH_ISSUER_URI: ${AUTH_ISSUER_URI:?set AUTH_ISSUER_URI in .env}
+      AUTH_ADMIN_USERNAME: ${AUTH_ADMIN_USERNAME:-admin}
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-}
+      AUTH_KEYSTORE_PATH: /data/keys/jwt-signing.p12
+      AUTH_KEYSTORE_PASSWORD: ${AUTH_KEYSTORE_PASSWORD:?set AUTH_KEYSTORE_PASSWORD in .env}
+      WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET:?set WEB_CLIENT_SECRET in .env}
+      WEB_REDIRECT_URI: ${APP_BASE_URL:?set APP_BASE_URL in .env}/login/oauth2/code/home-inspect
+      WEB_POST_LOGOUT_REDIRECT_URI: ${APP_BASE_URL}/
+      ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET:?set ADMIN_API_CLIENT_SECRET in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      TZ: ${TZ:-Europe/Madrid}
+    ports:
+      - "${AUTH_PORT:-9000}:9000"
+    volumes:
+      - auth-keys:/data/keys
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    image: home-inspect/app:latest
+    restart: unless-stopped
+    depends_on:
+      auth-server:
+        condition: service_healthy
+    environment:
+      <<: *db-env
+      APP_DB_NAME: ${APP_DB_NAME:-homeinspect_app}
+      APP_DB_USER: ${APP_DB_USER:-homeinspect_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      AUTH_ISSUER_URI: ${AUTH_ISSUER_URI}
+      WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET}
+      ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET}
+      UPLOAD_DIR: /data/uploads
+      UPLOAD_MAX_FILE_SIZE: ${UPLOAD_MAX_FILE_SIZE:-15MB}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      SPRING_PROFILES_ACTIVE: ${APP_PROFILES:-}
+      TZ: ${TZ:-Europe/Madrid}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - uploads:/data/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  uploads:
+  auth-keys:

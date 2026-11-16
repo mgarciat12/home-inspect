@@ -1,0 +1,14 @@
+# Optional override: join the Docker network of the container that runs your PostgreSQL.
+#   docker compose -f docker-compose.yml -f docker-compose.dbnet.yml up -d
+# (or put COMPOSE_FILE=docker-compose.yml:docker-compose.dbnet.yml in .env)
+# Then set DB_HOST to the Postgres container / service name.
+services:
+  auth-server:
+    networks: [default, dbnet]
+  app:
+    networks: [default, dbnet]
+
+networks:
+  dbnet:
+    external: true
+    name: ${DB_NETWORK:?set DB_NETWORK to the network of your Postgres container}
