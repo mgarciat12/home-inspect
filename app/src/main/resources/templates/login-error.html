@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{loginError.title})}"></head>
+<body class="auth-bg">
+<main class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">
+    <div class="text-center mb-4">
+        <span class="brand-mark brand-mark-lg mb-3"><i class="bi bi-house-check"></i></span>
+        <h1 class="h4 fw-semibold mb-0">home-inspect</h1>
+    </div>
+    <div class="card auth-card border-0 shadow-sm">
+        <div class="card-body p-4 text-center">
+            <i class="bi bi-shield-exclamation fs-1 text-warning"></i>
+            <h2 class="h5 my-3" th:text="#{loginError.heading}">No se pudo iniciar sesión</h2>
+            <p class="text-body-secondary" th:text="#{loginError.text}">Tu cuenta puede estar desactivada.</p>
+            <div class="d-grid gap-2">
+                <a class="btn btn-primary" th:href="@{/oauth2/authorization/home-inspect}" th:text="#{loginError.retry}">Volver a intentarlo</a>
+                <a class="btn btn-link text-body-secondary" th:if="${authServerUrl}" th:href="${authServerUrl}" th:text="#{loginError.otherUser}">Entrar con otro usuario</a>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

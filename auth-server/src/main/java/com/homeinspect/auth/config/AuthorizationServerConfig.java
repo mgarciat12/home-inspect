@@ -1,6 +1,7 @@
 package com.homeinspect.auth.config;
 
 import com.homeinspect.auth.keys.SigningKeyStore;
+import com.homeinspect.auth.user.AuthUser;
 import com.homeinspect.auth.user.AuthUserService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -28,6 +31,7 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,6 +85,9 @@ class AuthorizationServerConfig {
     /**
      * Adds the user's roles ({@code ADMIN}, {@code INSPECTOR}) to the access token and the ID token,
      * and name / e-mail to the ID token (also returned by the userinfo endpoint).
+     * <p>
+     * Roles are read from the database, not from the login session, so a role change applies to
+     * the next token; a disabled (or deleted) user gets no token at all, even with a live session.
      */
     @Bean
     OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(AuthUserService users) {
@@ -88,26 +95,25 @@ class AuthorizationServerConfig {
             if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(context.getAuthorizationGrantType())) {
                 return;
             }
-            Authentication principal = context.getPrincipal();
-            List<String> roles = principal.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .filter(authority -> authority.startsWith("ROLE_"))
-                    .map(authority -> authority.substring("ROLE_".length()))
-                    .toList();
             boolean idToken = OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue());
             boolean accessToken = OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType());
             if (!idToken && !accessToken) {
                 return;
             }
-            context.getClaims().claim(ROLES_CLAIM, roles);
+            Authentication principal = context.getPrincipal();
+            AuthUser user = users.findByUsername(principal.getName())
+                    .filter(AuthUser::isEnabled)
+                    .orElseThrow(() -> new OAuth2AuthenticationException(
+                            new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, "User disabled", null)));
+            // Mutable ArrayList: the claims are stored by the JDBC authorization service and read back
+            // by the userinfo endpoint; Jackson's allowlist rejects immutable List.of(...) collections
+            context.getClaims().claim(ROLES_CLAIM, new ArrayList<>(List.of(user.getRole().name())));
             if (idToken && context.getAuthorizedScopes().contains(OidcScopes.PROFILE)) {
-                users.findByUsername(principal.getName()).ifPresent(user -> {
-                    context.getClaims().claim("name", user.getDisplayName());
-                    context.getClaims().claim("preferred_username", user.getUsername());
-                    if (user.getEmail() != null) {
-                        context.getClaims().claim("email", user.getEmail());
-                    }
-                });
+                context.getClaims().claim("name", user.getDisplayName());
+                context.getClaims().claim("preferred_username", user.getUsername());
+                if (user.getEmail() != null) {
+                    context.getClaims().claim("email", user.getEmail());
+                }
             }
         };
     }

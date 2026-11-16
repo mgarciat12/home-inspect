@@ -17,6 +17,31 @@ spring:
   web:
     locale: es
     locale-resolver: fixed
+  security:
+    oauth2:
+      client:
+        provider:
+          home-inspect:
+            # Discovery at startup: the container must reach the auth-server at this exact URL
+            issuer-uri: ${AUTH_ISSUER_URI:http://localhost:9000}
+            user-name-attribute: sub
+        registration:
+          home-inspect:
+            provider: home-inspect
+            client-name: home-inspect
+            client-id: home-inspect-web
+            client-secret: ${WEB_CLIENT_SECRET:}
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid,profile
+          home-inspect-admin-api:
+            provider: home-inspect
+            client-id: home-inspect-admin-api
+            client-secret: ${ADMIN_API_CLIENT_SECRET:}
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: client_credentials
+            scope: users.admin
   servlet:
     multipart:
       max-file-size: ${UPLOAD_MAX_FILE_SIZE:15MB}
@@ -46,6 +71,9 @@ management:
         enabled: true
 
 home-inspect:
+  auth-server:
+    # Base URL of the auth-server API (/api/users); same as the issuer by default
+    url: ${AUTH_SERVER_URL:${AUTH_ISSUER_URI:http://localhost:9000}}
   storage:
     # Photos, signatures and logo are stored here (Docker volume in production)
     root: ${UPLOAD_DIR:./data/uploads}

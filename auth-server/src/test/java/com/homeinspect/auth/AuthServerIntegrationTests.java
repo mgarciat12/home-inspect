@@ -99,8 +99,15 @@ class AuthServerIntegrationTests {
         assertThat(idToken.getClaimAsString("name")).isEqualTo("Inspector inspector.flow");
         assertThat(idToken.getClaimAsString("email")).isEqualTo("inspector.flow@example.test");
 
-        Jwt accessToken = jwtDecoder.decode(JsonPath.read(token.getResponse().getContentAsString(), "$.access_token"));
+        String accessTokenValue = JsonPath.read(token.getResponse().getContentAsString(), "$.access_token");
+        Jwt accessToken = jwtDecoder.decode(accessTokenValue);
         assertThat(accessToken.getClaimAsStringList("roles")).containsExactly("INSPECTOR");
+
+        // 5. The app reads the userinfo endpoint (the stored authorization must deserialize)
+        mvc.perform(get("/userinfo").header("Authorization", "Bearer " + accessTokenValue))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sub").value("inspector.flow"))
+                .andExpect(jsonPath("$.name").value("Inspector inspector.flow"));
     }
 
     @Test
@@ -159,6 +166,25 @@ class AuthServerIntegrationTests {
         }
         // Even the right password is refused while locked
         assertThat(login(new MockHttpSession(), "inspector.locked", password)).isEqualTo("/login?locked");
+    }
+
+    @Test
+    void noTokenIsIssuedOnceTheUserIsDisabledEvenWithALiveSession() throws Exception {
+        String password = createUserWithPassword("inspector.revoked", Role.INSPECTOR);
+        MockHttpSession session = new MockHttpSession();
+        mvc.perform(get(URI.create(authorizeUrl())).session(session));
+        String code = authorizationCode(session, login(session, "inspector.revoked", password));
+
+        users.setEnabled(users.findByUsername("inspector.revoked").orElseThrow().getId(), false);
+
+        mvc.perform(post("/oauth2/token")
+                        .with(httpBasic("home-inspect-web", "web-secret"))
+                        .param("grant_type", "authorization_code")
+                        .param("code", code)
+                        .param("redirect_uri", REDIRECT_URI)
+                        .param("code_verifier", CODE_VERIFIER))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_grant"));
     }
 
     @Test

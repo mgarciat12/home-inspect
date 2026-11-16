@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(${user} ? #{admin.user.edit.title} : #{admin.users.new})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4" style="max-width: 40rem">
+    <a class="btn btn-link px-0 mb-2" th:href="@{/admin/users}"><i class="bi bi-arrow-left me-1"></i><span th:text="#{admin.users.title}">Usuarios</span></a>
+    <h1 class="h3 mb-3" th:text="${user} ? #{admin.user.edit.title} : #{admin.users.new}">Nuevo usuario</h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form th:action="${user} ? @{/admin/users/{id}(id=${user.id})} : @{/admin/users}" th:object="${form}" method="post" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label" th:text="#{admin.user.username}">Usuario</label>
+                    <input type="text" th:field="*{username}" class="form-control" th:readonly="${user != null}"
+                           th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                           autocapitalize="none" autocorrect="off" spellcheck="false">
+                    <div class="invalid-feedback" th:errors="*{username}"></div>
+                    <div class="form-text" th:unless="${user}" th:text="#{admin.user.username.hint}">No se puede cambiar.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="displayName" class="form-label" th:text="#{admin.user.displayName}">Nombre</label>
+                    <input type="text" th:field="*{displayName}" class="form-control"
+                           th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{displayName}"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label" th:text="#{admin.user.email}">Correo</label>
+                    <input type="email" th:field="*{email}" class="form-control" inputmode="email"
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{email}"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label" th:text="#{admin.user.role}">Rol</label>
+                    <select th:field="*{role}" class="form-select">
+                        <option th:each="role : ${roles}" th:value="${role}" th:text="#{'role.' + ${role}}">Rol</option>
+                    </select>
+                </div>
+                <div class="form-check form-switch mb-4" th:if="${user}">
+                    <input class="form-check-input" type="checkbox" role="switch" th:field="*{enabled}">
+                    <label class="form-check-label" for="enabled1" th:text="#{admin.user.active}">Activo</label>
+                </div>
+                <p class="small text-body-secondary" th:unless="${user}" th:text="#{admin.user.create.hint}">Se generará una contraseña temporal.</p>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i><span th:text="#{action.save}">Guardar</span></button>
+                    <a class="btn btn-outline-secondary" th:href="@{/admin/users}" th:text="#{action.cancel}">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

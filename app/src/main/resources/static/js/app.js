@@ -30,3 +30,16 @@
         if (message && !confirm(message)) event.preventDefault();
     });
 })();
+
+// Copy-to-clipboard buttons: data-copy="#element-id"
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-copy]');
+    if (!button) return;
+    var source = document.querySelector(button.dataset.copy);
+    var text = 'value' in source ? source.value : source.innerText;
+    navigator.clipboard.writeText(text.trim()).then(function () {
+        var original = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check2"></i>';
+        setTimeout(function () { button.innerHTML = original; }, 1200);
+    });
+});

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{admin.users.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h1 class="h3 mb-0" th:text="#{admin.users.title}">Usuarios</h1>
+        <a class="btn btn-primary" th:href="@{/admin/users/new}"><i class="bi bi-person-plus me-1"></i><span th:text="#{admin.users.new}">Nuevo usuario</span></a>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- Temporary password: shown only once -->
+    <div class="alert alert-warning border-warning-subtle shadow-sm" role="alert" th:if="${temporaryPassword}">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-shield-lock-fill fs-5"></i>
+            <strong th:text="#{admin.user.temporaryPassword.title}">Contraseña temporal</strong>
+        </div>
+        <p class="small mb-2" th:text="#{admin.user.temporaryPassword.hint(${temporaryUser})}">Cópiala ahora.</p>
+        <div class="input-group" style="max-width: 24rem">
+            <input type="text" class="form-control font-monospace" id="temporary-password" th:value="${temporaryPassword}" readonly>
+            <button class="btn btn-warning" type="button" data-copy="#temporary-password" th:title="#{action.copy}"><i class="bi bi-clipboard"></i></button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="list-group list-group-flush">
+            <div class="list-group-item py-3" th:each="user : ${users}">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <span class="avatar" th:text="${#strings.substring(user.displayName, 0, 1)}">A</span>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold text-truncate">
+                            <span th:text="${user.displayName}">Nombre</span>
+                            <span class="badge text-bg-primary ms-1" th:if="${user.role.name() == 'ADMIN'}" th:text="#{role.ADMIN}">Admin</span>
+                            <span class="badge text-bg-secondary ms-1" th:if="${user.role.name() == 'INSPECTOR'}" th:text="#{role.INSPECTOR}">Inspector</span>
+                            <span class="badge text-bg-danger ms-1" th:unless="${user.enabled}" th:text="#{admin.user.state.disabled}">Desactivado</span>
+                            <span class="badge text-bg-warning ms-1" th:if="${user.locked}" th:text="#{admin.user.state.locked}">Bloqueado</span>
+                            <span class="badge text-bg-info ms-1" th:if="${user.mustChangePassword}" th:text="#{admin.user.state.temporary}">Contraseña temporal</span>
+                        </div>
+                        <div class="small text-body-secondary text-truncate">
+                            <span class="font-monospace" th:text="${user.username}">usuario</span>
+                            <span th:if="${user.email}"> · <span th:text="${user.email}">email</span></span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/users/{id}/edit(id=${user.id})}">
+                            <i class="bi bi-pencil"></i><span class="ms-1" th:text="#{action.edit}">Editar</span>
+                        </a>
+                        <form th:action="@{/admin/users/{id}/password-reset(id=${user.id})}" method="post"
+                              th:attr="data-confirm=#{admin.user.passwordReset.confirm(${user.username})}">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-key"></i><span class="ms-1" th:text="#{admin.user.passwordReset.action}">Resetear contraseña</span>
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/users/{id}/enabled(id=${user.id})}" method="post" th:unless="${user.username == me}">
+                            <input type="hidden" name="enabled" th:value="${!user.enabled}">
+                            <button type="submit" class="btn btn-sm" th:classappend="${user.enabled} ? 'btn-outline-danger' : 'btn-outline-success'">
+                                <i class="bi" th:classappend="${user.enabled} ? 'bi-person-x' : 'bi-person-check'"></i>
+                                <span class="ms-1" th:text="${user.enabled} ? #{admin.user.disable} : #{admin.user.enable}">Desactivar</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="list-group-item py-4 text-center text-body-secondary" th:if="${#lists.isEmpty(users)}" th:text="#{admin.users.empty}">Sin usuarios</div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
