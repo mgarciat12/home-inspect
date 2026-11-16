@@ -14,9 +14,10 @@ class HomeController {
         this.authServerUrl = authServerUrl;
     }
 
+    /** The report list is the home page. */
     @GetMapping("/")
     String home() {
-        return "index";
+        return "redirect:/reports";
     }
 
     /** Shown when the OIDC login fails (disabled account, no role...). Public page. */

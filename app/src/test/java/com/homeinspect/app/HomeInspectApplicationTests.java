@@ -39,10 +39,16 @@ class HomeInspectApplicationTests {
     }
 
     @Test
-    void homePageRendersWithLayout() throws Exception {
+    void homeIsTheReportList() throws Exception {
         mvc.perform(get("/").with(users.login("home.user", Role.INSPECTOR)))
+                .andExpect(redirectedUrl("/reports"));
+    }
+
+    @Test
+    void reportListRendersWithLayout() throws Exception {
+        mvc.perform(get("/reports").with(users.login("home.user", Role.INSPECTOR)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Bienvenido a home-inspect")))
+                .andExpect(content().string(containsString("Nuevo informe")))
                 .andExpect(content().string(containsString("Name home.user")))
                 .andExpect(content().string(containsString("/webjars/bootstrap/5.3.9/dist/css/bootstrap.min.css")));
     }

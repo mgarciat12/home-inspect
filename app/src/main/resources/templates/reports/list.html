@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{reports.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h1 class="h3 mb-0" th:text="#{reports.title}">Informes</h1>
+        <a class="btn btn-primary btn-lg-mobile" th:href="@{/reports/new}"><i class="bi bi-plus-lg me-1"></i><span th:text="#{reports.new}">Nuevo informe</span></a>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form class="card border-0 shadow-sm mb-3" th:action="@{/reports}" method="get" th:object="${filter}">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label class="form-label small mb-1" for="q" th:text="#{reports.filter.search}">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="q" name="q" th:value="*{q}" th:placeholder="#{reports.filter.searchPlaceholder}">
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1" for="status" th:text="#{reports.filter.status}">Estado</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="" th:text="#{reports.filter.all}">Todos</option>
+                        <option th:each="s : ${statuses}" th:value="${s}" th:selected="${filter.status == s}" th:text="#{'enum.ReportStatus.' + ${s}}">Borrador</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1" for="from" th:text="#{reports.filter.from}">Desde</label>
+                    <input type="date" class="form-control" id="from" name="from" th:value="*{from}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1" for="to" th:text="#{reports.filter.to}">Hasta</label>
+                    <input type="date" class="form-control" id="to" name="to" th:value="*{to}">
+                </div>
+                <div class="col-6 col-md-1 d-grid">
+                    <button type="submit" class="btn btn-outline-primary" th:title="#{action.search}"><i class="bi bi-funnel"></i></button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="card border-0 shadow-sm">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item list-group-item-action py-3" th:each="r : ${page.content}" th:href="@{/reports/{id}/edit(id=${r.id})}">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="icon-tile bg-primary-subtle text-primary-emphasis d-none d-sm-inline-grid"><i class="bi bi-house-door"></i></span>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="font-monospace small text-body-secondary" th:text="${r.number}">2026-0001</span>
+                            <span class="badge" th:classappend="${r.status.name() == 'FINAL'} ? 'text-bg-success' : 'text-bg-secondary'"
+                                  th:text="#{'enum.ReportStatus.' + ${r.status}}">Borrador</span>
+                        </div>
+                        <div class="fw-semibold text-truncate" th:text="${r.address} + (${r.city} ? ', ' + ${r.city} : '')">Dirección</div>
+                        <div class="small text-body-secondary text-truncate">
+                            <i class="bi bi-calendar3 me-1"></i><span th:text="${#temporals.format(r.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</span>
+                            <span th:if="${r.clientName}"> · <i class="bi bi-person me-1"></i><span th:text="${r.clientName}">cliente</span></span>
+                            <span th:if="${isAdmin}"> · <i class="bi bi-person-badge me-1"></i><span th:text="${r.inspectorName}">inspector</span></span>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right text-body-secondary align-self-center"></i>
+                </div>
+            </a>
+            <div class="list-group-item py-5 text-center text-body-secondary" th:if="${page.empty}">
+                <i class="bi bi-clipboard2 fs-1 d-block mb-2"></i>
+                <span th:text="#{reports.empty}">No hay informes.</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="mt-3" th:if="${page.totalPages > 1}" th:aria-label="#{pagination.label}">
+        <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/reports(q=${filter.q},status=${filter.status},from=${filter.from},to=${filter.to},page=${page.number - 1})}" th:aria-label="#{pagination.previous}">&laquo;</a>
+            </li>
+            <li class="page-item" th:each="n : ${#numbers.sequence(T(java.lang.Math).max(0, page.number - 2), T(java.lang.Math).min(page.totalPages - 1, page.number + 2))}"
+                th:classappend="${n == page.number} ? 'active'">
+                <a class="page-link" th:href="@{/reports(q=${filter.q},status=${filter.status},from=${filter.from},to=${filter.to},page=${n})}" th:text="${n + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/reports(q=${filter.q},status=${filter.status},from=${filter.from},to=${filter.to},page=${page.number + 1})}" th:aria-label="#{pagination.next}">&raquo;</a>
+            </li>
+        </ul>
+        <p class="text-center small text-body-secondary" th:text="#{pagination.summary(${page.totalElements})}">X informes</p>
+    </nav>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

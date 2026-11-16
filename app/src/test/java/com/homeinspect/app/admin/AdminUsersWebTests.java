@@ -101,7 +101,7 @@ class AdminUsersWebTests {
     void disabledUserLosesTheirSessionOnTheNextRequest() throws Exception {
         var inspectorLogin = users.login("insp.todisable", Role.INSPECTOR);
         MockHttpSession session = new MockHttpSession();
-        mvc.perform(get("/").session(session).with(inspectorLogin)).andExpect(status().isOk());
+        mvc.perform(get("/reports").session(session).with(inspectorLogin)).andExpect(status().isOk());
 
         when(client.get(7)).thenReturn(remote(7, "insp.todisable", Role.INSPECTOR, true));
         when(client.setEnabled(7, false)).thenReturn(remote(7, "insp.todisable", Role.INSPECTOR, false));
@@ -111,7 +111,7 @@ class AdminUsersWebTests {
         assertThat(profiles.findBySubject("insp.todisable").orElseThrow().isActive()).isFalse();
 
         // Same authentication, now stale: the filter ends the session
-        mvc.perform(get("/").session(session).with(org.springframework.security.test.web.servlet.request
+        mvc.perform(get("/reports").session(session).with(org.springframework.security.test.web.servlet.request
                         .SecurityMockMvcRequestPostProcessors.oidcLogin()
                         .idToken(token -> token.subject("insp.todisable"))
                         .authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_INSPECTOR"))))

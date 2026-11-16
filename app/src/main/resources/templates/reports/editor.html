@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es"
+      th:with="r=${editor.report}, cur=${editor.current}">
+<head th:replace="~{fragments/layout :: head(${editor.report.number})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-3 py-lg-4" th:attr="data-report-id=${r.id}">
+
+    <!-- Report header -->
+    <div class="d-flex flex-wrap align-items-start gap-2 mb-2">
+        <div class="flex-grow-1 min-w-0">
+            <a class="small text-decoration-none" th:href="@{/reports}"><i class="bi bi-arrow-left me-1"></i><span th:text="#{reports.title}">Informes</span></a>
+            <h1 class="h4 mb-0 text-truncate" th:text="${r.address}">Dirección</h1>
+            <div class="small text-body-secondary">
+                <span class="font-monospace" th:text="${r.number}">2026-0001</span>
+                · <span th:text="${#temporals.format(r.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</span>
+                <span th:if="${r.clientName}"> · <span th:text="${r.clientName}">cliente</span></span>
+                · <span class="badge" th:classappend="${r.status.name() == 'FINAL'} ? 'text-bg-success' : 'text-bg-secondary'"
+                        th:text="#{'enum.ReportStatus.' + ${r.status}}">Borrador</span>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical"></i><span class="ms-1 d-none d-sm-inline" th:text="#{report.actions}">Acciones</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                <li><a class="dropdown-item" th:href="@{/reports/{id}/header(id=${r.id})}"><i class="bi bi-card-text me-2"></i><span th:text="#{report.header.edit}">Datos generales</span></a></li>
+                <li><a class="dropdown-item" th:href="@{/reports/{id}/preview(id=${r.id})}"><i class="bi bi-eye me-2"></i><span th:text="#{report.preview}">Vista previa</span></a></li>
+                <li><a class="dropdown-item" th:href="@{/reports/{id}/pdf(id=${r.id})}"><i class="bi bi-file-earmark-pdf me-2"></i><span th:text="#{report.pdf}">Descargar PDF</span></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form th:action="@{/reports/{id}/duplicate(id=${r.id})}" method="post" th:attr="data-confirm=#{report.duplicate.confirm}">
+                        <button type="submit" class="dropdown-item"><i class="bi bi-copy me-2"></i><span th:text="#{report.duplicate}">Duplicar</span></button>
+                    </form>
+                </li>
+                <li th:if="${editor.editable}">
+                    <form th:action="@{/reports/{id}/finalize(id=${r.id})}" method="post" th:attr="data-confirm=#{report.finalize.confirm}">
+                        <button type="submit" class="dropdown-item"><i class="bi bi-lock me-2"></i><span th:text="#{report.finalize}">Finalizar</span></button>
+                    </form>
+                </li>
+                <li th:if="${editor.canReopen}">
+                    <form th:action="@{/reports/{id}/reopen(id=${r.id})}" method="post">
+                        <button type="submit" class="dropdown-item"><i class="bi bi-unlock me-2"></i><span th:text="#{report.reopen}">Reabrir</span></button>
+                    </form>
+                </li>
+                <li th:if="${editor.editable or editor.canReopen}"><hr class="dropdown-divider"></li>
+                <li th:if="${editor.editable or editor.canReopen}">
+                    <form th:action="@{/reports/{id}/delete(id=${r.id})}" method="post" th:attr="data-confirm=#{report.delete.confirm}">
+                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i><span th:text="#{report.delete}">Eliminar</span></button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="alert alert-info d-flex gap-2" th:unless="${editor.editable}">
+        <i class="bi bi-lock-fill"></i><span th:text="#{report.locked}">Informe finalizado: solo lectura.</span>
+    </div>
+
+    <!-- Global progress + save status -->
+    <div class="editor-status sticky-top d-flex align-items-center gap-3 py-2 mb-3">
+        <div class="flex-grow-1">
+            <div class="progress" role="progressbar" style="height: .5rem" th:aria-valuenow="${r.percent()}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" id="globalProgress" th:style="'width:' + ${r.percent()} + '%'"></div>
+            </div>
+            <div class="small text-body-secondary mt-1">
+                <span id="globalCount" th:text="#{report.progress(${r.completed}, ${r.total})}">0 de 0 elementos</span>
+            </div>
+        </div>
+        <span class="save-status small" id="saveStatus" th:if="${editor.editable}" aria-live="polite">
+            <i class="bi bi-cloud-check"></i> <span th:text="#{autosave.saved}">Guardado</span>
+        </span>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sections: side list on desktop -->
+        <aside class="col-lg-3 d-none d-lg-block">
+            <div class="list-group section-nav sticky-lg-top shadow-sm">
+                <a th:each="s : ${editor.sections}" th:href="@{/reports/{id}/edit(id=${r.id},section=${s.code})}"
+                   class="list-group-item list-group-item-action d-flex align-items-center gap-2"
+                   th:classappend="${s.code == cur.code} ? 'active'" th:attr="data-section-nav=${s.id}">
+                    <span class="small opacity-75" th:text="${s.number}">1</span>
+                    <span class="flex-grow-1 text-truncate" th:text="${s.title}">Tejado</span>
+                    <span class="badge rounded-pill section-progress" th:classappend="${s.done()} ? 'text-bg-success' : 'text-bg-light border'"
+                          th:text="${s.notApplicable} ? #{report.section.na.short} : ${s.completed} + '/' + ${s.total}">0/5</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="col-lg-9">
+            <!-- Sections: select on mobile -->
+            <div class="d-lg-none mb-3">
+                <label class="form-label small text-body-secondary mb-1" for="sectionSelect" th:text="#{report.section.choose}">Sección</label>
+                <select class="form-select form-select-lg" id="sectionSelect" data-navigate>
+                    <option th:each="s : ${editor.sections}" th:value="@{/reports/{id}/edit(id=${r.id},section=${s.code})}"
+                            th:selected="${s.code == cur.code}"
+                            th:text="${s.number} + '. ' + ${s.title} + ' (' + (${s.notApplicable} ? #{report.section.na.short} : ${s.completed} + '/' + ${s.total}) + ')'">1. Tejado</option>
+                </select>
+            </div>
+
+            <div class="d-flex align-items-baseline gap-2 mb-1">
+                <span class="h4 mb-0 text-body-secondary" th:text="${cur.number} + '.'">1.</span>
+                <h2 class="h4 mb-0" th:text="${cur.title}">Tejado</h2>
+            </div>
+            <p class="text-body-secondary small" th:text="${cur.description}">Descripción</p>
+
+            <!-- General fields of the section -->
+            <form class="card border-0 shadow-sm mb-3" th:attr="data-autosave=@{/reports/{id}/sections/{s}(id=${r.id},s=${cur.id})},data-kind='section',data-section-id=${cur.id}">
+                <fieldset class="card-body" th:disabled="${!editor.editable}">
+                    <div class="form-check form-switch mb-3" th:if="${cur.optional}">
+                        <input class="form-check-input" type="checkbox" role="switch" name="notApplicable" value="true"
+                               th:id="'na-' + ${cur.id}" th:checked="${cur.notApplicable}">
+                        <label class="form-check-label" th:for="'na-' + ${cur.id}" th:text="#{report.section.na}">Esta sección no aplica</label>
+                    </div>
+                    <div class="mb-3" th:unless="${#lists.isEmpty(cur.methods)}">
+                        <label class="form-label" th:for="'method-' + ${cur.id}" th:text="#{report.section.method}">Método de inspección</label>
+                        <select class="form-select" name="inspectionMethod" th:id="'method-' + ${cur.id}">
+                            <option value="" th:text="#{form.choose}">—</option>
+                            <option th:each="m : ${cur.methods}" th:value="${m}" th:text="${m}" th:selected="${m == cur.inspectionMethod}">Método</option>
+                        </select>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" th:for="'gc-' + ${cur.id}" th:text="#{report.section.comments}">Comentarios generales</label>
+                            <textarea class="form-control" rows="3" name="generalComments" th:id="'gc-' + ${cur.id}" th:text="${cur.generalComments}"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" th:for="'gl-' + ${cur.id}" th:text="#{report.section.limitations}">Limitaciones generales</label>
+                            <textarea class="form-control" rows="3" name="generalLimitations" th:id="'gl-' + ${cur.id}" th:text="${cur.generalLimitations}"></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <!-- Items -->
+            <div class="accordion item-list" th:id="'items-' + ${cur.id}">
+                <div class="accordion-item border-0 shadow-sm mb-2 rounded-3 overflow-hidden" th:each="item, st : ${cur.items}" th:id="'item-' + ${item.id}">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button collapsed gap-2" type="button" data-bs-toggle="collapse"
+                                th:attr="data-bs-target='#body-' + ${item.id},aria-controls='body-' + ${item.id}" aria-expanded="false">
+                            <i class="bi item-done" th:classappend="${item.completed} ? 'bi-check-circle-fill text-success' : 'bi-circle text-body-tertiary'"></i>
+                            <span class="small text-body-secondary font-monospace" th:text="${item.reference}">1.1</span>
+                            <span class="fw-semibold flex-grow-1" th:text="${item.title}">Cubierta</span>
+                            <span class="badge rating-badge" th:if="${item.rating}" th:classappend="'rating-' + ${item.rating}"
+                                  th:text="#{'enum.Rating.' + ${item.rating}}">Correcto</span>
+                            <span class="badge text-bg-light border rating-badge" th:if="${item.status != null and item.status.name() != 'INSPECTED'}"
+                                  th:text="#{'enum.ItemStatus.' + ${item.status}}">No presente</span>
+                        </button>
+                    </h3>
+                    <div class="accordion-collapse collapse" th:id="'body-' + ${item.id}">
+                        <form class="accordion-body" th:attr="data-autosave=@{/reports/{id}/items/{i}(id=${r.id},i=${item.id})},data-kind='item',data-item-id=${item.id}">
+                            <fieldset th:disabled="${!editor.editable}">
+                                <!-- Status -->
+                                <div class="mb-3">
+                                    <div class="form-label fw-semibold" th:text="#{item.status}">Estado</div>
+                                    <div class="btn-group w-100 flex-wrap" role="group">
+                                        <th:block th:each="s : ${itemStatuses}">
+                                            <input type="radio" class="btn-check" name="status" th:value="${s}" th:id="'st-' + ${item.id} + '-' + ${s}" th:checked="${item.status == s}" autocomplete="off">
+                                            <label class="btn btn-outline-primary" th:for="'st-' + ${item.id} + '-' + ${s}" th:text="#{'enum.ItemStatus.' + ${s}}">Inspeccionado</label>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <!-- Rating -->
+                                <fieldset class="mb-3 rating-group" th:disabled="${!editor.editable or item.status == null or item.status.name() != 'INSPECTED'}">
+                                    <div class="form-label fw-semibold" th:text="#{item.rating}">Valoración</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <th:block th:each="rt : ${ratings}">
+                                            <input type="radio" class="btn-check" name="rating" th:value="${rt}" th:id="'rt-' + ${item.id} + '-' + ${rt}" th:checked="${item.rating == rt}" autocomplete="off">
+                                            <label class="btn btn-rating" th:classappend="'btn-rating-' + ${rt}" th:for="'rt-' + ${item.id} + '-' + ${rt}" th:text="#{'enum.Rating.' + ${rt}}">Correcto</label>
+                                        </th:block>
+                                    </div>
+                                </fieldset>
+                                <!-- Description / material -->
+                                <div class="mb-3">
+                                    <div class="form-label fw-semibold" th:text="#{item.materials}">Descripción / material</div>
+                                    <div class="option-grid">
+                                        <div class="form-check" th:each="m, ms : ${item.materialOptions}">
+                                            <input class="form-check-input" type="checkbox" name="materials" th:value="${m}" th:id="'mt-' + ${item.id} + '-' + ${ms.index}" th:checked="${#lists.contains(item.materials, m)}">
+                                            <label class="form-check-label" th:for="'mt-' + ${item.id} + '-' + ${ms.index}" th:text="${m}">Teja</label>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control mt-2" name="materialOther" th:value="${item.materialOther}" th:placeholder="#{item.materialOther}" th:aria-label="#{item.materialOther}">
+                                </div>
+                                <!-- Limitations -->
+                                <div class="mb-3">
+                                    <div class="form-label fw-semibold" th:text="#{item.limitations}">Limitaciones</div>
+                                    <div class="option-grid">
+                                        <div class="form-check" th:each="l, ls : ${item.limitationOptions}">
+                                            <input class="form-check-input" type="checkbox" name="limitations" th:value="${l}" th:id="'lm-' + ${item.id} + '-' + ${ls.index}" th:checked="${#lists.contains(item.limitations, l)}">
+                                            <label class="form-check-label" th:for="'lm-' + ${item.id} + '-' + ${ls.index}" th:text="${l}">Sin acceso</label>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control mt-2" name="limitationText" th:value="${item.limitationText}" th:placeholder="#{item.limitationText}" th:aria-label="#{item.limitationText}">
+                                </div>
+                                <!-- Observations + comment library -->
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <label class="form-label fw-semibold mb-0" th:for="'ob-' + ${item.id}" th:text="#{item.observations}">Observaciones</label>
+                                        <div class="dropdown" th:unless="${#lists.isEmpty(item.comments)}">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-chat-square-quote me-1"></i><span th:text="#{item.commentLibrary}">Comentarios</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end comment-menu shadow">
+                                                <li th:each="c : ${item.comments}">
+                                                    <button type="button" class="dropdown-item text-wrap small" th:attr="data-insert-comment=${c},data-target='ob-' + ${item.id}" th:text="${c}">Comentario</button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <textarea class="form-control" rows="4" name="observations" th:id="'ob-' + ${item.id}" th:text="${item.observations}"></textarea>
+                                </div>
+                                <!-- Recommendation -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold" th:for="'rc-' + ${item.id}" th:text="#{item.recommendation}">Recomendación</label>
+                                    <select class="form-select" name="recommendation" th:id="'rc-' + ${item.id}">
+                                        <option value="" th:text="#{form.choose}">—</option>
+                                        <option th:each="rc : ${recommendations}" th:value="${rc}" th:selected="${item.recommendation == rc}" th:text="#{'enum.Recommendation.' + ${rc}}">Vigilar</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2" name="recommendationText" th:value="${item.recommendationText}" th:placeholder="#{item.recommendationText}" th:aria-label="#{item.recommendationText}">
+                                </div>
+                            </fieldset>
+                            <!-- Photos (rendered by the photos fragment) -->
+                            <div th:replace="~{reports/photos :: itemPhotos(${r.id}, ${item.id}, ${editor.editable})}"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous / next section -->
+            <div class="d-flex justify-content-between gap-2 mt-4">
+                <a class="btn btn-outline-secondary" th:if="${cur.previousCode}" th:href="@{/reports/{id}/edit(id=${r.id},section=${cur.previousCode})}">
+                    <i class="bi bi-arrow-left me-1"></i><span th:text="#{report.section.previous}">Anterior</span></a>
+                <span th:unless="${cur.previousCode}"></span>
+                <a class="btn btn-primary" th:if="${cur.nextCode}" th:href="@{/reports/{id}/edit(id=${r.id},section=${cur.nextCode})}">
+                    <span th:text="#{report.section.next}">Siguiente</span><i class="bi bi-arrow-right ms-1"></i></a>
+                <a class="btn btn-primary" th:unless="${cur.nextCode}" th:href="@{/reports/{id}/preview(id=${r.id})}">
+                    <i class="bi bi-eye me-1"></i><span th:text="#{report.preview}">Vista previa</span></a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Texts for editor.js -->
+<script type="application/json" id="editorMessages" th:inline="javascript">
+    /*[[${ {
+        saved: #messages.msg('autosave.saved'),
+        saving: #messages.msg('autosave.saving'),
+        pending: #messages.msg('autosave.pending'),
+        offline: #messages.msg('autosave.offline'),
+        locked: #messages.msg('autosave.locked'),
+        expired: #messages.msg('autosave.expired'),
+        restored: #messages.msg('autosave.restored'),
+        progress: #messages.msg('report.progress', '{0}', '{1}')
+    } }]]*/ {}
+</script>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script th:src="@{/js/editor.js}"></script>
+</body>
+</html>

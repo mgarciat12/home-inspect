@@ -216,3 +216,91 @@ textarea.form-control {
 .app-footer {
     border-top: 1px solid var(--bs-border-color);
 }
+
+/* ---- Ratings (same colors as the PDF legend) ---- */
+:root {
+    --hi-rating-SATISFACTORY: #15803d;
+    --hi-rating-MAINTENANCE: #0369a1;
+    --hi-rating-REPAIR: #c2410c;
+    --hi-rating-SAFETY_HAZARD: #b91c1c;
+    --hi-rating-SPECIALIST: #7e22ce;
+}
+.rating-SATISFACTORY { --hi-rating: var(--hi-rating-SATISFACTORY); }
+.rating-MAINTENANCE { --hi-rating: var(--hi-rating-MAINTENANCE); }
+.rating-REPAIR { --hi-rating: var(--hi-rating-REPAIR); }
+.rating-SAFETY_HAZARD { --hi-rating: var(--hi-rating-SAFETY_HAZARD); }
+.rating-SPECIALIST { --hi-rating: var(--hi-rating-SPECIALIST); }
+.rating-badge[class*="rating-"] {
+    background: var(--hi-rating);
+    color: #fff;
+    font-weight: 600;
+}
+.btn-rating {
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--hi-soft);
+    --bs-btn-hover-border-color: var(--hi-rating);
+    border-left: 4px solid var(--hi-rating);
+}
+.btn-rating-SATISFACTORY { --hi-rating: var(--hi-rating-SATISFACTORY); }
+.btn-rating-MAINTENANCE { --hi-rating: var(--hi-rating-MAINTENANCE); }
+.btn-rating-REPAIR { --hi-rating: var(--hi-rating-REPAIR); }
+.btn-rating-SAFETY_HAZARD { --hi-rating: var(--hi-rating-SAFETY_HAZARD); }
+.btn-rating-SPECIALIST { --hi-rating: var(--hi-rating-SPECIALIST); }
+.btn-check:checked + .btn-rating {
+    background: var(--hi-rating);
+    border-color: var(--hi-rating);
+    color: #fff;
+}
+
+/* ---- Editor ---- */
+.editor-status {
+    top: 3.6rem;
+    z-index: 1010;
+    background: var(--hi-page);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.save-status {
+    white-space: nowrap;
+    color: var(--bs-secondary-color);
+}
+.save-status.is-saved { color: var(--hi-rating-SATISFACTORY); }
+.save-status.is-pending { color: var(--bs-secondary-color); }
+.save-status.is-saving .bi { display: inline-block; animation: hi-spin 1s linear infinite; }
+.save-status.is-offline,
+.save-status.is-error { color: var(--hi-rating-SAFETY_HAZARD); font-weight: 600; }
+@keyframes hi-spin { to { transform: rotate(360deg); } }
+
+.section-nav {
+    top: 8rem;
+}
+.section-nav .list-group-item.active .badge.text-bg-light {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #000 !important;
+}
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 0.25rem 1rem;
+}
+.option-grid .form-check {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+.comment-menu {
+    max-width: min(28rem, 90vw);
+    max-height: 60vh;
+    overflow-y: auto;
+}
+.accordion-button:not(.collapsed) {
+    background: var(--hi-soft);
+    color: var(--bs-body-color);
+}
+.item-list .accordion-item {
+    background: var(--hi-surface);
+}
+@media (max-width: 575.98px) {
+    .btn-group > .btn {
+        flex: 1 1 auto;
+    }
+}

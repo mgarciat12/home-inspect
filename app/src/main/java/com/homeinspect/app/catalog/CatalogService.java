@@ -1,0 +1,46 @@
+package com.homeinspect.app.catalog;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/** Read access to the catalog: active structure for new reports, options and comments for the editor. */
+@Service
+@RequiredArgsConstructor
+public class CatalogService {
+
+    private final SectionDefRepository sections;
+    private final ItemDefRepository items;
+    private final LimitationDefRepository limitations;
+    private final CommentTemplateRepository comments;
+
+    @Transactional(readOnly = true)
+    public List<SectionDef> activeSections() {
+        return sections.findByActiveTrueOrderByPositionAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemDef> activeItems(SectionDef section) {
+        return items.findBySectionAndActiveTrueOrderByPositionAsc(section);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> commonLimitations() {
+        return limitations.findAllByOrderByPositionAsc().stream().map(LimitationDef::getLabel).toList();
+    }
+
+    /** Comment library texts grouped by item id. */
+    @Transactional(readOnly = true)
+    public Map<Long, List<String>> commentsByItem(List<Long> itemIds) {
+        if (itemIds.isEmpty()) {
+            return Map.of();
+        }
+        return comments.findByItemIds(itemIds).stream()
+                .collect(Collectors.groupingBy(c -> c.getItem().getId(),
+                        Collectors.mapping(CommentTemplate::getText, Collectors.toList())));
+    }
+}

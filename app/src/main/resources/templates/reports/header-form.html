@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(${reportId} ? #{report.header.edit} : #{reports.new})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="container py-4" style="max-width: 52rem">
+    <a class="btn btn-link px-0 mb-2" th:href="${reportId} ? @{/reports/{id}/edit(id=${reportId})} : @{/reports}">
+        <i class="bi bi-arrow-left me-1"></i><span th:text="${reportId} ? #{report.backToEditor} : #{reports.title}">Volver</span>
+    </a>
+    <h1 class="h3 mb-1" th:text="${reportId} ? #{report.header.edit} : #{reports.new}">Nuevo informe</h1>
+    <p class="text-body-secondary font-monospace small" th:if="${reportNumber}" th:text="${reportNumber}">2026-0001</p>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form th:action="${reportId} ? @{/reports/{id}/header(id=${reportId})} : @{/reports}" th:object="${form}" method="post" novalidate>
+        <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}" th:text="#{form.hasErrors}">Revisa los campos marcados.</div>
+
+        <!-- Inspection -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-body-secondary mb-3"><i class="bi bi-calendar-check me-2"></i><span th:text="#{report.header.inspection}">Inspección</span></h2>
+                <label for="inspectedAt" class="form-label" th:text="#{report.inspectedAt}">Fecha y hora</label>
+                <input type="datetime-local" th:field="*{inspectedAt}" class="form-control" th:classappend="${#fields.hasErrors('inspectedAt')} ? 'is-invalid'">
+                <div class="invalid-feedback" th:errors="*{inspectedAt}"></div>
+            </div>
+        </div>
+
+        <!-- Client -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-body-secondary mb-3"><i class="bi bi-person me-2"></i><span th:text="#{report.header.client}">Cliente</span></h2>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="clientName" class="form-label" th:text="#{report.clientName}">Nombre</label>
+                        <input type="text" th:field="*{clientName}" class="form-control" autocomplete="off" th:classappend="${#fields.hasErrors('clientName')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{clientName}"></div>
+                    </div>
+                    <div class="col-md-7">
+                        <label for="clientEmail" class="form-label" th:text="#{report.clientEmail}">Email</label>
+                        <input type="email" th:field="*{clientEmail}" class="form-control" inputmode="email" autocomplete="off" th:classappend="${#fields.hasErrors('clientEmail')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{clientEmail}"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="clientPhone" class="form-label" th:text="#{report.clientPhone}">Teléfono</label>
+                        <input type="tel" th:field="*{clientPhone}" class="form-control" inputmode="tel" autocomplete="off" th:classappend="${#fields.hasErrors('clientPhone')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{clientPhone}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-body-secondary mb-3"><i class="bi bi-house-door me-2"></i><span th:text="#{report.header.property}">Inmueble</span></h2>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="address" class="form-label"><span th:text="#{report.address}">Dirección</span> *</label>
+                        <input type="text" th:field="*{address}" class="form-control" th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'" required>
+                        <div class="invalid-feedback" th:errors="*{address}"></div>
+                    </div>
+                    <div class="col-5 col-md-3">
+                        <label for="postalCode" class="form-label" th:text="#{report.postalCode}">C.P.</label>
+                        <input type="text" th:field="*{postalCode}" class="form-control" inputmode="numeric" th:classappend="${#fields.hasErrors('postalCode')} ? 'is-invalid'">
+                    </div>
+                    <div class="col-7 col-md-5">
+                        <label for="city" class="form-label" th:text="#{report.city}">Localidad</label>
+                        <input type="text" th:field="*{city}" class="form-control" th:classappend="${#fields.hasErrors('city')} ? 'is-invalid'">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="province" class="form-label" th:text="#{report.province}">Provincia</label>
+                        <input type="text" th:field="*{province}" class="form-control" th:classappend="${#fields.hasErrors('province')} ? 'is-invalid'">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="propertyType" class="form-label" th:text="#{report.propertyType}">Tipo</label>
+                        <select th:field="*{propertyType}" class="form-select">
+                            <option value="" th:text="#{form.choose}">—</option>
+                            <option th:each="v : ${propertyTypes}" th:value="${v}" th:text="#{'enum.PropertyType.' + ${v}}">Piso</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="yearBuilt" class="form-label" th:text="#{report.yearBuilt}">Año</label>
+                        <input type="number" th:field="*{yearBuilt}" class="form-control" inputmode="numeric" min="1000" max="2100" th:classappend="${#fields.hasErrors('yearBuilt')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{yearBuilt}"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="areaM2" class="form-label" th:text="#{report.areaM2}">m²</label>
+                        <input type="number" th:field="*{areaM2}" class="form-control" inputmode="decimal" step="0.01" min="0" th:classappend="${#fields.hasErrors('areaM2')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{areaM2}"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="floors" class="form-label" th:text="#{report.floors}">Plantas</label>
+                        <input type="number" th:field="*{floors}" class="form-control" inputmode="numeric" min="0" th:classappend="${#fields.hasErrors('floors')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{floors}"></div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label for="occupancy" class="form-label" th:text="#{report.occupancy}">Ocupación</label>
+                        <select th:field="*{occupancy}" class="form-select">
+                            <option value="" th:text="#{form.choose}">—</option>
+                            <option th:each="v : ${occupancies}" th:value="${v}" th:text="#{'enum.Occupancy.' + ${v}}">Vacío</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-5">
+                        <label for="peoplePresent" class="form-label" th:text="#{report.peoplePresent}">Presentes</label>
+                        <input type="text" th:field="*{peoplePresent}" class="form-control" th:placeholder="#{report.peoplePresent.placeholder}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conditions -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-body-secondary mb-3"><i class="bi bi-cloud-sun me-2"></i><span th:text="#{report.header.conditions}">Condiciones</span></h2>
+                <div class="row g-3">
+                    <div class="col-12 col-md-5">
+                        <label for="weather" class="form-label" th:text="#{report.weather}">Meteorología</label>
+                        <select th:field="*{weather}" class="form-select">
+                            <option value="" th:text="#{form.choose}">—</option>
+                            <option th:each="v : ${weathers}" th:value="${v}" th:text="#{'enum.Weather.' + ${v}}">Soleado</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="temperatureC" class="form-label" th:text="#{report.temperatureC}">Temperatura</label>
+                        <div class="input-group">
+                            <input type="number" th:field="*{temperatureC}" class="form-control" inputmode="decimal" step="0.5" th:classappend="${#fields.hasErrors('temperatureC')} ? 'is-invalid'">
+                            <span class="input-group-text">ºC</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label for="soilCondition" class="form-label" th:text="#{report.soilCondition}">Suelo</label>
+                        <select th:field="*{soilCondition}" class="form-select">
+                            <option value="" th:text="#{form.choose}">—</option>
+                            <option th:each="v : ${soilConditions}" th:value="${v}" th:text="#{'enum.SoilCondition.' + ${v}}">Seco</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid d-md-flex gap-2 mb-4">
+            <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check2 me-1"></i>
+                <span th:text="${reportId} ? #{action.save} : #{report.create}">Crear informe</span></button>
+            <a class="btn btn-outline-secondary btn-lg" th:href="${reportId} ? @{/reports/{id}/edit(id=${reportId})} : @{/reports}" th:text="#{action.cancel}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
