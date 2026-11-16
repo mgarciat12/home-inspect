@@ -41,7 +41,7 @@ El desarrollo va por fases:
 | 2 | `auth-server`: OAuth2/OIDC, usuarios en BD, login propio, claves persistentes, roles, API de usuarios | ✅ |
 | 3 | `app` como cliente OAuth2: login, logout, roles y panel de administración de usuarios | ✅ |
 | 4 | Modelo del informe, catálogo del SOP y editor con autoguardado | ✅ |
-| 5 | Subida y gestión de fotos | ⏳ en curso |
+| 5 | Subida y gestión de fotos, firma del inspector | ✅ |
 | 6 | Resumen automático de hallazgos y vista previa | ⏳ |
 | 7 | Exportación a PDF | ⏳ |
 | 8 | Ajustes de empresa, biblioteca de comentarios editable, MFA opcional, repaso de seguridad | ⏳ |
@@ -67,6 +67,15 @@ El desarrollo va por fases:
 - Estados `Borrador` → `Finalizado`: un informe finalizado queda bloqueado y solo un administrador puede reabrirlo.
 - Listado con buscador (dirección, cliente o nº), filtros por estado y fecha, y paginación.
 - Duplicar un informe para usarlo como plantilla.
+
+**Fotos**
+- Varias fotos por elemento: cámara del móvil, galería o arrastrar y soltar en escritorio.
+- Se valida el tipo real del archivo (JPEG, PNG o HEIC; el HEIC se convierte con libheif dentro del contenedor).
+- Se corrige la orientación EXIF y se guarda una versión optimizada (1600 px) y una miniatura (400 px),
+  re-codificadas **sin metadatos**: no se sirve la posición GPS. El original no se conserva.
+- Pie de foto, orden, foto de portada y borrado. Las imágenes solo se sirven a usuarios con acceso al informe.
+- Al borrar una foto o un informe se eliminan sus ficheros del disco.
+- Cada inspector sube su firma en **Mi perfil**; aparecerá en el PDF.
 - Modo claro, oscuro o automático.
 
 ## Arquitectura

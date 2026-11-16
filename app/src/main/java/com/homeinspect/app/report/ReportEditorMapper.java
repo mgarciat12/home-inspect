@@ -3,6 +3,8 @@ package com.homeinspect.app.report;
 import com.homeinspect.app.catalog.CatalogService;
 import com.homeinspect.app.catalog.ItemDef;
 import com.homeinspect.app.catalog.SectionDef;
+import com.homeinspect.app.photo.PhotoService;
+import com.homeinspect.app.photo.PhotoView;
 import com.homeinspect.app.report.dto.ReportEditorView;
 import com.homeinspect.app.report.dto.ReportEditorView.ItemView;
 import com.homeinspect.app.report.dto.ReportEditorView.SectionNav;
@@ -23,6 +25,7 @@ import java.util.Map;
 class ReportEditorMapper {
 
     private final CatalogService catalog;
+    private final PhotoService photos;
 
     ReportEditorView editor(Report report, String sectionCode, boolean editable, boolean canReopen) {
         List<ReportSection> ordered = orderedSections(report);
@@ -49,7 +52,7 @@ class ReportEditorMapper {
                 }
             }
         }
-        SectionView current = ordered.isEmpty() ? null : section(ordered, index);
+        SectionView current = ordered.isEmpty() ? null : section(report, ordered, index);
 
         Summary summary = new Summary(report.getId(), report.getNumber(), report.getStatus(), report.getAddress(),
                 report.getCity(), report.getClientName(), report.getInspector().getDisplayName(),
@@ -57,13 +60,15 @@ class ReportEditorMapper {
         return new ReportEditorView(summary, nav, current, editable, canReopen);
     }
 
-    private SectionView section(List<ReportSection> ordered, int index) {
+    private SectionView section(Report report, List<ReportSection> ordered, int index) {
         ReportSection section = ordered.get(index);
         SectionDef definition = section.getDefinition();
         List<ReportItem> sectionItems = orderedItems(section);
         Map<Long, List<String>> comments = catalog.commentsByItem(
                 sectionItems.stream().map(i -> i.getDefinition().getId()).toList());
         List<String> commonLimitations = catalog.commonLimitations();
+        Map<Long, List<PhotoView>> itemPhotos = photos.byItems(report.getId(),
+                sectionItems.stream().map(ReportItem::getId).toList(), report.getCoverPhotoId());
 
         List<ItemView> itemViews = new ArrayList<>();
         for (int i = 0; i < sectionItems.size(); i++) {
@@ -75,7 +80,8 @@ class ReportEditorMapper {
                     union(union(commonLimitations, itemDef.getLimitations()), item.getLimitations()),
                     item.getLimitations(), item.getLimitationText(),
                     item.getObservations(), item.getRecommendation(), item.getRecommendationText(),
-                    comments.getOrDefault(itemDef.getId(), List.of()), item.isCompleted()));
+                    comments.getOrDefault(itemDef.getId(), List.of()), item.isCompleted(),
+                    itemPhotos.getOrDefault(item.getId(), List.of())));
         }
         String previous = index > 0 ? ordered.get(index - 1).getDefinition().getCode() : null;
         String next = index < ordered.size() - 1 ? ordered.get(index + 1).getDefinition().getCode() : null;

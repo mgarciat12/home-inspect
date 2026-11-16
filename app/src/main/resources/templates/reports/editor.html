@@ -149,7 +149,8 @@
                         </button>
                     </h3>
                     <div class="accordion-collapse collapse" th:id="'body-' + ${item.id}">
-                        <form class="accordion-body" th:attr="data-autosave=@{/reports/{id}/items/{i}(id=${r.id},i=${item.id})},data-kind='item',data-item-id=${item.id}">
+                        <div class="accordion-body">
+                        <form th:attr="data-autosave=@{/reports/{id}/items/{i}(id=${r.id},i=${item.id})},data-kind='item',data-item-id=${item.id}">
                             <fieldset th:disabled="${!editor.editable}">
                                 <!-- Status -->
                                 <div class="mb-3">
@@ -220,9 +221,10 @@
                                     <input type="text" class="form-control mt-2" name="recommendationText" th:value="${item.recommendationText}" th:placeholder="#{item.recommendationText}" th:aria-label="#{item.recommendationText}">
                                 </div>
                             </fieldset>
-                            <!-- Photos (rendered by the photos fragment) -->
-                            <div th:replace="~{reports/photos :: itemPhotos(${r.id}, ${item.id}, ${editor.editable})}"></div>
                         </form>
+                        <!-- Photos: outside the form, saved through their own endpoints -->
+                        <div th:replace="~{reports/photos :: itemPhotos(${r.id}, ${item}, ${editor.editable})}"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -251,11 +253,22 @@
         locked: #messages.msg('autosave.locked'),
         expired: #messages.msg('autosave.expired'),
         restored: #messages.msg('autosave.restored'),
-        progress: #messages.msg('report.progress', '{0}', '{1}')
+        progress: #messages.msg('report.progress', '{0}', '{1}'),
+        uploading: #messages.msg('photo.uploading', '{0}', '{1}'),
+        uploaded: #messages.msg('photo.uploaded'),
+        uploadFailed: #messages.msg('photo.error.upload'),
+        deleteConfirm: #messages.msg('photo.delete.confirm'),
+        caption: #messages.msg('photo.caption'),
+        cover: #messages.msg('photo.cover'),
+        makeCover: #messages.msg('photo.makeCover'),
+        moveLeft: #messages.msg('photo.moveLeft'),
+        moveRight: #messages.msg('photo.moveRight'),
+        remove: #messages.msg('photo.delete')
     } }]]*/ {}
 </script>
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 <script th:src="@{/js/editor.js}"></script>
+<script th:src="@{/js/photos.js}"></script>
 </body>
 </html>

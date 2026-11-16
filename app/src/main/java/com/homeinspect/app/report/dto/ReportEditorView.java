@@ -1,5 +1,6 @@
 package com.homeinspect.app.report.dto;
 
+import com.homeinspect.app.photo.PhotoView;
 import com.homeinspect.app.report.ItemStatus;
 import com.homeinspect.app.report.PropertyType;
 import com.homeinspect.app.report.Rating;
@@ -46,6 +47,6 @@ public record ReportEditorView(
                            List<String> materialOptions, List<String> materials, String materialOther,
                            List<String> limitationOptions, List<String> limitations, String limitationText,
                            String observations, Recommendation recommendation, String recommendationText,
-                           List<String> comments, boolean completed) {
+                           List<String> comments, boolean completed, List<PhotoView> photos) {
     }
 }

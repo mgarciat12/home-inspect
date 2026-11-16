@@ -1,0 +1,6 @@
+home-inspect:
+  storage:
+    root: ${java.io.tmpdir}/home-inspect-test-uploads
+  photos:
+    # No libheif in the build container: HEIC is rejected with a clear message
+    heic-command: ""

@@ -77,3 +77,11 @@ home-inspect:
   storage:
     # Photos, signatures and logo are stored here (Docker volume in production)
     root: ${UPLOAD_DIR:./data/uploads}
+  photos:
+    max-file-size: ${UPLOAD_MAX_FILE_SIZE:15MB}
+    # Longest side of the version used in the app and the PDF, and of the thumbnail
+    optimized-size: 1600
+    thumbnail-size: 400
+    jpeg-quality: 0.85
+    # Command used to convert HEIC to PNG (installed in the Docker image); empty = HEIC rejected
+    heic-command: ${HEIC_COMMAND:heif-thumbnailer}
