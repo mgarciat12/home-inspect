@@ -23,7 +23,7 @@ services:
       AUTH_ISSUER_URI: ${AUTH_ISSUER_URI:?set AUTH_ISSUER_URI in .env}
       AUTH_ADMIN_USERNAME: ${AUTH_ADMIN_USERNAME:-admin}
       AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-}
-      AUTH_KEYSTORE_PATH: /data/keys/jwt-signing.p12
+      AUTH_KEYS_DIR: /data/keys
       AUTH_KEYSTORE_PASSWORD: ${AUTH_KEYSTORE_PASSWORD:?set AUTH_KEYSTORE_PASSWORD in .env}
       WEB_CLIENT_SECRET: ${WEB_CLIENT_SECRET:?set WEB_CLIENT_SECRET in .env}
       WEB_REDIRECT_URI: ${APP_BASE_URL:?set APP_BASE_URL in .env}/login/oauth2/code/home-inspect

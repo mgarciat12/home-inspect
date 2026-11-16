@@ -5,6 +5,9 @@ spring:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${AUTH_DB_NAME:homeinspect_auth}
     username: ${AUTH_DB_USER:homeinspect_auth}
     password: ${AUTH_DB_PASSWORD:homeinspect_auth}
+    hikari:
+      # Unqualified table names (JDBC authorization service) resolve to the "auth" schema
+      schema: auth
   jpa:
     open-in-view: false
     hibernate:
@@ -28,7 +31,10 @@ server:
   forward-headers-strategy: framework
   servlet:
     session:
+      timeout: ${SESSION_TIMEOUT:30m}
       cookie:
+        # Distinct names: on localhost both services would otherwise overwrite each other's cookie
+        name: HI_AUTH_SESSION
         http-only: true
         same-site: lax
         secure: ${COOKIE_SECURE:false}
@@ -42,3 +48,25 @@ management:
     health:
       probes:
         enabled: true
+
+home-inspect:
+  auth:
+    # Must be exactly the URL the browser and the app container use (no trailing slash)
+    issuer: ${AUTH_ISSUER_URI:http://localhost:9000}
+    keys:
+      dir: ${AUTH_KEYS_DIR:./data/keys}
+      password: ${AUTH_KEYSTORE_PASSWORD:}
+    admin:
+      username: ${AUTH_ADMIN_USERNAME:admin}
+      password: ${AUTH_ADMIN_PASSWORD:}
+      display-name: ${AUTH_ADMIN_DISPLAY_NAME:Administrador}
+    clients:
+      web:
+        secret: ${WEB_CLIENT_SECRET:}
+        redirect-uri: ${WEB_REDIRECT_URI:http://localhost:8080/login/oauth2/code/home-inspect}
+        post-logout-redirect-uri: ${WEB_POST_LOGOUT_REDIRECT_URI:http://localhost:8080/}
+      admin-api:
+        secret: ${ADMIN_API_CLIENT_SECRET:}
+    lockout:
+      max-attempts: ${AUTH_LOCKOUT_ATTEMPTS:5}
+      duration: ${AUTH_LOCKOUT_DURATION:15m}

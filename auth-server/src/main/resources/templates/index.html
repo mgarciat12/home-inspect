@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head th:replace="~{fragments/layout :: head(#{home.title})}"></head>
+<body class="auth-bg">
+<div class="position-absolute top-0 end-0 p-3"><div th:replace="~{fragments/layout :: themeSelector}"></div></div>
+<main class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">
+    <div th:replace="~{fragments/layout :: brand}"></div>
+    <div class="card auth-card border-0 shadow-sm">
+        <div class="card-body p-4 text-center">
+            <div class="alert alert-success" th:if="${param.passwordChanged}" th:text="#{password.changed}">Contraseña cambiada.</div>
+            <p class="mb-1" th:text="#{home.signedInAs}">Has iniciado sesión como</p>
+            <p class="fw-semibold fs-5" sec:authentication="name">usuario</p>
+            <p class="text-body-secondary small" th:text="#{home.hint}">Este es el servidor de acceso.</p>
+            <div class="d-grid gap-2">
+                <a class="btn btn-outline-primary" th:href="@{/password/change}"><i class="bi bi-key me-1"></i><span th:text="#{password.heading}">Cambiar contraseña</span></a>
+                <form th:action="@{/logout}" method="post" class="d-grid">
+                    <button type="submit" class="btn btn-link text-body-secondary" th:text="#{action.logout}">Cerrar sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

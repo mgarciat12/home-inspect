@@ -1,0 +1,16 @@
+home-inspect:
+  auth:
+    issuer: http://auth.test:9000
+    keys:
+      dir: ${java.io.tmpdir}/home-inspect-auth-test-keys
+      password: test-keystore-password
+    admin:
+      username: admin
+      password: Admin-Initial-1
+    clients:
+      web:
+        secret: web-secret
+        redirect-uri: http://app.test:8080/login/oauth2/code/home-inspect
+        post-logout-redirect-uri: http://app.test:8080/
+      admin-api:
+        secret: admin-api-secret

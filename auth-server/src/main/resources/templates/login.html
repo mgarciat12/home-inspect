@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout :: head(#{login.title})}"></head>
+<body class="auth-bg">
+<div class="position-absolute top-0 end-0 p-3"><div th:replace="~{fragments/layout :: themeSelector}"></div></div>
+<main class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">
+    <div th:replace="~{fragments/layout :: brand}"></div>
+    <div class="card auth-card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h2 class="h5 mb-3" th:text="#{login.heading}">Iniciar sesión</h2>
+
+            <div class="alert alert-danger d-flex gap-2" role="alert" th:if="${param.error}">
+                <i class="bi bi-exclamation-triangle-fill"></i><span th:text="#{login.error.credentials}">Usuario o contraseña incorrectos.</span>
+            </div>
+            <div class="alert alert-warning d-flex gap-2" role="alert" th:if="${param.locked}">
+                <i class="bi bi-lock-fill"></i><span th:text="#{login.error.locked}">Cuenta bloqueada temporalmente.</span>
+            </div>
+            <div class="alert alert-warning d-flex gap-2" role="alert" th:if="${param.disabled}">
+                <i class="bi bi-person-x-fill"></i><span th:text="#{login.error.disabled}">Cuenta desactivada.</span>
+            </div>
+            <div class="alert alert-success d-flex gap-2" role="alert" th:if="${param.logout}">
+                <i class="bi bi-check-circle-fill"></i><span th:text="#{login.logout}">Sesión cerrada.</span>
+            </div>
+
+            <form th:action="@{/login}" method="post" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label" th:text="#{login.username}">Usuario</label>
+                    <input type="text" id="username" name="username" class="form-control form-control-lg"
+                           autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required autofocus>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label" th:text="#{login.password}">Contraseña</label>
+                    <input type="password" id="password" name="password" class="form-control form-control-lg"
+                           autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i><span th:text="#{login.submit}">Entrar</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
