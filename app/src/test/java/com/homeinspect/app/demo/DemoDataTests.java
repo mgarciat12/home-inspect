@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -38,6 +40,7 @@ class DemoDataTests {
         assertThat(doc.cover()).isNotNull();
         assertThat(doc.findingCount()).isEqualTo(5);
         assertThat(doc.sections().getFirst().items().get(1).photos()).hasSize(2);
-        assertThat(doc.sections().getLast().notApplicable()).isTrue();
+        assertThat(doc.notInspected()).extracting(ReportDocument.NotInspected::reasons)
+                .containsExactly(List.of("Concealed by finishes"));
     }
 }

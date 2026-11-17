@@ -9,10 +9,12 @@ import java.util.List;
  */
 public enum Rating {
     SATISFACTORY(0, "success"),
-    MAINTENANCE(4, "info"),
+    MAINTENANCE(5, "info"),
     REPAIR(2, "warning"),
     SAFETY_HAZARD(1, "danger"),
-    SPECIALIST(3, "primary");
+    SPECIALIST(3, "primary"),
+    /** Near the end of its service life (section 468.8323, F.S.). */
+    END_OF_LIFE(4, "secondary");
 
     private final int severity;
     private final String color;

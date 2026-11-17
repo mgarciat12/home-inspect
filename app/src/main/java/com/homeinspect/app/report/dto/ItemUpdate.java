@@ -17,5 +17,20 @@ public record ItemUpdate(
         @Size(max = 5000) String limitationText,
         @Size(max = 20000) String observations,
         Recommendation recommendation,
-        @Size(max = 5000) String recommendationText) {
+        @Size(max = 5000) String recommendationText,
+        /** Answers of a form question (4-Point, wind mitigation); ignored for standard items. */
+        @Size(max = 50) List<@Size(max = 500) String> answers) {
+
+    /** Standard inspection item (no form answers). */
+    public ItemUpdate(ItemStatus status, Rating rating, List<String> materials, String materialOther,
+                      List<String> limitations, String limitationText, String observations,
+                      Recommendation recommendation, String recommendationText) {
+        this(status, rating, materials, materialOther, limitations, limitationText, observations, recommendation,
+                recommendationText, null);
+    }
+
+    /** Form question: answers and comments. */
+    public static ItemUpdate answers(List<String> answers, String comments) {
+        return new ItemUpdate(null, null, null, null, null, null, comments, null, null, answers);
+    }
 }

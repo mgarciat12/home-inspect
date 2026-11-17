@@ -1,0 +1,399 @@
+# Full home inspection: Florida Standards of Practice, rules 61-30.801 to 61-30.811, F.A.C.
+# (structure .802, electrical .803, HVAC .804, roof covering .805, plumbing .806, interior .807,
+# exterior .810, site conditions .811). The written report must also list what was significantly
+# deficient or near the end of its service life, and what was present but not inspected and why
+# (section 468.8323, F.S.).
+#
+# Loaded at every start (CatalogSeeder) and synchronised with the database by "code":
+#  - new sections / items are created (with their comments for the comment library),
+#  - titles, order, materials and limitations are updated,
+#  - elements removed from this file are deactivated (existing reports keep them).
+# The comment library is only seeded once per item: afterwards it is edited from the admin panel.
+# Codes must not change once used. Quote values that contain ": ".
+# Optional sections can be marked "does not apply", e.g. roof, exterior and site of a condominium unit
+# when those common elements are maintained by the association.
+
+# Limitations offered on every item (they explain why something was not inspected)
+limitations:
+  - Stored items
+  - Furniture
+  - No access
+  - Vegetation
+  - Roof slope / height unsafe
+  - Wet or unsafe roof surface
+  - Equipment shut off
+  - Utilities off (water, power or gas)
+  - Concealed by finishes
+  - Insulation covers the area
+  - Unsafe or inadequate clearance
+  - Weather conditions
+  - Excluded by written agreement with the client
+
+sections:
+  - code: roof
+    title: Roof Covering
+    optional: true
+    description: "Rule 61-30.805: roofing materials, flashings, skylights, chimneys and roof penetrations, roof drainage, attic ventilation and insulation."
+    methods: [Walked on the roof, From a ladder at the eaves, From the ground with binoculars, With a drone]
+    items:
+      - code: covering
+        title: Roof covering
+        materials: [3-tab asphalt shingles, Architectural asphalt shingles, Concrete tile, Clay tile, Metal - standing seam, Metal - 5V crimp, Modified bitumen, Built-up (BUR), Single-ply membrane (TPO / EPDM), Wood shakes]
+        comments:
+          - Missing, damaged or displaced shingles / tiles were observed. Repair by a licensed roofing contractor is recommended.
+          - The roof covering shows granule loss and wear consistent with its age and appears near the end of its service life. Budget for replacement.
+          - Cracked or broken tiles were observed. Have a licensed roofing contractor replace them.
+          - Ponding water / evidence of ponding on the low-slope roof. Have the drainage evaluated.
+          - Algae / organic growth on the roof covering. Cleaning is recommended as routine maintenance.
+      - code: flashings
+        title: Flashings
+        materials: [Metal drip edge, Step flashing, Counter flashing, Valley metal, Lead boots, Rubber pipe boots, Mortar / mastic]
+        comments:
+          - Deteriorated or cracked pipe boot(s); a possible point of water entry. Replace.
+          - Exposed or loose flashing / fasteners. Reseal by a licensed roofing contractor.
+      - code: skylights
+        title: Skylights and roof penetrations
+        materials: [Fixed skylight, Solar tube, Plumbing vents, Exhaust vents, Satellite / antenna mounts, Solar panels]
+        comments:
+          - Sealant around the skylight is deteriorated. Reseal to prevent leaks.
+          - Roof penetration without proper flashing. Have it corrected.
+      - code: chimneys
+        title: Chimneys (exterior)
+        materials: [Masonry, Metal flue with chase, Stucco-covered chase]
+        comments:
+          - Missing chimney cap / spark arrestor. Install to keep water and animals out.
+          - Cracked crown or deteriorated mortar joints. Repair by a qualified mason.
+      - code: gutters
+        title: Roof drainage (gutters and downspouts)
+        materials: [Aluminum gutters, Vinyl gutters, Copper gutters, No gutters, Scuppers]
+        comments:
+          - Gutters are full of debris. Clean them as routine maintenance.
+          - Downspout discharges next to the foundation. Extend it to direct water away from the structure.
+          - Leaking gutter joints were observed.
+      - code: attic_ventilation
+        title: Attic ventilation
+        materials: [Soffit vents, Ridge vent, Gable vents, Off-ridge vents, Turbine vents, Powered attic fan]
+        comments:
+          - Soffit vents are blocked by insulation. Install baffles to restore airflow.
+          - Bathroom exhaust fan vents into the attic. Extend the duct to the exterior.
+      - code: attic_insulation
+        title: Attic insulation
+        materials: [Blown fiberglass, Fiberglass batts, Blown cellulose, Spray foam (open cell), Spray foam (closed cell), Radiant barrier]
+        comments:
+          - Insulation is thin or displaced in areas. Adding insulation would improve energy efficiency.
+          - Evidence of rodent activity in the insulation. Have a pest control professional evaluate.
+
+  - code: exterior
+    title: Exterior Components
+    optional: true
+    description: "Rule 61-30.810: wall coverings with flashing and trim, exterior doors, decks, balconies, stoops, steps, porches and railings, eaves, soffits and fascia, walkways, patios and driveways."
+    items:
+      - code: cladding
+        title: Wall coverings, flashing and trim
+        materials: [Stucco over CBS, Stucco over wood frame, Vinyl siding, Fiber cement siding, Wood siding, Brick veneer, Stone veneer]
+        comments:
+          - Cracks in the stucco were observed. Seal to prevent water intrusion.
+          - Wood trim shows rot / deterioration. Repair and paint.
+          - Siding is in contact with the soil. Maintain clearance to prevent moisture and pest damage.
+      - code: doors
+        title: Exterior doors
+        materials: [Steel, Fiberglass, Wood, Sliding glass, French doors, Impact-rated]
+        comments:
+          - Weatherstripping is worn or missing. Replace to prevent air and water infiltration.
+          - Sliding glass door is difficult to operate. Clean and adjust the track and rollers.
+      - code: decks
+        title: Decks, balconies, stoops, steps, porches and railings
+        materials: [Concrete, Pavers, Pressure-treated wood, Composite, Screened porch, Aluminum railings]
+        comments:
+          - Railing is loose or missing. This is a fall hazard; repair promptly.
+          - Railing balusters spaced more than 4 inches apart. Fall hazard for children.
+          - Deck ledger not visibly flashed / attached with lag bolts. Have a qualified contractor evaluate.
+      - code: eaves
+        title: Eaves, soffits and fascia
+        materials: [Vinyl soffit, Aluminum soffit, Wood soffit, Aluminum-wrapped fascia, Wood fascia]
+        comments:
+          - Damaged or missing soffit panels. Repair to keep animals out of the attic.
+          - Rotted fascia board observed. Repair and paint.
+      - code: walkways
+        title: Walkways, patios and driveways
+        materials: [Concrete, Pavers, Asphalt, Gravel, Brick]
+        comments:
+          - Trip hazard from uneven / heaved sections of the walkway.
+          - Typical shrinkage cracks in the concrete. Monitor.
+
+  - code: site
+    title: Site Conditions that Affect the Structure
+    optional: true
+    description: "Rule 61-30.811: vegetation, grading, surface drainage and retaining walls likely to adversely affect the structure."
+    items:
+      - code: vegetation
+        title: Vegetation
+        comments:
+          - Vegetation in contact with the structure. Trim back to at least 12 inches to reduce moisture and pest entry.
+          - Tree limbs overhang the roof. Trim to protect the roof covering.
+      - code: grading
+        title: Grading
+        materials: [Slopes away from the structure, Flat, Slopes toward the structure]
+        comments:
+          - Grading slopes toward the structure in areas. Regrade so that water drains away from the foundation.
+      - code: drainage
+        title: Surface drainage
+        materials: [Swales, Yard drains, French drain, Downspout extensions]
+        comments:
+          - Evidence of standing water near the foundation. Improve surface drainage.
+      - code: retaining_walls
+        title: Retaining walls affecting the structure
+        materials: [Concrete block, Poured concrete, Segmental block, Timber]
+        comments:
+          - Retaining wall is leaning or cracked. Have it evaluated by a qualified professional.
+
+  - code: structure
+    title: Structure
+    description: "Rule 61-30.802: foundation, floor, wall, ceiling and roof structures, posts, beams, columns, joists, rafters, trusses, other framing and ventilation of foundation areas. Visible deterioration is probed."
+    methods: [Attic entered, Attic viewed from the access opening, Crawl space entered, Crawl space viewed from the access opening, Slab on grade (not visible)]
+    items:
+      - code: foundation
+        title: Foundation
+        materials: [Monolithic slab on grade, Stem wall with slab, Pier and beam (crawl space), Pilings / elevated]
+        comments:
+          - Typical hairline cracks in the visible slab / foundation. Monitor.
+          - Cracks wider than 1/4 inch or with vertical displacement. Have a structural engineer evaluate.
+      - code: floor_structure
+        title: Floor structure
+        materials: [Concrete slab, Wood joists, Engineered I-joists, Floor trusses, Concrete second floor]
+        comments:
+          - Sloping or bouncy floors were noted. Have a qualified contractor evaluate.
+      - code: wall_structure
+        title: Wall structure
+        materials: [Concrete block (CBS), Wood frame, Poured concrete, Steel frame]
+        comments:
+          - Step cracking in the block walls. Have a structural engineer evaluate.
+      - code: ceiling_structure
+        title: Ceiling structure
+        materials: [Wood trusses, Ceiling joists, Concrete]
+      - code: roof_structure
+        title: Roof structure and decking
+        materials: [Wood trusses, Rafters, Plywood decking, OSB decking, Dimensional lumber decking]
+        comments:
+          - Water stains on the roof decking. Determine whether the leak is active and repair.
+          - Damaged or altered truss member. Have a structural engineer evaluate.
+      - code: posts_beams
+        title: Posts, beams and columns
+        materials: [Concrete columns, Wood posts, Steel columns, Tie beam]
+      - code: foundation_ventilation
+        title: Ventilation of foundation areas (crawl space)
+        materials: [Foundation vents, Sealed / conditioned crawl space, Not applicable (slab)]
+        comments:
+          - Crawl space vents are blocked. Clear them to maintain ventilation.
+          - High moisture / standing water in the crawl space. Have it evaluated.
+
+  - code: electrical
+    title: Electrical Systems
+    description: "Rule 61-30.803: service entrance, main service equipment and disconnect, grounding, main and sub panels, conductors and overcurrent devices, wiring methods, fixtures, switches, receptacles, GFCI/AFCI, smoke and CO detectors."
+    methods: [Panel cover removed, Panel cover not removed]
+    items:
+      - code: service
+        title: Service entrance conductors, drip loop and raceways
+        materials: [Overhead service, Underground service, Aluminum service conductors, Copper service conductors]
+        comments:
+          - Vegetation in contact with the overhead service drop. Contact the utility to clear it.
+      - code: main_disconnect
+        title: Main service equipment and main disconnect (amperage / voltage)
+        materials: [100 amp, 125 amp, 150 amp, 200 amp, 400 amp, 120/240 volt]
+      - code: grounding
+        title: Service grounding
+        materials: [Ground rod, Water pipe bond, Ufer (concrete-encased), Not visible]
+        comments:
+          - Grounding electrode conductor not visible / not confirmed. Have a licensed electrician verify.
+      - code: panels
+        title: Main panel and sub panels (interior)
+        materials: [Square D, Cutler-Hammer / Eaton, Siemens, General Electric, Federal Pacific (Stab-Lok), Zinsco / Sylvania, Challenger, Other]
+        comments:
+          - Federal Pacific Stab-Lok panel. These panels have a history of breaker failures and many insurers will not accept them. Have a licensed electrician evaluate / replace.
+          - Double-tapped breaker(s) observed. Have a licensed electrician correct.
+          - Missing knockout / filler plates in the panel cover. Install to prevent contact with live parts.
+          - Rust / corrosion inside the panel. Have a licensed electrician evaluate.
+      - code: overcurrent
+        title: Conductors and overcurrent protection devices
+        materials: [Breakers, Fuses]
+        comments:
+          - Breaker oversized for the conductor. Have a licensed electrician correct.
+      - code: wiring
+        title: Wiring methods
+        materials: [Copper NM (Romex), Copper in conduit, Armored cable (BX / MC), Multi-strand aluminum, Single-strand aluminum branch wiring, Cloth-covered wiring, Knob and tube]
+        comments:
+          - Single-strand aluminum branch wiring was observed. Have a licensed electrician evaluate and remediate (COPALUM or AlumiConn); insurers usually require it.
+          - Open splices / junction boxes without covers. Have a licensed electrician correct.
+          - Exposed wiring within reach. Protect or have a licensed electrician correct.
+      - code: devices
+        title: Lighting fixtures, switches and receptacles
+        comments:
+          - Open ground / reversed polarity at receptacle(s). Have a licensed electrician correct.
+          - Receptacle(s) inoperative or loose. Have a licensed electrician repair.
+          - Light fixture(s) inoperative; the bulb may be burned out.
+      - code: gfci_afci
+        title: GFCI and AFCI protection
+        materials: [GFCI receptacles, GFCI breakers, AFCI breakers, Dual-function breakers, None observed]
+        comments:
+          - No GFCI protection at the kitchen / bathrooms / exterior / garage. Upgrade for safety.
+          - GFCI receptacle did not trip / reset. Replace.
+      - code: detectors
+        title: Smoke and carbon monoxide detectors
+        materials: [Hard-wired smoke detectors, Battery smoke detectors, Combination smoke / CO, CO detectors, None observed]
+        comments:
+          - Smoke detectors were not present in all bedrooms. Install for safety.
+          - No carbon monoxide detector observed in a home with fuel-burning appliances or an attached garage. Install.
+          - Smoke detectors older than 10 years. Replace.
+
+  - code: hvac
+    title: Heating, Ventilation and Air Conditioning (HVAC)
+    description: "Rule 61-30.804: heating and cooling equipment, energy source and capacity, fuel storage and distribution, vents, flues and chimneys, ductwork and air distribution, mechanical ventilation, condensate overflow devices."
+    methods: [Operated with normal controls, Not operated (ambient temperature), Not operated (system off)]
+    items:
+      - code: heating
+        title: Heating equipment (energy source and capacity)
+        materials: [Heat pump, Electric heat strips in air handler, Gas furnace, Electric furnace, Mini-split heat pump, Baseboard / wall heaters]
+        comments:
+          - The heating system responded to normal controls at the time of the inspection.
+          - The heating system did not respond. Have a licensed HVAC contractor evaluate.
+      - code: cooling
+        title: Cooling equipment
+        materials: [Central split system, Package unit, Ductless mini-split, Window / wall units, Geothermal]
+        comments:
+          - The system is older than 15 years and near the end of its typical service life. Budget for replacement.
+          - Temperature differential outside the typical 14-22 °F range. Have a licensed HVAC contractor evaluate.
+          - Condenser coil fins damaged / unit not level. Have it serviced.
+      - code: distribution
+        title: Ductwork and air distribution
+        materials: [Flex duct, Ductboard, Sheet metal, Ductless]
+        comments:
+          - Disconnected or damaged duct in the attic. Repair to prevent energy loss and condensation.
+          - Microbial growth / dirt at registers or on the air handler. Have the system cleaned and serviced.
+      - code: condensate
+        title: Condensate drain and overflow / shutoff devices
+        materials: [Secondary drain pan, Float switch, Overflow line, None observed]
+        comments:
+          - No float switch / overflow protection observed at the air handler. Install to prevent water damage.
+          - Rust or water in the secondary drain pan. Have the condensate system serviced.
+      - code: vents
+        title: Vents, flues and chimneys
+        materials: [Metal flue, PVC (high-efficiency furnace), Not applicable (all electric)]
+      - code: fuel
+        title: Fuel storage and distribution
+        materials: [Natural gas, Propane tank (above ground), Propane tank (buried), Not applicable (all electric)]
+        comments:
+          - Gas line without sediment trap / bonding at the appliance. Have a licensed contractor evaluate.
+      - code: ventilation
+        title: Mechanical ventilation (exhaust fans)
+        materials: [Bathroom exhaust fans, Kitchen exhaust hood, Laundry exhaust, Whole-house fan, ERV / fresh air intake]
+        comments:
+          - Bathroom has no exhaust fan or operable window. Install ventilation.
+
+  - code: plumbing
+    title: Plumbing System
+    description: "Rule 61-30.806: water supply piping, distribution, fixtures and faucets, drain, waste and vent piping, water heating equipment, sumps and pumps, main water and fuel shut-off valves."
+    items:
+      - code: main_valve
+        title: Main water shut-off valve
+        materials: [Gate valve, Ball valve, At the meter only, Not located]
+        comments:
+          - Main water shut-off valve not located. Ask the seller where it is.
+      - code: fuel_valve
+        title: Main fuel shut-off valve
+        materials: [At the gas meter, At the propane tank, Not applicable (all electric)]
+      - code: supply
+        title: Water supply piping and distribution
+        materials: [Copper, CPVC, PEX, Galvanized steel, Polybutylene]
+        comments:
+          - Polybutylene supply piping was observed. It is prone to failure and many insurers will not accept it. Have a licensed plumber evaluate / replace.
+          - Galvanized supply piping near the end of its service life (low flow / corrosion). Budget for replacement.
+          - Active leak observed. Have a licensed plumber repair.
+      - code: drains
+        title: Drain, waste and vent piping
+        materials: [PVC, ABS, Cast iron, Galvanized, Orangeburg, Clay]
+        comments:
+          - Cast iron drain piping with visible corrosion / cracking. Have a licensed plumber evaluate the drain lines (camera inspection).
+          - Slow drain observed. Have it cleared.
+      - code: water_heater
+        title: Water heating equipment (energy source)
+        materials: [Electric tank, Gas tank, Tankless gas, Tankless electric, Heat pump water heater, Solar]
+        comments:
+          - Water heater older than 10-12 years and near the end of its typical service life. Budget for replacement.
+          - TPR valve discharge pipe missing / improperly installed. Have a licensed plumber correct.
+          - No drain pan under the water heater in a location where leaks could cause damage.
+      - code: fixtures
+        title: Fixtures and faucets
+        comments:
+          - Leaking faucet / loose fixture. Repair.
+          - Toilet is loose at the floor. Reset with a new wax ring.
+          - Caulking at the tub / shower is deteriorated. Recaulk to prevent water damage.
+      - code: pumps
+        title: Drainage sumps, sump pumps and related piping
+        materials: [Sump pump, Sewage ejector pump, Lift station, Not present]
+      - code: plumbing_vents
+        title: Plumbing vent systems, flues and chimneys
+        materials: [Through-roof vents, Air admittance valves]
+
+  - code: interior
+    title: Interior Components
+    description: "Rule 61-30.807: walls, ceilings and floors, steps, stairways and railings, countertops and a representative number of cabinets, garage doors, doors and windows, insulation in unfinished spaces, fireplaces and solid fuel appliances, household appliances."
+    items:
+      - code: walls
+        title: Walls
+        materials: [Drywall, Plaster, Paneling, Concrete block]
+        comments:
+          - Moisture stains on the wall. Determine the source and repair.
+      - code: ceilings
+        title: Ceilings
+        materials: [Drywall, Popcorn / acoustic texture, Plaster, Tongue and groove wood]
+        comments:
+          - Water stain on the ceiling; tested dry with a moisture meter at the time of the inspection. Ask the seller about previous leaks.
+          - Active moisture at the ceiling stain. Determine the source and repair.
+      - code: floors
+        title: Floors
+        materials: [Tile, Wood, Laminate, Luxury vinyl, Carpet, Terrazzo]
+        comments:
+          - Cracked floor tiles were observed.
+      - code: stairs
+        title: Steps, stairways and railings
+        comments:
+          - Missing handrail at the stairway. Install for safety.
+      - code: countertops
+        title: Countertops and cabinets (representative number)
+        materials: [Granite, Quartz, Laminate, Solid surface, Tile]
+        comments:
+          - Water damage in the sink base cabinet.
+      - code: doors
+        title: Interior doors
+        comments:
+          - Door rubs on the frame or does not latch. Adjust.
+      - code: windows
+        title: Windows (representative number)
+        materials: [Single-hung, Double-hung, Horizontal sliders, Casement, Fixed, Jalousie, Impact-rated glass, Aluminum frame, Vinyl frame]
+        comments:
+          - Failed seal (fogging) between the panes of insulated glass.
+          - Window does not open or does not stay open. Repair the balance / hardware.
+          - Broken or cracked glass.
+      - code: garage_doors
+        title: Garage doors and openers
+        materials: [Sectional steel, Wind-rated garage door, Single-panel, Automatic opener]
+        comments:
+          - The automatic opener did not reverse when it met an obstruction. Adjust for safety.
+          - Garage door does not appear to be wind-rated (no label observed).
+      - code: insulation
+        title: Insulation and vapor retarders in unfinished spaces
+        materials: [Fiberglass, Cellulose, Spray foam, Foil-faced, None observed]
+      - code: fireplaces
+        title: Fireplaces and solid fuel burning appliances (vents, flues and chimneys)
+        materials: [Masonry fireplace, Prefabricated metal fireplace, Gas log set, Wood stove, None]
+        comments:
+          - Creosote buildup in the flue. Have it cleaned and inspected by a certified chimney sweep before use.
+          - Damper is inoperable / missing.
+      - code: appliances
+        title: Household appliances
+        materials: [Range / oven, Cooktop, Dishwasher, Microwave, Refrigerator, Disposal, Washer, Dryer, Range hood]
+        comments:
+          - Appliances responded to normal operating controls at the time of the inspection.
+          - Dishwasher drain line without a high loop or air gap. Correct to prevent backflow.
+          - Range is not secured with an anti-tip bracket. Install for safety.
+          - Dryer vent is lint-clogged / uses foil flex duct. Clean and replace with rigid metal duct.

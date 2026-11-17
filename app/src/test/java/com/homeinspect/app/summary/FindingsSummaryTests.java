@@ -75,9 +75,9 @@ class FindingsSummaryTests {
         rate(id, electrical.current().items().get(5).id(), Rating.SAFETY_HAZARD, "Sin detectores de humo", user);
 
         // Findings of a section marked as not applicable are not listed
-        ReportEditorView garage = reports.editor(id, "garage", user);
-        rate(id, garage.current().items().getFirst().id(), Rating.SPECIALIST, "Puerta", user);
-        reports.updateSection(id, garage.current().id(), new SectionUpdate(true, null, null, null), user);
+        ReportEditorView site = reports.editor(id, "site", user);
+        rate(id, site.current().items().getFirst().id(), Rating.SPECIALIST, "Puerta", user);
+        reports.updateSection(id, site.current().id(), new SectionUpdate(true, null, null, null), user);
         return id;
     }
 
@@ -97,7 +97,7 @@ class FindingsSummaryTests {
 
         List<Finding> hazards = doc.findings().getFirst().findings();
         assertThat(hazards).extracting(Finding::label)
-                .containsExactly("1.2 Tejado › Canalones y bajantes", "7.6 Electricidad › Detectores de humo y CO");
+                .containsExactly("1.2 Roof Covering › Flashings", "5.6 Electrical Systems › Wiring methods");
         Finding gutter = hazards.getFirst();
         assertThat(gutter.excerpt()).isEqualTo("Canalón suelto sobre la entrada principal");
         assertThat(gutter.recommendation()).isEqualTo(Recommendation.REPAIR);
@@ -106,16 +106,16 @@ class FindingsSummaryTests {
         assertThat(hazards.get(1).photo()).isNull();
 
         assertThat(doc.findings()).flatExtracting(FindingGroup::findings)
-                .noneMatch(f -> f.sectionCode().equals("garage"))
-                .noneMatch(f -> f.itemTitle().equals("Tapajuntas y remates"));
+                .noneMatch(f -> f.sectionCode().equals("site"))
+                .noneMatch(f -> f.itemTitle().equals("Skylights and roof penetrations"));
     }
 
     @Test
     void documentContainsTheWholeReportInOrder() {
         CurrentUser user = users.current("fs.doc", Role.INSPECTOR);
         ReportDocument doc = documents.build(reportWithFindings(user), user);
-        assertThat(doc.sections()).hasSize(11);
-        assertThat(doc.sections().getLast().notApplicable()).isTrue();
+        assertThat(doc.sections()).hasSize(8);
+        assertThat(doc.sections().get(2).notApplicable()).isTrue();
         assertThat(doc.property().fullAddress()).isEqualTo("Calle Hallazgos 1, Valencia");
         assertThat(doc.company().scopeText()).isNotBlank();
         assertThat(doc.sections().getFirst().items().get(1).photos()).hasSize(1);
@@ -145,11 +145,11 @@ class FindingsSummaryTests {
         long id = reportWithFindings(user);
         mvc.perform(get("/reports/{id}/preview", id).with(users.login("fs.preview", Role.INSPECTOR)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Informe de inspección de vivienda")))
-                .andExpect(content().string(containsString("Resumen de hallazgos")))
-                .andExpect(content().string(containsString("1.2 Tejado › Canalones y bajantes")))
-                .andExpect(content().string(containsString("Leyenda de valoraciones")))
-                .andExpect(content().string(containsString("Esta sección no aplica")))
+                .andExpect(content().string(containsString("Home Inspection Report")))
+                .andExpect(content().string(containsString("Summary of findings")))
+                .andExpect(content().string(containsString("1.2 Roof Covering › Flashings")))
+                .andExpect(content().string(containsString("Rating legend")))
+                .andExpect(content().string(containsString("This section does not apply")))
                 .andExpect(content().string(containsString("Falta diferencial")));
         mvc.perform(get("/reports/{id}/preview", id).with(users.login("fs.preview.other", Role.INSPECTOR)))
                 .andExpect(status().isNotFound());

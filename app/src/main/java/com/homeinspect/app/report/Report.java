@@ -41,6 +41,14 @@ public class Report {
     private String number;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "report_type", nullable = false, updatable = false)
+    private ReportType type = ReportType.FULL;
+
+    /** Reports created together for the same visit share this id (null for a single report). */
+    @Column(name = "visit_id", updatable = false)
+    private java.util.UUID visitId;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReportStatus status = ReportStatus.DRAFT;
 
@@ -58,6 +66,10 @@ public class Report {
     private String clientEmail;
     @Column(name = "client_phone")
     private String clientPhone;
+    @Column(name = "insurance_company")
+    private String insuranceCompany;
+    @Column(name = "policy_number")
+    private String policyNumber;
 
     // ---- property ----
     @Column(nullable = false)
@@ -65,14 +77,15 @@ public class Report {
     @Column(name = "postal_code")
     private String postalCode;
     private String city;
-    private String province;
+    private String county;
+    private String state;
     @Enumerated(EnumType.STRING)
     @Column(name = "property_type")
     private PropertyType propertyType;
     @Column(name = "year_built")
     private Integer yearBuilt;
-    @Column(name = "area_m2")
-    private BigDecimal areaM2;
+    @Column(name = "area_sqft")
+    private Integer areaSqft;
     private Integer floors;
     @Enumerated(EnumType.STRING)
     private Occupancy occupancy;
@@ -82,8 +95,8 @@ public class Report {
     // ---- conditions ----
     @Enumerated(EnumType.STRING)
     private Weather weather;
-    @Column(name = "temperature_c")
-    private BigDecimal temperatureC;
+    @Column(name = "temperature_f")
+    private BigDecimal temperatureF;
     @Enumerated(EnumType.STRING)
     @Column(name = "soil_condition")
     private SoilCondition soilCondition;

@@ -48,7 +48,7 @@ class HomeInspectApplicationTests {
     void reportListRendersWithLayout() throws Exception {
         mvc.perform(get("/reports").with(users.login("home.user", Role.INSPECTOR)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Nuevo informe")))
+                .andExpect(content().string(containsString("New report")))
                 .andExpect(content().string(containsString("Name home.user")))
                 .andExpect(content().string(containsString("/webjars/bootstrap/5.3.9/dist/css/bootstrap.min.css")));
     }
@@ -84,6 +84,6 @@ class HomeInspectApplicationTests {
     void loginErrorPageIsPublic() throws Exception {
         mvc.perform(get("/login-error"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("No se pudo iniciar sesión")));
+                .andExpect(content().string(containsString("Could not sign in")));
     }
 }

@@ -1,11 +1,15 @@
 package com.homeinspect.app.catalog;
 
+import com.homeinspect.app.report.ReportType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Read access to the catalog: active structure for new reports, options and comments for the editor. */
@@ -19,8 +23,16 @@ public class CatalogService {
     private final CommentTemplateRepository comments;
 
     @Transactional(readOnly = true)
-    public List<SectionDef> activeSections() {
-        return sections.findByActiveTrueOrderByPositionAsc();
+    public List<SectionDef> activeSections(ReportType type) {
+        return sections.findByTypeAndActiveTrueOrderByPositionAsc(type);
+    }
+
+    /** Types that can be used for new reports: those whose catalog has active sections. */
+    @Transactional(readOnly = true)
+    public Set<ReportType> availableTypes() {
+        return Arrays.stream(ReportType.values())
+                .filter(type -> !sections.findByTypeAndActiveTrueOrderByPositionAsc(type).isEmpty())
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ReportType.class)));
     }
 
     @Transactional(readOnly = true)

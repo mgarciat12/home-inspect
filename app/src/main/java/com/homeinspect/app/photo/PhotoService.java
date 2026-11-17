@@ -1,5 +1,6 @@
 package com.homeinspect.app.photo;
 
+import com.homeinspect.app.catalog.FieldType;
 import com.homeinspect.app.photo.ImageProcessor.ProcessedImage;
 import com.homeinspect.app.report.Report;
 import com.homeinspect.app.report.ReportAccessGuard;
@@ -95,6 +96,10 @@ public class PhotoService {
             } catch (IOException e) {
                 errors.add(new UploadError(name, message("photo.error.invalid")));
             }
+        }
+        // A photo slot of a form is answered as soon as it has a photo
+        if (!uploaded.isEmpty() && item.getDefinition().getFieldType() == FieldType.PHOTO) {
+            item.setAnswers(new ArrayList<>(List.of(FieldType.ATTACHED)));
         }
         report.touch();
         return new UploadResult(uploaded, errors);

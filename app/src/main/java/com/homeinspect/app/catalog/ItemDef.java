@@ -2,6 +2,8 @@ package com.homeinspect.app.catalog;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -54,4 +56,35 @@ public class ItemDef {
     private List<String> limitations = new ArrayList<>();
 
     private boolean active = true;
+
+    /** Form question type (4-Point, wind mitigation); null for a standard inspection item. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "field_type")
+    private FieldType fieldType;
+
+    /** Options of CHOICE / MULTI questions. */
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "text[]")
+    private List<String> options = new ArrayList<>();
+
+    private boolean required;
+
+    /** Answers that require an explanation in the comments. */
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "explain_on", columnDefinition = "text[]")
+    private List<String> explainOn = new ArrayList<>();
+
+    @Column(name = "photo_required")
+    private boolean photoRequired;
+
+    /** Instructions shown under the question. */
+    private String help;
+
+    public boolean isQuestion() {
+        return fieldType != null;
+    }
+
+    /** The comments of the catalog file were loaded into the comment library (only once). */
+    @Column(name = "comments_seeded")
+    private boolean commentsSeeded = true;
 }

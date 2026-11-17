@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head th:replace="~{fragments/layout :: head(#{reports.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
@@ -13,12 +13,19 @@
     <form class="card border-0 shadow-sm mb-3" th:action="@{/reports}" method="get" th:object="${filter}">
         <div class="card-body">
             <div class="row g-2 align-items-end">
-                <div class="col-12 col-md-5">
+                <div class="col-12 col-md-3">
                     <label class="form-label small mb-1" for="q" th:text="#{reports.filter.search}">Buscar</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input type="search" class="form-control" id="q" name="q" th:value="*{q}" th:placeholder="#{reports.filter.searchPlaceholder}">
                     </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label small mb-1" for="type" th:text="#{report.type}">Tipo</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="" th:text="#{reports.filter.all}">Todos</option>
+                        <option th:each="t : ${reportTypes}" th:value="${t}" th:selected="${filter.type == t}" th:text="#{'enum.ReportType.' + ${t}}">Completo</option>
+                    </select>
                 </div>
                 <div class="col-6 col-md-2">
                     <label class="form-label small mb-1" for="status" th:text="#{reports.filter.status}">Estado</label>
@@ -50,12 +57,13 @@
                     <div class="flex-grow-1 min-w-0">
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <span class="font-monospace small text-body-secondary" th:text="${r.number}">2026-0001</span>
+                            <span class="badge text-bg-light border" th:text="#{'enum.ReportType.' + ${r.type}}">Full</span>
                             <span class="badge" th:classappend="${r.status.name() == 'FINAL'} ? 'text-bg-success' : 'text-bg-secondary'"
                                   th:text="#{'enum.ReportStatus.' + ${r.status}}">Borrador</span>
                         </div>
                         <div class="fw-semibold text-truncate" th:text="${r.address} + (${r.city} ? ', ' + ${r.city} : '')">Dirección</div>
                         <div class="small text-body-secondary text-truncate">
-                            <i class="bi bi-calendar3 me-1"></i><span th:text="${#temporals.format(r.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</span>
+                            <i class="bi bi-calendar3 me-1"></i><span th:text="${#temporals.format(r.inspectedAt, #messages.msg('format.datetime'))}">fecha</span>
                             <span th:if="${r.clientName}"> · <i class="bi bi-person me-1"></i><span th:text="${r.clientName}">cliente</span></span>
                             <span th:if="${isAdmin}"> · <i class="bi bi-person-badge me-1"></i><span th:text="${r.inspectorName}">inspector</span></span>
                         </div>
@@ -73,14 +81,14 @@
     <nav class="mt-3" th:if="${page.totalPages > 1}" th:aria-label="#{pagination.label}">
         <ul class="pagination justify-content-center flex-wrap">
             <li class="page-item" th:classappend="${page.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/reports(q=${filter.q},status=${filter.status},from=${filter.from},to=${filter.to},page=${page.number - 1})}" th:aria-label="#{pagination.previous}">&laquo;</a>
+                <a class="page-link" th:href="@{/reports(q=${filter.q},type=${filter.type},status=${filter.status},from=${filter.from},to=${filter.to},page=${page.number - 1})}" th:aria-label="#{pagination.previous}">&laquo;</a>
             </li>
             <li class="page-item" th:each="n : ${#numbers.sequence(T(java.lang.Math).max(0, page.number - 2), T(java.lang.Math).min(page.totalPages - 1, page.number + 2))}"
                 th:classappend="${n == page.number} ? 'active'">
-                <a class="page-link" th:href="@{/reports(q=${filter.q},status=${filter.status},from=${filter.from},to=${filter.to},page=${n})}" th:text="${n + 1}">1</a>
+                <a class="page-link" th:href="@{/reports(q=${filter.q},type=${filter.type},status=${filter.status},from=${filter.from},to=${filter.to},page=${n})}" th:text="${n + 1}">1</a>
             </li>
             <li class="page-item" th:classappend="${page.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/reports(q=${filter.q},status=${filter.status},from=${filter.from},to=${filter.to},page=${page.number + 1})}" th:aria-label="#{pagination.next}">&raquo;</a>
+                <a class="page-link" th:href="@{/reports(q=${filter.q},type=${filter.type},status=${filter.status},from=${filter.from},to=${filter.to},page=${page.number + 1})}" th:aria-label="#{pagination.next}">&raquo;</a>
             </li>
         </ul>
         <p class="text-center small text-body-secondary" th:text="#{pagination.summary(${page.totalElements})}">X informes</p>

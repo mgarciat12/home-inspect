@@ -60,7 +60,7 @@ class MfaIntegrationTests {
     String enroll(MockHttpSession session) throws Exception {
         mvc.perform(get("/mfa/setup").session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Activar verificación en dos pasos")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turn on two-step verification")));
         mvc.perform(get("/mfa/setup/qr").session(session))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"));

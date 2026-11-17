@@ -68,55 +68,64 @@ class DemoDataLoader implements ApplicationRunner {
             return;
         }
         UserProfile profile = profiles.syncFromLogin(new LoginData("demo-inspector", "demo",
-                "Inspector de demostración", "demo@example.com", Role.INSPECTOR));
+                "Demo Inspector", "demo@example.com", Role.INSPECTOR));
         CurrentUser inspector = new CurrentUser(profile.getId(), profile.getSubject(), profile.getDisplayName(), Role.INSPECTOR);
 
         ReportHeaderForm header = new ReportHeaderForm();
         header.setInspectedAt(LocalDateTime.now().withHour(10).withMinute(0).withSecond(0).withNano(0));
-        header.setClientName("Cliente de demostración");
-        header.setClientEmail("cliente@example.com");
-        header.setClientPhone("600 000 000");
-        header.setAddress("Calle Ejemplo 12, 2º A");
-        header.setPostalCode("28001");
-        header.setCity("Madrid");
-        header.setProvince("Madrid");
-        header.setPropertyType(PropertyType.APARTMENT);
+        header.setClientName("Demo Client");
+        header.setClientEmail("client@example.com");
+        header.setClientPhone("(305) 555-0100");
+        header.setInsuranceCompany("Demo Insurance Co.");
+        header.setPolicyNumber("HO-0000000");
+        header.setAddress("1234 Example Ave");
+        header.setPostalCode("33101");
+        header.setCity("Miami");
+        header.setCounty("Miami-Dade");
+        header.setState("FL");
+        header.setPropertyType(PropertyType.DETACHED);
         header.setYearBuilt(1978);
-        header.setAreaM2(new BigDecimal("94"));
+        header.setAreaSqft(1850);
         header.setFloors(1);
         header.setOccupancy(Occupancy.OWNER);
-        header.setPeoplePresent("Cliente y agente inmobiliario");
+        header.setPeoplePresent("Client and buyer's agent");
         header.setWeather(Weather.PARTLY_CLOUDY);
-        header.setTemperatureC(new BigDecimal("16"));
+        header.setTemperatureF(new BigDecimal("84"));
         header.setSoilCondition(SoilCondition.DRY);
         long id = reports.create(header, inspector);
 
         ReportEditorView roof = reports.editor(id, "roof", inspector);
-        reports.updateSection(id, roof.current().id(), new SectionUpdate(false, "Con dron",
-                "Cubierta inclinada a dos aguas en estado general aceptable para su antigüedad.", null), inspector);
-        rate(id, roof, 0, Rating.MAINTENANCE, List.of("Teja cerámica"),
-                "Presencia de musgo y suciedad acumulada en la cubierta; se recomienda limpieza periódica.",
-                Recommendation.MONITOR, inspector, color(196, 92, 60));
-        rate(id, roof, 1, Rating.SAFETY_HAZARD, List.of("Zinc"),
-                "Canalón desprendido sobre la puerta de entrada. Riesgo de caída de elementos sobre las personas.",
+        reports.updateSection(id, roof.current().id(), new SectionUpdate(false, "From a ladder at the eaves",
+                "Hip roof with architectural shingles; the covering shows wear consistent with its age.", null), inspector);
+        rate(id, roof, 0, Rating.END_OF_LIFE, List.of("Architectural asphalt shingles"),
+                "The roof covering shows granule loss and wear consistent with its age and appears near the end of its service life. Budget for replacement.",
+                Recommendation.QUOTE_REPLACEMENT, inspector, color(96, 96, 104));
+        rate(id, roof, 1, Rating.REPAIR, List.of("Rubber pipe boots"),
+                "Deteriorated pipe boots at two plumbing vents; a possible point of water entry. Replace.",
                 Recommendation.REPAIR, inspector, color(120, 120, 130), color(90, 90, 100));
-        rate(id, roof, 2, Rating.SATISFACTORY, List.of("Zinc"), null, null, inspector);
+        rate(id, roof, 4, Rating.SATISFACTORY, List.of("Aluminum gutters"), null, null, inspector);
 
         ReportEditorView exterior = reports.editor(id, "exterior", inspector);
-        rate(id, exterior, 0, Rating.REPAIR, List.of("Revoco o mortero monocapa"),
-                "Fisuras en el revestimiento de fachada junto a la ventana del dormitorio.",
-                Recommendation.CONSULT_PROFESSIONAL, inspector, color(220, 205, 170));
-        rate(id, exterior, 5, Rating.SATISFACTORY, List.of("Pendiente hacia fuera de la vivienda"), null, null, inspector);
+        rate(id, exterior, 0, Rating.REPAIR, List.of("Stucco over CBS"),
+                "Cracks in the stucco next to the bedroom window. Seal to prevent water intrusion.",
+                Recommendation.REPAIR, inspector, color(220, 205, 170));
+
+        ReportEditorView site = reports.editor(id, "site", inspector);
+        rate(id, site, 1, Rating.SATISFACTORY, List.of("Slopes away from the structure"), null, null, inspector);
+
+        ReportEditorView structure = reports.editor(id, "structure", inspector);
+        reports.updateItem(id, structure.current().items().get(1).id(), new ItemUpdate(ItemStatus.NOT_INSPECTED, null,
+                List.of("Concrete slab"), null, List.of("Concealed by finishes"), null, null, null, null), inspector);
 
         ReportEditorView electrical = reports.editor(id, "electrical", inspector);
-        rate(id, electrical, 2, Rating.SAFETY_HAZARD, List.of("Fusibles"),
-                "No existe protección diferencial. Se recomienda su instalación por un instalador autorizado.",
+        rate(id, electrical, 3, Rating.SAFETY_HAZARD, List.of("Federal Pacific (Stab-Lok)"),
+                "Federal Pacific Stab-Lok panel. These panels have a history of breaker failures and many insurers will not accept them. Have a licensed electrician evaluate / replace.",
                 Recommendation.CONSULT_PROFESSIONAL, inspector, color(60, 60, 70));
-        rate(id, electrical, 5, Rating.SPECIALIST, List.of("Ninguno"),
-                "No se han observado detectores de humo ni de monóxido de carbono.", Recommendation.NONE, inspector);
+        rate(id, electrical, 8, Rating.SAFETY_HAZARD, List.of("Battery smoke detectors"),
+                "Smoke detectors were not present in all bedrooms. Install for safety.", Recommendation.REPAIR, inspector);
 
-        ReportEditorView garage = reports.editor(id, "garage", inspector);
-        reports.updateSection(id, garage.current().id(), new SectionUpdate(true, null, "La vivienda no dispone de garaje.", null), inspector);
+        ReportEditorView plumbing = reports.editor(id, "plumbing", inspector);
+        rate(id, plumbing, 4, Rating.SATISFACTORY, List.of("Electric tank"), null, null, inspector);
 
         // First photo of the roof as cover
         List<PhotoView> roofPhotos = reports.editor(id, "roof", inspector).current().items().getFirst().photos();

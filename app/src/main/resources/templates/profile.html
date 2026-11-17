@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head th:replace="~{fragments/layout :: head(#{profile.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
@@ -18,6 +18,58 @@
             </dl>
             <p class="small text-body-secondary" th:text="#{profile.accountHint}">Gestionado en el servidor de acceso.</p>
             <a class="btn btn-outline-primary" th:href="${passwordUrl}"><i class="bi bi-key me-1"></i><span th:text="#{profile.changePassword}">Cambiar contraseña</span></a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body p-4">
+            <h2 class="h6 text-uppercase text-body-secondary mb-3" th:text="#{profile.language}">Idioma</h2>
+            <form th:action="@{/profile/language}" method="post" class="d-flex flex-wrap gap-2 align-items-end">
+                <div>
+                    <label class="form-label small text-body-secondary" for="language" th:text="#{profile.language.hint}">Idioma de la interfaz</label>
+                    <select class="form-select" id="language" name="language" style="min-width: 14rem">
+                        <option value="" th:selected="${profile.language == null}" th:text="#{profile.language.auto}">Automático</option>
+                        <option value="en" lang="en" th:selected="${profile.language == 'en'}">English</option>
+                        <option value="es" lang="es" th:selected="${profile.language == 'es'}">Español</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{action.save}">Guardar</button>
+            </form>
+            <p class="small text-body-secondary mt-2 mb-0" th:text="#{profile.language.reports}">Los informes siempre en inglés.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3" id="licenses">
+        <div class="card-body p-4">
+            <h2 class="h6 text-uppercase text-body-secondary mb-3" th:text="#{profile.licenses}">Licencias</h2>
+            <p class="small text-body-secondary" th:text="#{profile.licenses.hint}">Aparecen junto a tu firma.</p>
+            <ul class="list-group mb-3" th:unless="${#lists.isEmpty(licenses)}">
+                <li class="list-group-item d-flex align-items-center gap-2" th:each="l : ${licenses}">
+                    <div class="flex-grow-1">
+                        <div th:text="#{'enum.LicenseType.' + ${l.type}}">Home inspector</div>
+                        <div class="font-monospace small text-body-secondary" th:text="${l.number}">HI1234</div>
+                    </div>
+                    <form th:action="@{/profile/licenses/{id}/delete(id=${l.id})}" method="post" th:data-confirm="#{profile.license.deleteConfirm}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" th:title="#{action.delete}" th:aria-label="#{action.delete}"><i class="bi bi-trash"></i></button>
+                    </form>
+                </li>
+            </ul>
+            <p class="text-body-secondary fst-italic" th:if="${#lists.isEmpty(licenses)}" th:text="#{profile.licenses.none}">Sin licencias.</p>
+            <form th:action="@{/profile/licenses}" method="post" class="row g-2 align-items-end" th:if="${#lists.size(licenses) < maxLicenses}">
+                <div class="col-sm-6">
+                    <label class="form-label small text-body-secondary" for="licenseType" th:text="#{profile.license.type}">Tipo</label>
+                    <select class="form-select" id="licenseType" name="type" required>
+                        <option th:each="t : ${licenseTypes}" th:value="${t}" th:text="#{'enum.LicenseType.' + ${t}}">Home inspector</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label small text-body-secondary" for="licenseNumber" th:text="#{profile.license.number}">Número</label>
+                    <input class="form-control font-monospace" id="licenseNumber" name="number" maxlength="50" required placeholder="HI1234">
+                </div>
+                <div class="col-sm-2 d-grid">
+                    <button type="submit" class="btn btn-primary" th:text="#{action.add}">Añadir</button>
+                </div>
+            </form>
         </div>
     </div>
 

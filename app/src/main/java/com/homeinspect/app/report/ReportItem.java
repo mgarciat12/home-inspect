@@ -79,7 +79,15 @@ public class ReportItem {
     }
 
     /** An element counts as done once its state is set and, if inspected, it has a rating. */
+    /** Answers of a form question (empty for standard inspection items). */
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "text[]")
+    private List<String> answers = new ArrayList<>();
+
     public boolean isCompleted() {
+        if (definition.isQuestion()) {
+            return !answers.isEmpty();
+        }
         return status != null && (status != ItemStatus.INSPECTED || rating != null);
     }
 }

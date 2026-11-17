@@ -1,7 +1,10 @@
 package com.homeinspect.app.catalog;
 
+import com.homeinspect.app.report.ReportType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +30,12 @@ public class SectionDef {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, updatable = false)
+    /** Report type whose catalog contains the section (codes are unique per type). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "report_type", nullable = false, updatable = false)
+    private ReportType type = ReportType.FULL;
+
+    @Column(nullable = false, updatable = false)
     private String code;
 
     @Column(nullable = false)

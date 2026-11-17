@@ -1,0 +1,311 @@
+# Wind mitigation: Uniform Mitigation Verification Inspection Form OIR-B1-1802 (Rev. 04/26), adopted by
+# rule 69O-170.0155, F.A.C., mandatory for inspections on or after April 1, 2026. Valid for up to 5 years.
+# Questions and answers follow the official form wording. At least one photograph or document must validate
+# each attribute marked in questions 2 through 9 (photo_required). Owner data comes from the report header,
+# plus the "owner" section; the "certification" section feeds the qualified inspector block.
+#   field: TEXT | NUMBER | YEAR | DATE | YES_NO | YES_NO_NA | CHOICE | MULTI | CONDITION | PHOTO
+# Codes must not change once used. Quote values that contain ": " or start with a special character.
+
+sections:
+  - code: owner
+    title: Owner Information
+    description: Owner name, address, home phone, insurance company, policy #, year of home, stories and email come from the general information of the report.
+    items:
+      - code: contact_person
+        title: Contact person
+        field: TEXT
+      - code: work_phone
+        title: Work phone
+        field: TEXT
+      - code: cell_phone
+        title: Cell phone
+        field: TEXT
+      - code: fortified
+        title: FORTIFIED Home® certificate used to validate questions 4 to 6, 8 and 9 (attach photocopy)
+        field: MULTI
+        options: [Roof, Silver, Gold]
+        photo_required: false
+
+  - code: building_code
+    title: "1. Building Code"
+    description: What version of the Florida Building Code (FBC 2001 & 2004 OR FBC 2007 or later) OR for homes located in the High-Velocity Hurricane Zone (HVHZ) (Miami-Dade or Broward counties), South Florida Building Code (SFBC-94) was in force at the time of original permit application?
+    items:
+      - code: answer
+        title: Building code in force at the time of permit application
+        field: CHOICE
+        required: true
+        options:
+          - "A. Code in force at time of permit application was the FBC 2001 & 2004. For homes built in 2002/2003, provide a permit application with a date after 3/1/2002."
+          - "B. Code in force at time of permit application was the FBC 2007 and later. For homes built in 2007/2008, provide a permit application with a date after 12/8/2006."
+          - "C. For the HVHZ only: code in force at time of permit application was the SFBC-94. For homes built in 1994, 1995 and 1996, provide a permit application with a date after 9/1/1994."
+          - "D. Unknown or does not meet the requirements of Answer A, B or C."
+      - code: year_built
+        title: Year built
+        field: YEAR
+      - code: permit_date
+        title: Building permit application date
+        field: DATE
+
+  - code: region
+    title: "2. Region"
+    description: Location based on design windspeed. See ASCE 7-22 (700-year MRI) Risk Category 2 (www.ascehazardtool.org).
+    items:
+      - code: answer
+        title: Region
+        field: CHOICE
+        required: true
+        photo_required: true
+        options: [HVHZ, "Region 1 (≥ 140 mph)", "Region 2 (130 mph – 139 mph)", "Region 3 (< 130 mph)"]
+        help: Attach the ASCE hazard tool result (screenshot) as the photo / document.
+
+  - code: roof_slope
+    title: "3. Roof Slope"
+    description: For single-family homes with multiple slopes, indicate the slope that is at least two thirds of the main roof area when determining greater than or equal to 6:12, OR less than 6:12.
+    items:
+      - code: answer
+        title: Roof slope
+        field: CHOICE
+        required: true
+        photo_required: true
+        options: ["Greater than or equal to (≥ 6:12)", "Less than (< 6:12)"]
+
+  - code: roof_covering
+    title: "4. Roof Covering"
+    description: Select all roof covering types in use. Provide the permit application date OR FBC/MDC Product Approval number AND Year of Original Installation/Replacement OR indicate that no information was available to verify compliance for each roof covering identified.
+    items:
+      - code: types
+        title: 4.1 Roof covering types in use
+        field: MULTI
+        required: true
+        photo_required: true
+        options: [Asphalt/Fiberglass Shingle, Concrete/Clay Tile, Synthetic/Composite Tile, Metal, Built Up, Membrane, Other]
+        explain_on: [Other]
+        help: For "Other", describe the covering type in the comments.
+      - code: shingle
+        title: "Asphalt/Fiberglass Shingle: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+        help: "Example: 05/14/2019 · FL10124-R23 · 2019. Write 'No information provided for compliance' when nothing was available."
+      - code: tile
+        title: "Concrete/Clay Tile: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+      - code: synthetic_tile
+        title: "Synthetic/Composite Tile: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+      - code: metal
+        title: "Metal: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+      - code: built_up
+        title: "Built Up: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+      - code: membrane
+        title: "Membrane: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+      - code: other
+        title: "Other: permit application date · FBC or MDC product approval # · year of original installation or replacement"
+        field: TEXT
+      - code: product_approval
+        title: 4.2 Product approval listing
+        field: CHOICE
+        required: true
+        options:
+          - "A. All roof coverings listed above meet the FBC with a FBC or Miami-Dade Product Approval listing current at the time of installation OR have a roofing permit application date on or after 3/1/02 OR the roof is original and built in 2004 or later."
+          - "B. All roof coverings have a Miami-Dade Product Approval listing current at time of installation OR (for the HVHZ only) a roofing permit application after 9/1/1994 and before 3/1/2002 OR the roof is original and built in 1997 or later."
+          - "C. One or more roof coverings do not meet the requirements of Answer A or B."
+          - "D. No roof coverings meet the requirements of Answer A or B."
+
+  - code: roof_deck
+    title: "5. Roof Deck Attachment"
+    description: What is the WEAKEST form of roof deck attachment?
+    items:
+      - code: answer
+        title: Weakest form of roof deck attachment
+        field: CHOICE
+        required: true
+        photo_required: true
+        explain_on: ["F. Other"]
+        options:
+          - "A. Plywood/OSB roof sheathing, min. 7/16\" thick, attached to the truss/rafter (max. 24\" o.c.) by staples or 6d nails spaced at 6\" along the edge and 12\" in the field, OR batten decking supporting wood shakes or wood shingles (max. 24\" truss/rafter spacing), OR any system with an equivalent mean ultimate uplift resistance of at least 55 psf but less than B or C."
+          - "B. Plywood/OSB roof sheathing, min. 7/16\" thick, attached to the truss/rafter (max. 24\" o.c.) by 8d common nails spaced a maximum of 12\" in the field, OR any system shown to have an equivalent or greater resistance, or a mean ultimate uplift resistance of at least 103 psf."
+          - "C. Plywood/OSB roof sheathing, min. 7/16\" thick, attached to the truss/rafter (max. 24\" o.c.) by 8d common nails spaced a maximum of 6\" in the field, OR dimensional lumber / tongue & groove decking with a minimum of 2 nails per board (1 nail if the board is 6\" wide or less), OR any system with a mean ultimate uplift resistance of at least 182 psf."
+          - "D. Reinforced Concrete Roof Deck."
+          - "E. Spray foam products with an uplift resistance of 110 PSF (FOS 1.5), installed along rafter deck intersections, all panel joints, etc."
+          - "F. Other"
+          - "G. Unknown or unidentified."
+          - "H. No attic access."
+        help: If the nailing or rafter spacing is greater than specified, or the roof decking is less than specified, select F. Other and describe it in the comments.
+
+  - code: roof_to_wall
+    title: "6. Roof to Wall Attachment"
+    description: What is the WEAKEST roof to wall connection? (Do not include attachment of hip/valley jacks within five (5) feet of the inside or outside corner of the roof in determination of WEAKEST type.)
+    items:
+      - code: answer
+        title: Weakest roof to wall connection
+        field: CHOICE
+        required: true
+        photo_required: true
+        explain_on: ["F. Other"]
+        options:
+          - "A. Toenails"
+          - "B. Clips"
+          - "C. Single Wraps"
+          - "D. Double Wraps"
+          - "E. Structural: anchor bolts structurally connected or reinforced concrete roof."
+          - "F. Other"
+          - "G. Unknown or unidentified."
+          - "H. No attic access."
+          - "I. Connection(s) not installed as intended."
+      - code: toenails
+        title: "A. Toenails (check what applies)"
+        field: MULTI
+        options:
+          - "Truss/rafter anchored to top plate of wall using nails driven at an angle through the truss/rafter and attached to the top plate of the wall"
+          - "Metal connectors or structural fasteners that are not installed as intended do not meet the minimal conditions or requirements of B, C, or D"
+          - "Other connection method documented to provide a substantiated wind allowable uplift capacity of 185 lbs. or greater"
+      - code: minimal_conditions
+        title: Minimal conditions to qualify for categories B, C or D (all retrofit connectors or structural fasteners must meet option 3)
+        field: MULTI
+        options:
+          - "1. Metal connectors secured to truss/rafter with a minimum of three (3) nails, attached to the side and/or bottom of the wall framing top plate or embedded into the bond beam, with less than 1/2\" gap from the blocking or truss/rafter, blocked no more than 1 1/2\" from the truss/rafter, and free of visible severe corrosion"
+          - "2. Metal connectors consisting of a single strap that wraps over the truss/rafter, secured to the side of the wall and/or bottom of the top plate with a minimum of three nails on each side and free of visible severe corrosion"
+          - "3. Purpose-made metal connector(s) or structural fastener(s) installed per the manufacturer's installation specifications to meet the substantiated wind allowable capacity detailed below"
+      - code: clips
+        title: "B. Clips (check what applies)"
+        field: MULTI
+        options:
+          - "Metal connectors that do not wrap over the truss/rafter"
+          - "Metal connectors with a minimum of one (1) strap that wraps over the truss/rafter and does not meet the nail position requirements of C or D but is secured with a minimum of three (3) nails"
+          - "Purpose-made metal connector(s) or structural fastener(s) with a substantiated wind allowable uplift capacity of 386 lbs. or greater (requires site-specific documentation)"
+      - code: single_wraps
+        title: "C. Single Wraps (check what applies)"
+        field: MULTI
+        options:
+          - "Metal connectors consisting of a single strap that wraps over the truss/rafter and are secured with a minimum of two (2) nails on one side and a minimum of one (1) nail on the opposing side"
+          - "Purpose-made metal connector(s) or structural fastener(s) with a substantiated wind allowable uplift capacity of 535 lbs. or greater (requires site-specific documentation)"
+      - code: double_wraps
+        title: "D. Double Wraps (check what applies)"
+        field: MULTI
+        options:
+          - "Metal connectors consisting of two (2) separate straps, one on either side of the truss/rafter, each wrapping over the truss/rafter and secured with a minimum of two (2) nails on one side and one (1) nail on the opposing side"
+          - "Metal connectors consisting of a single strap that wraps over the truss/rafter, secured to the side of the wall and/or bottom of the top plate with a minimum of three (3) nails on each side"
+          - "Purpose-made metal connector(s) or structural fastener(s) with a substantiated wind allowable uplift capacity of 891 lbs. or greater (requires site-specific documentation)"
+
+  - code: roof_geometry
+    title: "7. Roof Geometry"
+    description: What is the roof shape? (Do not consider roofs of porches or carports that are attached only to the fascia or wall of the host structure over unenclosed space in the determination of roof perimeter or roof area for roof geometry classification.)
+    items:
+      - code: answer
+        title: Roof shape
+        field: CHOICE
+        required: true
+        photo_required: true
+        options:
+          - "A. Hip Roof: hip roof with no other roof shapes greater than 10% of the total roof system perimeter."
+          - "B. Flat Roof: roof on a building with five (5) or more units where at least 90% of the main roof area has a roof slope of less than 2:12."
+          - "C. Other Roof: any roof that does not qualify as either (A) or (B) above."
+      - code: non_hip_length
+        title: "Hip roof: total length of non-hip features (feet)"
+        field: NUMBER
+      - code: perimeter
+        title: "Hip roof: total roof system perimeter (feet)"
+        field: NUMBER
+      - code: flat_area
+        title: "Flat roof: roof area with slope less than 2:12 (sq ft)"
+        field: NUMBER
+      - code: total_area
+        title: "Flat roof: total roof area (sq ft)"
+        field: NUMBER
+
+  - code: swr
+    title: "8. Sealed Roof Deck / Secondary Water Resistance (SWR)"
+    description: Applied as a supplemental means to protect the dwelling from water intrusion in the event of roof covering loss. Standard underlayment or hot-mopped felts do not qualify as an SWR.
+    items:
+      - code: answer
+        title: Sealed roof deck / SWR
+        field: CHOICE
+        required: true
+        photo_required: true
+        options: ["A. Sealed Roof Deck (also called SWR)", "B. No Sealed Roof Deck.", "C. Unknown or undetermined."]
+      - code: sealed_type
+        title: "A. Sealed roof deck type (check what applies)"
+        field: MULTI
+        options:
+          - "Fully adhered polymer-modified bitumen roofing underlayment complying with ASTM D1970"
+          - "Tape over roof deck seams with felt or synthetic (min. 3.75-inch-wide self-adhering strip complying with ASTM D1970 or AAMA 711, Level 3)"
+          - "Double layer of felt or synthetic with no tape (two layers of ASTM D226 Type II, ASTM D4869 Type III or Type IV or ASTM D8257 underlayment)"
+          - "Spray foam products (installed along rafter deck intersections, all panel joints, etc.)"
+          - "Entire roof deck underside covered (spray foam)"
+
+  - code: openings
+    title: "9. Opening Protection"
+    description: What is the WEAKEST form of wind-borne debris protection installed on the structure? Includes all openings in the wall and roof (windows, doors, sliding glass doors, skylights and garage doors); gable and other roof vents are not included. All openings must be in good condition; buildings with openings that need replacement do not qualify for wind mitigation rate differentials.
+    items:
+      - code: glazed_windows
+        title: "Level chart, glazed openings: windows or entry doors"
+        field: MULTI
+        options: &levels ["N/A", "A", "B", "C", "D", "N", "X", "Z"]
+        help: "Mark every form of protection in use. N/A: no openings of this type. A: verified cyclic pressure & large missile (9 lb. windows/doors, 4.5 lb. skylights). B: verified cyclic pressure & large missile (4-8 lb. windows/doors, 2 lb. skylights). C: verified plywood/OSB meeting Table 1609.1.2 of the FBC 2007. D: verified non-glazed entry or garage doors (ASTM E 330, ANSI/DASMA 108 or PA/TAS 202). N: products that appear to be A or B but are not verified, or other coverings that cannot be identified as A, B or C. X: no windborne debris protection. Z: damaged openings in need of repair/replacement."
+      - code: glazed_garage
+        title: "Level chart, glazed openings: garage doors"
+        field: MULTI
+        options: *levels
+      - code: glazed_skylights
+        title: "Level chart, glazed openings: skylights"
+        field: MULTI
+        options: *levels
+      - code: glazed_glass_block
+        title: "Level chart, glazed openings: glass block"
+        field: MULTI
+        options: *levels
+      - code: nonglazed_entry
+        title: "Level chart, non-glazed openings: entry doors"
+        field: MULTI
+        options: *levels
+      - code: nonglazed_garage
+        title: "Level chart, non-glazed openings: garage doors"
+        field: MULTI
+        options: *levels
+      - code: answer
+        title: Opening protection (check one, based on the weakest form of protection)
+        field: CHOICE
+        required: true
+        photo_required: true
+        options:
+          - "A.1 Cyclic pressure and 9-lb. large missile (4.5 lb. skylights): all glazed openings protected; all non-glazed openings classified as A, or no non-glazed openings exist."
+          - "A.2 Cyclic pressure and 9-lb. large missile: one or more non-glazed openings classified as Level D, and none classified as Level B, C, N or X."
+          - "A.3 Cyclic pressure and 9-lb. large missile: one or more non-glazed openings classified as Level B, C, N, X or Z."
+          - "B.1 Cyclic pressure and 4 to 8-lb. large missile (2-4.5 lb. skylights): all non-glazed openings classified as A or B, or no non-glazed openings exist."
+          - "B.2 Cyclic pressure and 4 to 8-lb. large missile: one or more non-glazed openings classified as Level D, and none classified as Level C, N or X."
+          - "B.3 Cyclic pressure and 4 to 8-lb. large missile: one or more non-glazed openings classified as Level C, N, X or Z."
+          - "C.1 Wood structural panels meeting FBC 2007: all non-glazed openings classified as A, B or C, or no non-glazed openings exist."
+          - "C.2 Wood structural panels meeting FBC 2007: one or more non-glazed openings classified as Level D, and none classified as Level N or X."
+          - "C.3 Wood structural panels meeting FBC 2007: one or more non-glazed openings classified as Level N, X or Z."
+          - "N.1 Unverified shutter systems with no documentation: all non-glazed openings classified as Level A, B, C or N, or no non-glazed openings exist."
+          - "N.2 Unverified shutter systems: one or more non-glazed openings classified as Level D, and none classified as Level X."
+          - "N.3 Unverified shutter systems: one or more non-glazed openings classified as Level X or Z."
+          - "X. None or some glazed openings: one or more glazed openings classified as Level X or Z."
+          - "Z. Damaged openings: one or more openings are damaged and in need of repair or replacement."
+        help: "A: products listed in the Florida or Miami-Dade product approval system meeting Miami-Dade PA 201, 202 and 203; FBC TAS 201, 202 and 203; ASTM E 1886 and ASTM E 1996; SSTD 12; skylights ASTM E 1886/E 1996; garage doors ANSI/DASMA 115. B: ASTM E 1886 and E 1996 (4.5 lb.), SSTD 12 (4 to 8 lb.), skylights ASTM E 1886/E 1996 (2 to 4.5 lb.)."
+      - code: panels
+        title: "C. Wood structural panels covering the glazed openings"
+        field: MULTI
+        options: [Plywood, OSB]
+
+  - code: certification
+    title: Qualified Inspector
+    description: Section 627.711(2), Florida Statutes, provides a listing of individuals who may sign this form. Name, license and company come from your profile and the company settings.
+    items:
+      - code: qualified_as
+        title: "Qualified Inspector – I hold an active license as a: (check one)"
+        field: CHOICE
+        required: true
+        options:
+          - "Home inspector licensed under Section 468.8314, Florida Statutes, who has completed the statutory number of hours of hurricane mitigation training approved by the Construction Industry Licensing Board and completion of a proficiency exam."
+          - "Building code inspector certified under Section 468.607, Florida Statutes."
+          - "General, building, or residential contractor licensed under Section 489.111, Florida Statutes."
+          - "Professional engineer licensed under Section 471.015, Florida Statutes."
+          - "Professional architect licensed under Section 481.213, Florida Statutes."
+          - "Any other individual or entity recognized by the insurer as possessing the necessary qualifications to properly complete a uniform mitigation verification form pursuant to Section 627.711(2), Florida Statutes."
+      - code: employee
+        title: Employee who performed the inspection (licensed contractors and professional engineers only)
+        field: TEXT
+        help: Leave blank if you personally performed the inspection.

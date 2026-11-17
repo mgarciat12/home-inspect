@@ -53,7 +53,8 @@
             limitationText: data.get('limitationText') || null,
             observations: data.get('observations') || null,
             recommendation: data.get('recommendation') || null,
-            recommendationText: data.get('recommendationText') || null
+            recommendationText: data.get('recommendationText') || null,
+            answers: data.getAll('answers')
         };
     }
 
@@ -178,6 +179,10 @@
         }
     }
 
+    function isTyped(input) {
+        return input.tagName === 'TEXTAREA' || ['text', 'number', 'date'].indexOf(input.type) >= 0;
+    }
+
     var forms = document.querySelectorAll('form[data-autosave]');
     forms.forEach(function (form) {
         var fields = form.querySelector('fieldset');
@@ -186,10 +191,10 @@
         form.addEventListener('change', function (event) {
             if (event.target.name === 'status') toggleRating(form);
             if (event.target.closest('.item-photos')) return;
-            schedule(form, event.target.tagName === 'TEXTAREA' || event.target.type === 'text' ? DEBOUNCE : 150);
+            schedule(form, isTyped(event.target) ? DEBOUNCE : 150);
         });
         form.addEventListener('input', function (event) {
-            if (event.target.tagName === 'TEXTAREA' || event.target.type === 'text') schedule(form);
+            if (isTyped(event.target)) schedule(form);
         });
 
         // Changes left unsaved by a previous visit (connection lost, tab closed...)
@@ -212,9 +217,10 @@
                 if (input.type === 'checkbox') {
                     input.checked = Array.isArray(value) ? value.indexOf(input.value) >= 0 : value === true;
                 } else if (input.type === 'radio') {
-                    input.checked = input.value === value;
+                    input.checked = Array.isArray(value) ? value.indexOf(input.value) >= 0 : input.value === value;
                 } else {
-                    input.value = value == null ? '' : value;
+                    var text = Array.isArray(value) ? value[0] : value;
+                    input.value = text == null ? '' : text;
                 }
             });
         });

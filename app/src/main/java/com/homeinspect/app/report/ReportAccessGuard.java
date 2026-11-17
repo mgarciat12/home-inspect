@@ -16,6 +16,10 @@ public class ReportAccessGuard {
         return user.isAdmin() || report.getInspector().getId().equals(user.profileId());
     }
 
+    public boolean canEdit(Report report, CurrentUser user) {
+        return canView(report, user) && !report.isFinal();
+    }
+
     public void checkView(Report report, CurrentUser user) {
         if (!canView(report, user)) {
             throw new ReportNotFoundException();

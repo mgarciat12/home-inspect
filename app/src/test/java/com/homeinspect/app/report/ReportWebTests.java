@@ -42,7 +42,7 @@ class ReportWebTests {
                         .param("inspectedAt", "2026-05-02T09:15")
                         .param("address", "Calle Web 1")
                         .param("propertyType", "DUPLEX")
-                        .param("areaM2", "120"))
+                        .param("areaSqft", "1290"))
                 .andExpect(redirectedUrlPattern("/reports/*/edit"));
     }
 
@@ -53,7 +53,7 @@ class ReportWebTests {
                         .param("address", "")
                         .param("yearBuilt", "3000"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Revisa los campos marcados")));
+                .andExpect(content().string(containsString("Please check the highlighted fields")));
     }
 
     @Test
@@ -62,9 +62,9 @@ class ReportWebTests {
         long id = reports.create(header("Calle Editor 2"), inspector);
         mvc.perform(get("/reports/{id}/edit", id).param("section", "electrical").with(users.login("rw.editor", Role.INSPECTOR)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Electricidad")))
-                .andExpect(content().string(containsString("Detectores de humo y CO")))
-                .andExpect(content().string(containsString("Peligro para la seguridad")))
+                .andExpect(content().string(containsString("Electrical Systems")))
+                .andExpect(content().string(containsString("Smoke and carbon monoxide detectors")))
+                .andExpect(content().string(containsString("Safety hazard")))
                 .andExpect(content().string(containsString("data-autosave=\"/reports/" + id + "/items/")));
     }
 
@@ -116,7 +116,7 @@ class ReportWebTests {
                         .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"INSPECTED\"}"))
                 .andExpect(status().isConflict());
         mvc.perform(get("/reports/{id}/edit", id).with(users.login("rw.locked", Role.INSPECTOR)))
-                .andExpect(content().string(containsString("Informe finalizado")));
+                .andExpect(content().string(containsString("Final report: it is locked")));
     }
 
     @Test

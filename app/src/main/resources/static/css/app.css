@@ -224,12 +224,14 @@ textarea.form-control {
     --hi-rating-REPAIR: #c2410c;
     --hi-rating-SAFETY_HAZARD: #b91c1c;
     --hi-rating-SPECIALIST: #7e22ce;
+    --hi-rating-END_OF_LIFE: #a16207;
 }
 .rating-SATISFACTORY { --hi-rating: var(--hi-rating-SATISFACTORY); }
 .rating-MAINTENANCE { --hi-rating: var(--hi-rating-MAINTENANCE); }
 .rating-REPAIR { --hi-rating: var(--hi-rating-REPAIR); }
 .rating-SAFETY_HAZARD { --hi-rating: var(--hi-rating-SAFETY_HAZARD); }
 .rating-SPECIALIST { --hi-rating: var(--hi-rating-SPECIALIST); }
+.rating-END_OF_LIFE { --hi-rating: var(--hi-rating-END_OF_LIFE); }
 .rating-badge[class*="rating-"] {
     background: var(--hi-rating);
     color: #fff;
@@ -247,6 +249,7 @@ textarea.form-control {
 .btn-rating-REPAIR { --hi-rating: var(--hi-rating-REPAIR); }
 .btn-rating-SAFETY_HAZARD { --hi-rating: var(--hi-rating-SAFETY_HAZARD); }
 .btn-rating-SPECIALIST { --hi-rating: var(--hi-rating-SPECIALIST); }
+.btn-rating-END_OF_LIFE { --hi-rating: var(--hi-rating-END_OF_LIFE); }
 .btn-check:checked + .btn-rating {
     background: var(--hi-rating);
     border-color: var(--hi-rating);
@@ -412,6 +415,7 @@ textarea.form-control {
 .border-rating-SAFETY_HAZARD { --hi-rating: var(--hi-rating-SAFETY_HAZARD); }
 .border-rating-REPAIR { --hi-rating: var(--hi-rating-REPAIR); }
 .border-rating-SPECIALIST { --hi-rating: var(--hi-rating-SPECIALIST); }
+.border-rating-END_OF_LIFE { --hi-rating: var(--hi-rating-END_OF_LIFE); }
 .border-rating-MAINTENANCE { --hi-rating: var(--hi-rating-MAINTENANCE); }
 .doc-finding-thumb {
     width: 4.5rem;
@@ -463,3 +467,6 @@ textarea.form-control {
     max-height: 3.5rem;
     max-width: 14rem;
 }
+
+/* Answer of a form question in the item header */
+.answer-badge { max-width: 40%; font-weight: 500; }

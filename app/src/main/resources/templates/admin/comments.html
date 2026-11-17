@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head th:replace="~{fragments/layout :: head(#{comments.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
@@ -9,6 +9,13 @@
     <div th:replace="~{fragments/layout :: flash}"></div>
 
     <form th:action="@{/admin/comments}" method="get" class="mb-3">
+        <div class="mb-2" th:if="${#lists.size(types) > 1}">
+            <label class="form-label small text-body-secondary" for="type" th:text="#{report.type}">Tipo de informe</label>
+            <select class="form-select" id="type" name="type" data-autosubmit>
+                <option th:each="t : ${types}" th:value="${t}" th:selected="${t == type}" th:text="#{'enum.ReportType.' + ${t}}">Completo</option>
+            </select>
+        </div>
+        <input type="hidden" name="type" th:value="${type}" th:unless="${#lists.size(types) > 1}">
         <label class="form-label small text-body-secondary" for="section" th:text="#{report.section.choose}">Sección</label>
         <select class="form-select form-select-lg" id="section" name="section" data-autosubmit>
             <option th:each="s : ${sections}" th:value="${s.code}" th:selected="${s.code == current}" th:text="${s.number} + '. ' + ${s.title}">1. Tejado</option>

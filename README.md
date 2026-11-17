@@ -8,10 +8,11 @@
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 [![License](https://img.shields.io/github/license/mgarciat12/home-inspect)](LICENSE)
 
-Aplicación web para rellenar **informes de inspección de viviendas** desde el móvil, con fotos y
-exportación a PDF. La estructura del informe sigue las áreas del *Home Inspection Standard of Practice*
-(tejado, exterior, estructura, calefacción, climatización, fontanería, electricidad, chimeneas,
-ático, interior y garaje) y está definida como datos, no en el código.
+Aplicación web para rellenar **informes de inspección de viviendas de Florida (EE. UU.)** desde el móvil,
+con fotos y exportación a PDF. Tipos de informe: **inspección completa** (Standards of Practice de Florida,
+61-30.801 a 61-30.811 F.A.C.), **4-Point** (Citizens Insp4pt 03 25) y **Wind Mitigation**
+(OIR-B1-1802 Rev. 04/26). La estructura de cada tipo está definida como datos, no en el código.
+La interfaz está en inglés y español; los informes se generan siempre en inglés.
 
 **Stack:** Java 25 · Spring Boot 4.1 · Spring Security 7 (Authorization Server + OAuth2 Client) ·
 Thymeleaf + Bootstrap 5.3.9 (WebJars, sin CDN) · Spring Data JPA · Flyway · PostgreSQL ·
@@ -47,6 +48,11 @@ El desarrollo va por fases:
 | 6 | Resumen automático de hallazgos y vista previa | ✅ |
 | 7 | Exportación a PDF | ✅ |
 | 8 | Ajustes de empresa, biblioteca de comentarios editable, 2FA opcional, datos demo, repaso de seguridad | ✅ |
+| 9 | Tipos de informe (completo, 4-Point, Wind Mitigation), numeración por tipo, interfaz bilingüe, licencias del inspector, cabecera de EE. UU. | ✅ |
+| 10 | Inspección completa según los Standards of Practice de Florida (61-30.801 a .811) y la sección 468.8323, F.S. | ✅ |
+| 11 | 4-Point (Citizens Insp4pt 03 25): preguntas del formulario, fotos obligatorias y PDF con el formato oficial | ✅ |
+| 12 | Wind Mitigation (OIR-B1-1802 Rev. 04/26): preguntas 1 a 9, certificación del inspector cualificado | ✅ |
+| 13 | Visita combinada: varios tipos de informe para la misma visita con los datos generales compartidos | ✅ |
 
 ## Funcionalidades
 
@@ -63,14 +69,41 @@ El desarrollo va por fases:
   desactivada por defecto: opcional por usuario (`AUTH_MFA_ENABLED`) u obligatoria para todos
   (`AUTH_MFA_REQUIRED`). Alta con código QR; el administrador puede quitarla si alguien pierde el móvil.
 
+**Idioma y licencias**
+- Interfaz en **inglés y español**: cada usuario elige en **Mi perfil** o se usa el idioma del navegador
+  (inglés si no es ninguno de los dos). La página de login sigue el idioma del navegador.
+- Los informes (PDF y vista previa) se generan **siempre en inglés**, con fechas y unidades de EE. UU.
+- Cada inspector registra sus **licencias de Florida** (home inspector 468.8314, contratistas 489.111,
+  ingeniero 471.015…) en **Mi perfil**; aparecen junto a su firma. La empresa tiene su propio nº de licencia.
+
 **Informes**
-- Numeración anual automática (`2026-0001`), cabecera con cliente, inmueble y condiciones.
-- 11 secciones y 59 elementos. Cada elemento tiene descripción/material, estado, valoración,
-  limitaciones, observaciones y recomendación, más una biblioteca de comentarios que se insertan con un clic.
+- Tres tipos: **inspección completa**, **4-Point** y **Wind Mitigation**. Se elige al crear el informe y no
+  se puede cambiar. Un tipo sin catálogo aparecería como «Próximamente».
+- **Visita combinada:** al crear un informe se pueden marcar los otros tipos para crearlos a la vez. Comparten
+  cliente, inmueble y póliza; al cambiar los datos generales de uno se aplican a los borradores de la misma
+  visita, y el editor enlaza los informes de la visita.
+- Numeración anual por tipo: `2026-0001` (completa), `4P-2026-0001`, `WM-2026-0001`.
+- Cabecera con cliente, aseguradora y nº de póliza, inmueble (ciudad, condado, estado, ZIP, superficie en sq ft)
+  y condiciones (temperatura en °F).
+- **Inspección completa** (Standards of Practice de Florida, reglas 61-30.801 a 61-30.811 F.A.C.): 8 secciones
+  (cubierta, exterior, terreno, estructura, electricidad, climatización, fontanería e interior) con los
+  componentes que exige cada regla. Cada elemento tiene descripción/material, estado, valoración,
+  limitaciones, observaciones y recomendación, más una biblioteca de comentarios en inglés que se insertan con un clic.
+  Cubierta, exterior y terreno pueden marcarse «no aplica» (elementos comunes de un condominio).
+- Valoración **«Near end of service life»** y lista de **«Systems and components not inspected»** con el motivo,
+  como exige la sección 468.8323, F.S. Un informe no se puede finalizar si algún elemento no inspeccionado no
+  indica el motivo.
+- **4-Point** y **Wind Mitigation**: cada elemento es una pregunta del formulario oficial (sí/no, opciones,
+  «marca todas las que apliquen», estado, número, año, fecha, texto o foto). Las respuestas se validan contra las
+  opciones; las que lo exigen piden explicación en los comentarios; las fotos obligatorias son elementos propios
+  que se marcan solos al subir la foto. No se puede finalizar sin las respuestas, explicaciones y fotos obligatorias.
+- El PDF de los formularios reproduce el **formato oficial** (preguntas, casillas ☒/☐, textos legales y
+  certificación con la licencia del inspector aceptada para ese formulario), con un anexo de fotos. La vista
+  previa muestra el mismo documento.
 - Editor *mobile-first* con progreso por sección y **autoguardado por elemento**: si se cae la conexión,
   los cambios se guardan en el navegador y se reenvían solos.
 - Estados `Borrador` → `Finalizado`: un informe finalizado queda bloqueado y solo un administrador puede reabrirlo.
-- Listado con buscador (dirección, cliente o nº), filtros por estado y fecha, y paginación.
+- Listado con buscador (dirección, cliente o nº), filtros por tipo, estado y fecha, y paginación.
 - Duplicar un informe para usarlo como plantilla.
 
 **Fotos**
@@ -95,7 +128,7 @@ El desarrollo va por fases:
 - A4, cabecera con dirección y nº de informe en cada página, pie con los datos de la empresa y «Página X de Y».
 - Fotos en cuadrícula de 2 columnas con su pie, usando la versión optimizada (el PDF ocupa poco).
 - Fuentes DejaVu incrustadas: cualquier acento o símbolo se ve igual en todos los visores.
-- Nombre del archivo: `informe-<nº>-<calle>.pdf`. Se descarga desde la vista del informe o la vista previa.
+- Nombre del archivo: `home-inspection-<nº>-<calle>.pdf` (`4-point-…`, `wind-mitigation-…` según el tipo). Se descarga desde la vista del informe o la vista previa.
 
 **Administración**
 - **Empresa y textos**: nombre, logo, dirección, teléfono, email, web, NIF, texto de alcance y texto legal
@@ -466,14 +499,25 @@ Recomendaciones para el despliegue:
 
 ## Personalizar el catálogo del informe
 
-Las secciones, los elementos, las opciones de material, las limitaciones y los comentarios iniciales
-están en [`app/src/main/resources/catalog/sop-catalog.yml`](app/src/main/resources/catalog/sop-catalog.yml).
-Al arrancar, la `app` sincroniza ese fichero con la base de datos por `code`:
+Cada tipo de informe tiene su catálogo en `app/src/main/resources/catalog/`:
+[`full.yml`](app/src/main/resources/catalog/full.yml) (inspección completa),
+[`four-point.yml`](app/src/main/resources/catalog/four-point.yml) y
+[`wind-mitigation.yml`](app/src/main/resources/catalog/wind-mitigation.yml). Un tipo solo se puede elegir al
+crear un informe cuando su catálogo tiene secciones.
+
+- Inspección completa: secciones, elementos, opciones de material, limitaciones y comentarios iniciales.
+- Formularios: cada elemento es una pregunta con `field` (`TEXT`, `NUMBER`, `YEAR`, `DATE`, `YES_NO`,
+  `YES_NO_NA`, `CHOICE`, `MULTI`, `CONDITION`, `PHOTO`), `options`, `required`, `explain_on` (respuestas que
+  piden explicación), `photo_required` y `help`. La plantilla `templates/pdf/form.html` imprime las
+  secciones en el orden del catálogo; las secciones `owner`, `certification` y `photos` alimentan los bloques
+  fijos del formulario.
+
+Al arrancar, la `app` sincroniza cada fichero con la base de datos por `code`:
 
 - Los elementos nuevos aparecen en los informes nuevos y en los borradores existentes.
 - Se actualizan los títulos, el orden y las opciones.
 - Lo que quites del fichero se **desactiva**, no se borra: los informes antiguos lo conservan.
-- Los comentarios del fichero solo se cargan al crear el elemento. Después se editan en
+- Los comentarios del fichero se cargan una sola vez por elemento. Después se editan en
   **Administración → Biblioteca de comentarios**.
 
 No cambies el `code` de un elemento ya usado. Si un texto contiene `: `, ponlo entre comillas.
@@ -502,7 +546,7 @@ home-inspect/
 ├── app/                         # aplicación de informes
 │   ├── Dockerfile
 │   └── src/main/resources/
-│       ├── catalog/sop-catalog.yml       # estructura del informe
+│       ├── catalog/full.yml              # estructura del informe completo
 │       ├── db/migration/                 # Flyway
 │       ├── messages.properties           # textos (español)
 │       └── templates/                    # Thymeleaf

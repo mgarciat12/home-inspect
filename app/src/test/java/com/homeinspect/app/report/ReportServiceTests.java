@@ -43,15 +43,15 @@ class ReportServiceTests {
         ReportEditorView editor = reports.editor(id, null, inspector);
         assertThat(editor.report().number()).matches("2026-\\d{4}");
         assertThat(reports.number(second, inspector)).isNotEqualTo(editor.report().number());
-        assertThat(editor.sections()).hasSize(11);
-        assertThat(editor.sections().getFirst().title()).isEqualTo("Tejado");
-        assertThat(editor.sections().getLast().title()).isEqualTo("Garaje");
-        assertThat(editor.current().methods()).contains("Con dron");
+        assertThat(editor.sections()).hasSize(8);
+        assertThat(editor.sections().getFirst().title()).isEqualTo("Roof Covering");
+        assertThat(editor.sections().getLast().title()).isEqualTo("Interior Components");
+        assertThat(editor.current().methods()).contains("With a drone");
         assertThat(editor.current().items()).extracting(ItemView::reference).startsWith("1.1", "1.2");
         ItemView covering = editor.current().items().getFirst();
-        assertThat(covering.title()).isEqualTo("Cubierta");
-        assertThat(covering.materialOptions()).contains("Pizarra");
-        assertThat(covering.limitationOptions()).contains("Objetos almacenados", "Nieve o hielo");
+        assertThat(covering.title()).isEqualTo("Roof covering");
+        assertThat(covering.materialOptions()).contains("Concrete tile", "Metal - 5V crimp");
+        assertThat(covering.limitationOptions()).contains("Stored items", "Excluded by written agreement with the client");
         assertThat(covering.comments()).isNotEmpty();
         assertThat(editor.report().completed()).isZero();
         assertThat(editor.editable()).isTrue();
@@ -66,13 +66,13 @@ class ReportServiceTests {
         SaveResult result = reports.updateItem(id, first.id(), rated(Rating.REPAIR, "  Tejas rotas  "), inspector);
         assertThat(result.itemCompleted()).isTrue();
         assertThat(result.sectionCompleted()).isEqualTo(1);
-        assertThat(result.sectionTotal()).isEqualTo(5);
+        assertThat(result.sectionTotal()).isEqualTo(7);
 
         ItemView saved = reports.editor(id, "roof", inspector).current().items().getFirst();
         assertThat(saved.rating()).isEqualTo(Rating.REPAIR);
         assertThat(saved.observations()).isEqualTo("Tejas rotas");
-        assertThat(saved.materials()).containsExactly("Teja cerámica");
-        assertThat(saved.limitations()).containsExactly("Altura o pendiente");
+        assertThat(saved.materials()).containsExactly("Concrete tile");
+        assertThat(saved.limitations()).containsExactly("Roof slope / height unsafe");
 
         // A rating is dropped when the element is not inspected
         reports.updateItem(id, first.id(), new ItemUpdate(ItemStatus.NOT_PRESENT, Rating.REPAIR, List.of(), null,
@@ -86,18 +86,19 @@ class ReportServiceTests {
     void sectionGeneralFieldsAndNotApplicableOnlyForOptionalSections() {
         CurrentUser inspector = users.current("rs.section", Role.INSPECTOR);
         long id = reports.create(header("Plaza Luna 4"), inspector);
-        ReportEditorView garage = reports.editor(id, "garage", inspector);
-        reports.updateSection(id, garage.current().id(), new SectionUpdate(true, null, "Sin garaje", null), inspector);
+        // Condominium unit: the roof is a common element maintained by the association
         ReportEditorView roof = reports.editor(id, "roof", inspector);
-        reports.updateSection(id, roof.current().id(), new SectionUpdate(true, "Con dron", null, "Pendiente pronunciada"), inspector);
+        reports.updateSection(id, roof.current().id(), new SectionUpdate(true, null, "Common element", null), inspector);
+        ReportEditorView structure = reports.editor(id, "structure", inspector);
+        reports.updateSection(id, structure.current().id(), new SectionUpdate(true, "Attic entered", null, "Low clearance"), inspector);
 
-        assertThat(reports.editor(id, "garage", inspector).current().notApplicable()).isTrue();
-        ReportEditorView roofAfter = reports.editor(id, "roof", inspector);
-        assertThat(roofAfter.current().notApplicable()).isFalse();
-        assertThat(roofAfter.current().inspectionMethod()).isEqualTo("Con dron");
-        assertThat(roofAfter.current().generalLimitations()).isEqualTo("Pendiente pronunciada");
-        // The not-applicable garage does not count in the global progress
-        assertThat(roofAfter.report().total()).isEqualTo(roofAfter.sections().stream()
+        assertThat(reports.editor(id, "roof", inspector).current().notApplicable()).isTrue();
+        ReportEditorView structureAfter = reports.editor(id, "structure", inspector);
+        assertThat(structureAfter.current().notApplicable()).isFalse();
+        assertThat(structureAfter.current().inspectionMethod()).isEqualTo("Attic entered");
+        assertThat(structureAfter.current().generalLimitations()).isEqualTo("Low clearance");
+        // The not-applicable roof does not count in the global progress
+        assertThat(structureAfter.report().total()).isEqualTo(structureAfter.sections().stream()
                 .filter(s -> !s.notApplicable()).mapToInt(ReportEditorView.SectionNav::total).sum());
     }
 
@@ -181,19 +182,19 @@ class ReportServiceTests {
         reports.create(header("Otra calle 9"), inspector);
         String number = reports.number(id, inspector);
 
-        assertThat(reports.search(new ReportFilter("búsqueda única", null, null, null), PageRequest.of(0, 10), inspector)
+        assertThat(reports.search(new ReportFilter("búsqueda única", null, null, null, null), PageRequest.of(0, 10), inspector)
                 .getContent()).extracting(r -> r.id()).containsExactly(id);
-        assertThat(reports.search(new ReportFilter(number, null, null, null), PageRequest.of(0, 10), inspector)
+        assertThat(reports.search(new ReportFilter(number, null, null, null, null), PageRequest.of(0, 10), inspector)
                 .getContent()).extracting(r -> r.id()).containsExactly(id);
-        assertThat(reports.search(new ReportFilter("CLIENTE DE CALLE BÚSQUEDA", null, null, null), PageRequest.of(0, 10), inspector)
+        assertThat(reports.search(new ReportFilter("CLIENTE DE CALLE BÚSQUEDA", null, null, null, null), PageRequest.of(0, 10), inspector)
                 .getTotalElements()).isEqualTo(1);
-        assertThat(reports.search(new ReportFilter("Única", ReportStatus.FINAL, null, null), PageRequest.of(0, 10), inspector)
+        assertThat(reports.search(new ReportFilter("Única", null, ReportStatus.FINAL, null, null), PageRequest.of(0, 10), inspector)
                 .getTotalElements()).isZero();
-        assertThat(reports.search(new ReportFilter("Única", null, LocalDate.of(2026, 3, 14), LocalDate.of(2026, 3, 14)),
+        assertThat(reports.search(new ReportFilter("Única", null, null, LocalDate.of(2026, 3, 14), LocalDate.of(2026, 3, 14)),
                 PageRequest.of(0, 10), inspector).getTotalElements()).isEqualTo(1);
-        assertThat(reports.search(new ReportFilter("Única", null, LocalDate.of(2026, 3, 15), null),
+        assertThat(reports.search(new ReportFilter("Única", null, null, LocalDate.of(2026, 3, 15), null),
                 PageRequest.of(0, 10), inspector).getTotalElements()).isZero();
-        assertThat(reports.search(new ReportFilter("100%_", null, null, null), PageRequest.of(0, 10), inspector)
+        assertThat(reports.search(new ReportFilter("100%_", null, null, null, null), PageRequest.of(0, 10), inspector)
                 .getTotalElements()).isZero();
     }
 }

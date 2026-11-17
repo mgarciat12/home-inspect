@@ -1,5 +1,6 @@
 package com.homeinspect.app.catalog;
 
+import com.homeinspect.app.report.ReportType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +8,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -17,12 +19,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Synchronises the catalog tables with {@code catalog/sop-catalog.yml} at startup (by code):
+ * Synchronises the catalog tables with the catalog file of each report type
+ * ({@code catalog/full.yml}, {@code catalog/four-point.yml}...) at startup (by code):
  * creates new sections and items, updates texts and options, and deactivates what is no longer
  * in the file. Nothing is deleted, so existing reports keep their elements.
  */
@@ -37,37 +42,57 @@ public class CatalogSeeder implements ApplicationRunner {
     private final LimitationDefRepository limitations;
     private final CommentTemplateRepository comments;
 
-    @Value("${home-inspect.catalog:classpath:catalog/sop-catalog.yml}")
-    private Resource catalog;
+    private final ResourceLoader resourceLoader;
+
+    /** Directory of the catalog files, one per report type. */
+    @Value("${home-inspect.catalog-dir:classpath:catalog/}")
+    private String catalogDir;
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) throws IOException {
-        Map<String, Object> root;
-        try (InputStream in = catalog.getInputStream()) {
-            root = new Yaml(new SafeConstructor(new LoaderOptions())).load(in);
+        // Limitations are shared by every type: the union of all files, in order
+        Set<String> allLimitations = new LinkedHashSet<>();
+        for (ReportType type : ReportType.values()) {
+            Resource file = resourceLoader.getResource(catalogDir + type.catalogFile());
+            Map<String, Object> root = file.exists() ? load(file) : Map.of();
+            allLimitations.addAll(strings(root.get("limitations")));
+            syncType(type, maps(root.get("sections")));
         }
-        syncLimitations(strings(root.get("limitations")));
-        List<Map<String, Object>> sectionList = maps(root.get("sections"));
+        syncLimitations(new ArrayList<>(allLimitations));
+    }
+
+    private static Map<String, Object> load(Resource file) throws IOException {
+        try (InputStream in = file.getInputStream()) {
+            Map<String, Object> root = new Yaml(new SafeConstructor(new LoaderOptions())).load(in);
+            return root == null ? Map.of() : root;
+        }
+    }
+
+    /** A type without catalog file just has every section deactivated. */
+    private void syncType(ReportType type, List<Map<String, Object>> sectionList) {
         Set<String> seenSections = new HashSet<>();
         int created = 0;
         for (int s = 0; s < sectionList.size(); s++) {
-            created += syncSection(sectionList.get(s), (s + 1) * 10, seenSections);
+            created += syncSection(type, sectionList.get(s), (s + 1) * 10, seenSections);
         }
-        for (SectionDef section : sections.findAll()) {
+        for (SectionDef section : sections.findByType(type)) {
             if (!seenSections.contains(section.getCode()) && section.isActive()) {
                 section.setActive(false);
-                log.info("Catalog section '{}' deactivated (no longer in the catalog file)", section.getCode());
+                log.info("Catalog section '{}' of {} deactivated (no longer in the catalog file)", section.getCode(), type);
             }
         }
-        log.info("Catalog synchronised: {} sections, {} new items", sectionList.size(), created);
+        if (!sectionList.isEmpty()) {
+            log.info("Catalog {} synchronised: {} sections, {} new items", type, sectionList.size(), created);
+        }
     }
 
-    private int syncSection(Map<String, Object> data, int position, Set<String> seenSections) {
+    private int syncSection(ReportType type, Map<String, Object> data, int position, Set<String> seenSections) {
         String code = required(data, "code");
         seenSections.add(code);
-        SectionDef section = sections.findByCode(code).orElseGet(() -> {
+        SectionDef section = sections.findByTypeAndCode(type, code).orElseGet(() -> {
             SectionDef fresh = new SectionDef();
+            fresh.setType(type);
             fresh.setCode(code);
             return fresh;
         });
@@ -97,10 +122,26 @@ public class CatalogSeeder implements ApplicationRunner {
             item.setTitle(required(itemData, "title"));
             item.setMaterials(strings(itemData.get("materials")));
             item.setLimitations(strings(itemData.get("limitations")));
+            Object field = itemData.get("field");
+            item.setFieldType(field == null ? null : FieldType.valueOf(field.toString().trim().toUpperCase(Locale.ROOT)));
+            item.setOptions(strings(itemData.get("options")));
+            item.setRequired(Boolean.TRUE.equals(itemData.get("required")));
+            item.setExplainOn(strings(itemData.get("explain_on")));
+            item.setPhotoRequired(Boolean.TRUE.equals(itemData.get("photo_required")));
+            item.setHelp((String) itemData.get("help"));
+            if (item.getFieldType() == FieldType.CHOICE || item.getFieldType() == FieldType.MULTI) {
+                if (item.getOptions().isEmpty()) {
+                    throw new IllegalStateException("Catalog: question '" + code + "." + itemCode + "' has no options");
+                }
+            }
             item.setActive(true);
-            items.save(item);
             if (isNew) {
                 created++;
+            }
+            boolean seedComments = isNew || !item.isCommentsSeeded();
+            item.setCommentsSeeded(true);
+            items.save(item);
+            if (seedComments) {
                 List<String> texts = strings(itemData.get("comments"));
                 for (int c = 0; c < texts.size(); c++) {
                     comments.save(new CommentTemplate(item, texts.get(c), (c + 1) * 10));

@@ -1,5 +1,6 @@
 package com.homeinspect.app.catalog;
 
+import com.homeinspect.app.report.ReportType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -7,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -25,15 +27,26 @@ public class CommentLibraryService {
     public record SectionOption(String code, int number, String title) {
     }
 
+    /** Section of a catalog item or comment, to come back to the right page after a change. */
+    public record SectionRef(ReportType type, String code) {
+    }
+
     public record CommentRow(long id, String text) {
     }
 
     public record ItemComments(long itemId, String reference, String title, List<CommentRow> comments) {
     }
 
+    /** Report types that have a catalog with sections. */
     @Transactional(readOnly = true)
-    public List<SectionOption> sections() {
-        List<SectionDef> active = sections.findByActiveTrueOrderByPositionAsc();
+    public List<ReportType> types() {
+        return Arrays.stream(ReportType.values())
+                .filter(type -> !sections.findByTypeAndActiveTrueOrderByPositionAsc(type).isEmpty()).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SectionOption> sections(ReportType type) {
+        List<SectionDef> active = sections.findByTypeAndActiveTrueOrderByPositionAsc(type);
         List<SectionOption> options = new ArrayList<>();
         for (int i = 0; i < active.size(); i++) {
             options.add(new SectionOption(active.get(i).getCode(), i + 1, active.get(i).getTitle()));
@@ -42,14 +55,14 @@ public class CommentLibraryService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemComments> items(String sectionCode) {
-        List<SectionOption> options = sections();
+    public List<ItemComments> items(ReportType type, String sectionCode) {
+        List<SectionOption> options = sections(type);
         SectionOption option = options.stream().filter(o -> o.code().equals(sectionCode)).findFirst()
                 .orElse(options.isEmpty() ? null : options.getFirst());
         if (option == null) {
             return List.of();
         }
-        SectionDef section = sections.findByCode(option.code()).orElseThrow();
+        SectionDef section = sections.findByTypeAndCode(type, option.code()).orElseThrow();
         List<ItemDef> sectionItems = items.findBySectionAndActiveTrueOrderByPositionAsc(section);
         List<ItemComments> result = new ArrayList<>();
         for (int i = 0; i < sectionItems.size(); i++) {
@@ -61,16 +74,19 @@ public class CommentLibraryService {
         return result;
     }
 
-    /** Section code of an item (to come back to the right page after a change). */
     @Transactional(readOnly = true)
-    public String sectionOfItem(long itemId) {
-        return items.findById(itemId).map(i -> i.getSection().getCode()).orElseThrow(NoSuchElementException::new);
+    public SectionRef sectionOfItem(long itemId) {
+        return items.findById(itemId).map(i -> ref(i.getSection())).orElseThrow(NoSuchElementException::new);
     }
 
     @Transactional(readOnly = true)
-    public String sectionOfComment(long commentId) {
-        return comments.findById(commentId).map(c -> c.getItem().getSection().getCode())
+    public SectionRef sectionOfComment(long commentId) {
+        return comments.findById(commentId).map(c -> ref(c.getItem().getSection()))
                 .orElseThrow(NoSuchElementException::new);
+    }
+
+    private static SectionRef ref(SectionDef section) {
+        return new SectionRef(section.getType(), section.getCode());
     }
 
     @Transactional

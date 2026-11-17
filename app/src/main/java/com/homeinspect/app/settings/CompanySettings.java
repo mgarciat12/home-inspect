@@ -38,6 +38,9 @@ public class CompanySettings {
     @Column(name = "tax_id")
     private String taxId;
 
+    @Column(name = "license_number")
+    private String licenseNumber;
+
     @Column(name = "legal_text")
     private String legalText;
 

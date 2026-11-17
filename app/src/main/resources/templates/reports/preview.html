@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/layout :: head(#{preview.title(${doc.number})})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
@@ -31,12 +31,12 @@
                     <div class="font-monospace fw-semibold" th:text="${doc.number}">2026-0001</div>
                 </div>
             </div>
-            <h1 class="display-6 fw-semibold mb-1" th:text="#{doc.title}">Informe de inspección de vivienda</h1>
+            <h1 class="display-6 fw-semibold mb-1" th:text="#{'doc.title.' + ${doc.type}}">Informe de inspección de vivienda</h1>
             <p class="lead mb-4" th:text="${doc.property.fullAddress()}">Dirección</p>
             <img class="doc-cover-photo mb-4" th:if="${doc.cover}" th:src="@{${doc.cover.url}}" th:alt="${doc.cover.caption} ?: #{photo.cover}">
             <dl class="row doc-facts mb-0">
                 <dt class="col-sm-4" th:text="#{doc.date}">Fecha</dt>
-                <dd class="col-sm-8" th:text="${#temporals.format(doc.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</dd>
+                <dd class="col-sm-8" th:text="${#temporals.format(doc.inspectedAt, #messages.msg('format.datetime'))}">fecha</dd>
                 <dt class="col-sm-4" th:text="#{doc.client}">Cliente</dt>
                 <dd class="col-sm-8" th:text="${doc.client.name} ?: '—'">cliente</dd>
                 <dt class="col-sm-4" th:text="#{report.inspector}">Inspector</dt>
@@ -84,6 +84,18 @@
             </div>
         </section>
 
+        <!-- 4b. Present but not inspected (section 468.8323, F.S.) -->
+        <section class="doc-section">
+            <h2 class="doc-h2" th:text="#{doc.notInspected}">Not inspected</h2>
+            <p class="text-body-secondary" th:if="${#lists.isEmpty(doc.notInspected())}" th:text="#{doc.notInspected.none}">All inspected.</p>
+            <table class="table table-sm doc-table" th:unless="${#lists.isEmpty(doc.notInspected())}">
+                <tr th:each="n : ${doc.notInspected()}">
+                    <th th:text="${n.label()}">7.4 Plumbing › Pumps</th>
+                    <td th:text="${#lists.isEmpty(n.reasons)} ? #{doc.notInspected.noReason} : ${#strings.listJoin(n.reasons, '; ')}">No access</td>
+                </tr>
+            </table>
+        </section>
+
         <!-- 5. General data -->
         <section class="doc-section">
             <h2 class="doc-h2" th:text="#{doc.general}">Datos generales</h2>
@@ -92,9 +104,10 @@
                     <h3 class="h6 text-uppercase text-body-secondary" th:text="#{report.header.property}">Inmueble</h3>
                     <table class="table table-sm doc-table">
                         <tr><th th:text="#{report.address}">Dirección</th><td th:text="${doc.property.fullAddress()}"></td></tr>
+                        <tr><th th:text="#{report.county}">County</th><td th:text="${doc.property.county} ?: '—'"></td></tr>
                         <tr><th th:text="#{report.propertyType}">Tipo</th><td th:text="${doc.property.type} ? #{'enum.PropertyType.' + ${doc.property.type}} : '—'"></td></tr>
                         <tr><th th:text="#{report.yearBuilt}">Año</th><td th:text="${doc.property.yearBuilt} ?: '—'"></td></tr>
-                        <tr><th th:text="#{report.areaM2}">m²</th><td th:text="${doc.property.areaM2} ? ${#numbers.formatDecimal(doc.property.areaM2, 1, 'POINT', 0, 'COMMA')} : '—'"></td></tr>
+                        <tr><th th:text="#{report.areaSqft}">sq ft</th><td th:text="${doc.property.areaSqft} ? ${#numbers.formatInteger(doc.property.areaSqft, 1, 'COMMA')} : '—'"></td></tr>
                         <tr><th th:text="#{report.floors}">Plantas</th><td th:text="${doc.property.floors} ?: '—'"></td></tr>
                         <tr><th th:text="#{report.occupancy}">Ocupación</th><td th:text="${doc.property.occupancy} ? #{'enum.Occupancy.' + ${doc.property.occupancy}} : '—'"></td></tr>
                         <tr><th th:text="#{report.peoplePresent}">Presentes</th><td th:text="${doc.property.peoplePresent} ?: '—'"></td></tr>
@@ -106,12 +119,14 @@
                         <tr><th th:text="#{report.clientName}">Nombre</th><td th:text="${doc.client.name} ?: '—'"></td></tr>
                         <tr><th th:text="#{report.clientEmail}">Email</th><td th:text="${doc.client.email} ?: '—'"></td></tr>
                         <tr><th th:text="#{report.clientPhone}">Teléfono</th><td th:text="${doc.client.phone} ?: '—'"></td></tr>
+                        <tr th:if="${doc.client.insuranceCompany}"><th th:text="#{report.insuranceCompany}">Insurance company</th><td th:text="${doc.client.insuranceCompany}"></td></tr>
+                        <tr th:if="${doc.client.policyNumber}"><th th:text="#{report.policyNumber}">Policy number</th><td th:text="${doc.client.policyNumber}"></td></tr>
                     </table>
                     <h3 class="h6 text-uppercase text-body-secondary" th:text="#{report.header.conditions}">Condiciones</h3>
                     <table class="table table-sm doc-table">
-                        <tr><th th:text="#{report.inspectedAt}">Fecha</th><td th:text="${#temporals.format(doc.inspectedAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+                        <tr><th th:text="#{report.inspectedAt}">Fecha</th><td th:text="${#temporals.format(doc.inspectedAt, #messages.msg('format.datetime'))}"></td></tr>
                         <tr><th th:text="#{report.weather}">Tiempo</th><td th:text="${doc.conditions.weather} ? #{'enum.Weather.' + ${doc.conditions.weather}} : '—'"></td></tr>
-                        <tr><th th:text="#{report.temperatureC}">Temperatura</th><td th:text="${doc.conditions.temperatureC} ? ${#numbers.formatDecimal(doc.conditions.temperatureC, 1, 'POINT', 1, 'COMMA')} + ' ºC' : '—'"></td></tr>
+                        <tr><th th:text="#{report.temperatureF}">Temperature</th><td th:text="${doc.conditions.temperatureF} ? ${#numbers.formatDecimal(doc.conditions.temperatureF, 1, 'COMMA', 0, 'POINT')} + ' °F' : '—'"></td></tr>
                         <tr><th th:text="#{report.soilCondition}">Suelo</th><td th:text="${doc.conditions.soil} ? #{'enum.SoilCondition.' + ${doc.conditions.soil}} : '—'"></td></tr>
                     </table>
                 </div>
@@ -175,7 +190,8 @@
             <p class="small text-body-secondary mb-2" th:text="#{doc.signature.text}">Firmado por el inspector.</p>
             <img class="signature-preview" th:if="${doc.inspector.hasSignature}" th:src="@{/reports/{id}/signature(id=${doc.id})}" th:alt="#{profile.signature}">
             <div class="fw-semibold mt-2" th:text="${doc.inspector.name}">Inspector</div>
-            <div class="small text-body-secondary" th:text="${#temporals.format(doc.finalizedAt ?: doc.inspectedAt, 'dd/MM/yyyy')}">fecha</div>
+            <div class="small text-body-secondary" th:each="l : ${doc.inspector.licenses}" th:text="#{'enum.LicenseType.' + ${l.type}} + ' — ' + ${l.number}">Home inspector — HI1234</div>
+            <div class="small text-body-secondary" th:text="${#temporals.format(doc.finalizedAt ?: doc.inspectedAt, #messages.msg('format.date'))}">fecha</div>
         </section>
 
         <footer class="small text-body-secondary border-top pt-3 mt-4" th:if="${doc.company.legalText}">

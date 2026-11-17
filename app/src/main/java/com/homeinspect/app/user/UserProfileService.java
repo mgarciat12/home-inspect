@@ -41,6 +41,12 @@ public class UserProfileService {
         return repository.findBySubject(subject);
     }
 
+    /** Interface language of the user ({@code en}, {@code es} or null to follow the browser). */
+    @Transactional
+    public void setLanguage(long profileId, String language) {
+        repository.findById(profileId).orElseThrow().setLanguage(language);
+    }
+
     @Transactional(readOnly = true)
     public UserProfile get(long id) {
         return repository.findById(id).orElseThrow();

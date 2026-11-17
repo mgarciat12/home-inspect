@@ -13,6 +13,7 @@ import com.homeinspect.app.report.ReportSection;
 import com.homeinspect.app.security.CurrentUser;
 import com.homeinspect.app.settings.CompanySettingsService;
 import com.homeinspect.app.summary.FindingsSummaryService;
+import com.homeinspect.app.user.LicenseService;
 import com.homeinspect.app.user.SignatureService;
 import com.homeinspect.app.user.UserProfile;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class ReportDocumentService {
     private final FindingsSummaryService summary;
     private final CompanySettingsService company;
     private final SignatureService signatures;
+    private final LicenseService licenses;
 
     @Transactional(readOnly = true)
     public ReportDocument build(long reportId, CurrentUser user) {
@@ -59,11 +61,17 @@ public class ReportDocumentService {
                         cover = photo(view);
                     }
                 }
-                items.add(new ReportDocument.Item(item.getId(), (s + 1) + "." + (i + 1),
-                        item.getDefinition().getTitle(), item.getStatus(), item.getRating(),
+                var definition = item.getDefinition();
+                ReportDocument.Item.Question question = definition.isQuestion()
+                        ? new ReportDocument.Item.Question(definition.getFieldType(),
+                                definition.getFieldType().options(definition.getOptions()),
+                                List.copyOf(item.getAnswers()), definition.getHelp())
+                        : null;
+                items.add(new ReportDocument.Item(item.getId(), (s + 1) + "." + (i + 1), definition.getCode(),
+                        definition.getTitle(), item.getStatus(), item.getRating(),
                         List.copyOf(item.getMaterials()), item.getMaterialOther(), List.copyOf(item.getLimitations()),
                         item.getLimitationText(), item.getObservations(), item.getRecommendation(),
-                        item.getRecommendationText(), itemPhotoList));
+                        item.getRecommendationText(), itemPhotoList, question));
             }
             sections.add(new ReportDocument.Section(s + 1, section.getDefinition().getCode(),
                     section.getDefinition().getTitle(), section.isNotApplicable(), section.getInspectionMethod(),
@@ -71,15 +79,16 @@ public class ReportDocumentService {
         }
 
         UserProfile inspector = report.getInspector();
-        return new ReportDocument(report.getId(), report.getNumber(), report.getStatus(), report.getInspectedAt(),
-                report.getFinalizedAt(),
+        return new ReportDocument(report.getId(), report.getNumber(), report.getType(), report.getStatus(),
+                report.getInspectedAt(), report.getFinalizedAt(),
                 new ReportDocument.Inspector(inspector.getId(), inspector.getDisplayName(), inspector.getEmail(),
-                        signatures.file(inspector.getId()).isPresent()),
-                new ReportDocument.Client(report.getClientName(), report.getClientEmail(), report.getClientPhone()),
+                        signatures.file(inspector.getId()).isPresent(), licenses.list(inspector.getId())),
+                new ReportDocument.Client(report.getClientName(), report.getClientEmail(), report.getClientPhone(),
+                        report.getInsuranceCompany(), report.getPolicyNumber()),
                 new ReportDocument.Property(report.getAddress(), report.getPostalCode(), report.getCity(),
-                        report.getProvince(), report.getPropertyType(), report.getYearBuilt(), report.getAreaM2(),
-                        report.getFloors(), report.getOccupancy(), report.getPeoplePresent()),
-                new ReportDocument.Conditions(report.getWeather(), report.getTemperatureC(), report.getSoilCondition()),
+                        report.getCounty(), report.getState(), report.getPropertyType(), report.getYearBuilt(),
+                        report.getAreaSqft(), report.getFloors(), report.getOccupancy(), report.getPeoplePresent()),
+                new ReportDocument.Conditions(report.getWeather(), report.getTemperatureF(), report.getSoilCondition()),
                 cover, company.view(), summary.summarize(sections), sections);
     }
 

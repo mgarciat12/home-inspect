@@ -81,7 +81,7 @@ class PhotoTests {
         assertThat(result.photos()).hasSize(1);
         assertThat(result.errors()).singleElement().satisfies(e -> {
             assertThat(e.file()).isEqualTo("virus.jpg");
-            assertThat(e.message()).contains("Formato no admitido");
+            assertThat(e.message()).contains("Unsupported format");
         });
         PhotoView view = result.photos().getFirst();
         assertThat(view.width()).isEqualTo(1600);
@@ -191,7 +191,7 @@ class PhotoTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG));
         mvc.perform(get("/profile").with(login))
-                .andExpect(content().string(containsString("Quitar firma")));
+                .andExpect(content().string(containsString("Remove signature")));
         mvc.perform(post("/profile/signature/delete").with(login).with(csrf())).andExpect(redirectedUrl("/profile"));
         mvc.perform(get("/profile/signature").with(login)).andExpect(status().isNotFound());
     }

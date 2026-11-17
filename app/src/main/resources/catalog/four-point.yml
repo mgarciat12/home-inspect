@@ -1,0 +1,423 @@
+# 4-Point inspection: Citizens Property Insurance sample form Insp4pt 03 25 (roof, electrical, HVAC, plumbing).
+# Citizens accepts another form only if it has at least this level of detail, so the questions and options
+# follow the official form. The header (insured / applicant, policy #, address, year built, date inspected)
+# comes from the report header. Every item is a question:
+#   field: TEXT | NUMBER | YEAR | DATE | YES_NO | YES_NO_NA | CHOICE | MULTI | CONDITION | PHOTO
+#   options (CHOICE / MULTI), required, explain_on (answers that need comments), photo_required, help.
+# Codes must not change once used. Quote values that contain ": ".
+
+sections:
+  - code: electrical
+    title: Electrical System
+    description: Separate documentation of any single strand aluminum wiring remediation must be provided and certified by a licensed electrician.
+    items:
+      - code: main_panel_type
+        title: "Main panel: type"
+        field: CHOICE
+        options: [Circuit breaker, Fuse]
+        required: true
+      - code: main_panel_amps
+        title: "Main panel: total amps"
+        field: NUMBER
+        required: true
+      - code: main_panel_sufficient
+        title: "Main panel: is amperage sufficient for current usage?"
+        field: YES_NO
+        required: true
+        explain_on: ["No"]
+      - code: second_panel_type
+        title: "Second panel: type"
+        field: CHOICE
+        options: [Circuit breaker, Fuse]
+        help: Leave blank if there is no second panel.
+      - code: second_panel_amps
+        title: "Second panel: total amps"
+        field: NUMBER
+      - code: second_panel_sufficient
+        title: "Second panel: is amperage sufficient for current usage?"
+        field: YES_NO
+        explain_on: ["No"]
+      - code: wiring_present
+        title: Indicate presence of any of the following
+        field: MULTI
+        options: [Cloth wiring, Active knob and tube, Branch circuit aluminum wiring]
+        explain_on: [Branch circuit aluminum wiring]
+        help: If branch circuit aluminum wiring is present, describe the usage of all aluminum wiring in the comments.
+      - code: aluminum_remediation
+        title: Single strand (aluminum branch) wiring remediation
+        field: MULTI
+        options: [Connections repaired via COPALUM crimp, Connections repaired via AlumiConn]
+        help: Provide details of all remediation. Separate documentation of all work, certified by a licensed electrician, must be provided.
+        photo_required: false
+      - code: hazards
+        title: Hazards present
+        field: MULTI
+        options: [Blowing fuses, Tripping breakers, Empty sockets, Loose wiring, Improper grounding, Corrosion, Over fusing, Double taps, Exposed wiring, Unsafe wiring, Improper breaker size, Scorching, Other]
+        explain_on: [Blowing fuses, Tripping breakers, Empty sockets, Loose wiring, Improper grounding, Corrosion, Over fusing, Double taps, Exposed wiring, Unsafe wiring, Improper breaker size, Scorching, Other]
+        help: Every hazard requires a description and a photo.
+      - code: general_condition
+        title: General condition of the electrical system
+        field: CHOICE
+        options: [Satisfactory, Unsatisfactory]
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: main_panel_age
+        title: "Supplemental: main panel age (years)"
+        field: NUMBER
+        required: true
+      - code: main_panel_updated
+        title: "Supplemental: main panel year last updated"
+        field: YEAR
+      - code: main_panel_brand
+        title: "Supplemental: main panel brand / model"
+        field: TEXT
+        required: true
+      - code: second_panel_age
+        title: "Supplemental: second panel age (years)"
+        field: NUMBER
+      - code: second_panel_updated
+        title: "Supplemental: second panel year last updated"
+        field: YEAR
+      - code: second_panel_brand
+        title: "Supplemental: second panel brand / model"
+        field: TEXT
+      - code: wiring_types
+        title: Wiring type(s)
+        field: MULTI
+        options: [Copper, Copper clad aluminum, "NM, BX or conduit", Single strand aluminum, Cloth (knob & tube), Other, Multistrand aluminum, Cloth jacket rubber insulated]
+        required: true
+        explain_on: [Other]
+
+  - code: hvac
+    title: HVAC System
+    items:
+      - code: central_ac
+        title: Central AC
+        field: YES_NO
+        required: true
+      - code: central_heat
+        title: Central heat
+        field: YES_NO
+        required: true
+      - code: primary_heat_source
+        title: If not central heat, indicate primary heat source and fuel type
+        field: TEXT
+      - code: good_working_order
+        title: Are the heating, ventilation and air conditioning systems in good working order?
+        field: YES_NO
+        required: true
+        explain_on: ["No"]
+      - code: last_service
+        title: Date of last HVAC servicing / inspection
+        field: DATE
+      - code: wood_stove
+        title: "Hazards: is a wood-burning stove or central gas fireplace present?"
+        field: YES_NO
+        required: true
+      - code: wood_stove_professional
+        title: "Hazards: was it professionally installed?"
+        field: YES_NO_NA
+        explain_on: ["No"]
+      - code: space_heater_primary
+        title: "Hazards: space heater used as primary heat source?"
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+      - code: space_heater_portable
+        title: "Hazards: is the source portable?"
+        field: YES_NO_NA
+        explain_on: ["Yes"]
+      - code: condensate_leak
+        title: Does the air handler / condensate line or drain pan show any signs of blockage or leakage, including water damage to the surrounding area?
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+      - code: system_age
+        title: "Supplemental: age of system (years)"
+        field: NUMBER
+        required: true
+      - code: year_updated
+        title: "Supplemental: year last updated"
+        field: YEAR
+      - code: equipment_photos
+        title: HVAC equipment, including the dated manufacturer's plate
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+
+  - code: plumbing
+    title: Plumbing System
+    items:
+      - code: tprv
+        title: Is there a temperature pressure relief valve on the water heater?
+        field: YES_NO
+        required: true
+        explain_on: ["No"]
+      - code: active_leak
+        title: Is there any indication of an active leak?
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+      - code: prior_leak
+        title: Is there any indication of a prior leak?
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+      - code: water_heater_location
+        title: Water heater location
+        field: TEXT
+        required: true
+      - code: dishwasher
+        title: "Fixtures / connections: dishwasher"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: refrigerator
+        title: "Fixtures / connections: refrigerator"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: washing_machine
+        title: "Fixtures / connections: washing machine"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: water_heater
+        title: "Fixtures / connections: water heater"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: showers_tubs
+        title: "Fixtures / connections: showers / tubs"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: toilets
+        title: "Fixtures / connections: toilets"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: sinks
+        title: "Fixtures / connections: sinks"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: sump_pump
+        title: "Fixtures / connections: sump pump"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: main_shutoff
+        title: "Fixtures / connections: main shut off valve"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: other_visible
+        title: "Fixtures / connections: all other visible"
+        field: CONDITION
+        required: true
+        explain_on: [Unsatisfactory]
+        help: "If unsatisfactory, provide comments / details (leaks, wet / soft spots, mold, corrosion, grout / caulk, etc.)."
+      - code: supply_age
+        title: Age of piping supply system
+        field: CHOICE
+        options: [Original to home, Completely re-piped, Partially re-piped]
+        required: true
+        explain_on: [Completely re-piped, Partially re-piped]
+        help: Provide year and extent of renovation in the comments.
+      - code: drain_age
+        title: Age of piping drain system
+        field: CHOICE
+        options: [Original to home, Completely re-piped, Partially re-piped]
+        required: true
+        explain_on: [Completely re-piped, Partially re-piped]
+        help: Provide year and extent of renovation in the comments.
+      - code: pipe_types
+        title: Type of pipes (check all that apply)
+        field: MULTI
+        options: [Copper, PVC/CPVC, Galvanized, PEX, Cast iron, Polybutylene, ABS, Other]
+        required: true
+        explain_on: [Other]
+      - code: pex_year
+        title: PEX year installed
+        field: YEAR
+      - code: water_heater_age
+        title: Age of water heater (years)
+        field: NUMBER
+        required: true
+
+  - code: roof
+    title: Roof (Predominant Roof)
+    description: With photos of each roof slope, this section can take the place of the Roof Inspection Form.
+    items:
+      - code: covering
+        title: Covering material
+        field: TEXT
+        required: true
+      - code: age
+        title: Roof age (years)
+        field: NUMBER
+        required: true
+      - code: remaining_life
+        title: Remaining useful life (years)
+        field: TEXT
+        required: true
+      - code: last_permit
+        title: Date of last roofing permit
+        field: TEXT
+      - code: last_update
+        title: Date of last update
+        field: TEXT
+      - code: update_type
+        title: If updated (check one)
+        field: CHOICE
+        options: [Full replacement, Partial replacement]
+      - code: replacement_percent
+        title: "% of replacement"
+        field: NUMBER
+      - code: condition
+        title: Overall condition
+        field: CHOICE
+        options: [Satisfactory, Unsatisfactory]
+        required: true
+        explain_on: [Unsatisfactory]
+      - code: damage
+        title: Any visible signs of damage / deterioration? (check all that apply and explain)
+        field: MULTI
+        options: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
+        explain_on: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
+      - code: leaks
+        title: Any visible signs of leaks?
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+      - code: leaks_attic
+        title: "Leaks: attic / underside of decking"
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+      - code: leaks_ceilings
+        title: "Leaks: interior ceilings"
+        field: YES_NO
+        required: true
+        explain_on: ["Yes"]
+
+  - code: roof_secondary
+    title: Roof (Secondary Roof)
+    optional: true
+    description: Mark as not applicable when there is only one roof covering.
+    items:
+      - code: covering
+        title: Covering material
+        field: TEXT
+      - code: age
+        title: Roof age (years)
+        field: NUMBER
+      - code: remaining_life
+        title: Remaining useful life (years)
+        field: TEXT
+      - code: last_permit
+        title: Date of last roofing permit
+        field: TEXT
+      - code: last_update
+        title: Date of last update
+        field: TEXT
+      - code: update_type
+        title: If updated (check one)
+        field: CHOICE
+        options: [Full replacement, Partial replacement]
+      - code: replacement_percent
+        title: "% of replacement"
+        field: NUMBER
+      - code: condition
+        title: Overall condition
+        field: CHOICE
+        options: [Satisfactory, Unsatisfactory]
+        explain_on: [Unsatisfactory]
+      - code: damage
+        title: Any visible signs of damage / deterioration? (check all that apply and explain)
+        field: MULTI
+        options: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
+        explain_on: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
+      - code: leaks
+        title: Any visible signs of leaks?
+        field: YES_NO
+        explain_on: ["Yes"]
+      - code: leaks_attic
+        title: "Leaks: attic / underside of decking"
+        field: YES_NO
+        explain_on: ["Yes"]
+      - code: leaks_ceilings
+        title: "Leaks: interior ceilings"
+        field: YES_NO
+        explain_on: ["Yes"]
+
+  - code: photos
+    title: Photo Requirements
+    description: Minimum photos required by the form. Upload them in each item; answer "Not applicable" (and explain) only when the item does not exist.
+    items:
+      - code: dwelling_front
+        title: "Dwelling: front"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: dwelling_rear
+        title: "Dwelling: rear"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: dwelling_left
+        title: "Dwelling: left side"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: dwelling_right
+        title: "Dwelling: right side"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: roof_slopes
+        title: "Roof: each slope"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: water_heater
+        title: "Plumbing: water heater, including the TPR valve"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: under_cabinet
+        title: "Plumbing: under cabinet plumbing / drains"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: exposed_valves
+        title: "Plumbing: exposed valves"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: panel_label
+        title: "Electrical: main service panel open, with the interior door label"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: panel_cover_off
+        title: "Electrical: electrical box with the panel cover off"
+        field: PHOTO
+        required: true
+        photo_required: true
+        explain_on: [Not applicable]
+      - code: hazards
+        title: All hazards or deficiencies noted in this report
+        field: PHOTO
+        help: Answer "Not applicable" when no hazard or deficiency was noted.

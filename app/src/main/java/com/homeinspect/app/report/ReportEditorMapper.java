@@ -54,7 +54,7 @@ public class ReportEditorMapper {
         }
         SectionView current = ordered.isEmpty() ? null : section(report, ordered, index);
 
-        Summary summary = new Summary(report.getId(), report.getNumber(), report.getStatus(), report.getAddress(),
+        Summary summary = new Summary(report.getId(), report.getNumber(), report.getType(), report.getStatus(), report.getAddress(),
                 report.getCity(), report.getClientName(), report.getInspector().getDisplayName(),
                 report.getInspectedAt(), report.getPropertyType(), report.getUpdatedAt(), completed, total);
         return new ReportEditorView(summary, nav, current, editable, canReopen);
@@ -74,14 +74,15 @@ public class ReportEditorMapper {
         for (int i = 0; i < sectionItems.size(); i++) {
             ReportItem item = sectionItems.get(i);
             ItemDef itemDef = item.getDefinition();
-            itemViews.add(new ItemView(item.getId(), (index + 1) + "." + (i + 1), itemDef.getTitle(),
+            itemViews.add(new ItemView(item.getId(), itemDef.getCode(), (index + 1) + "." + (i + 1), itemDef.getTitle(),
                     item.getStatus(), item.getRating(),
                     union(itemDef.getMaterials(), item.getMaterials()), item.getMaterials(), item.getMaterialOther(),
                     union(union(commonLimitations, itemDef.getLimitations()), item.getLimitations()),
                     item.getLimitations(), item.getLimitationText(),
                     item.getObservations(), item.getRecommendation(), item.getRecommendationText(),
                     comments.getOrDefault(itemDef.getId(), List.of()), item.isCompleted(),
-                    itemPhotos.getOrDefault(item.getId(), List.of())));
+                    itemPhotos.getOrDefault(item.getId(), List.of()),
+                    itemDef.isQuestion() ? question(itemDef, item) : null));
         }
         String previous = index > 0 ? ordered.get(index - 1).getDefinition().getCode() : null;
         String next = index < ordered.size() - 1 ? ordered.get(index + 1).getDefinition().getCode() : null;
@@ -91,6 +92,13 @@ public class ReportEditorMapper {
                 definition.getDescription(), definition.isOptional(), section.isNotApplicable(), methods,
                 section.getInspectionMethod(), section.getGeneralComments(), section.getGeneralLimitations(),
                 itemViews, previous, next);
+    }
+
+    private static ItemView.Question question(ItemDef definition, ReportItem item) {
+        return new ItemView.Question(definition.getFieldType(),
+                definition.getFieldType().options(definition.getOptions()), List.copyOf(item.getAnswers()),
+                definition.isRequired(), List.copyOf(definition.getExplainOn()), definition.isPhotoRequired(),
+                definition.getHelp());
     }
 
     public static List<ReportSection> orderedSections(Report report) {

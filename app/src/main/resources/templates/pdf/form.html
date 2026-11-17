@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<!--/* Official forms (4-Point: Citizens Insp4pt 03 25; wind mitigation: OIR-B1-1802 Rev. 04/26), rendered by
+       OpenHTMLtoPDF and also served as the web preview (web = true: images through the application URLs).
+       Well-formed XHTML, CSS 2.1 + paged media only. Sections and questions come from the catalog
+       (catalog/four-point.yml, catalog/wind-mitigation.yml); the texts below are those of the official forms. */-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en"
+      th:with="wm=${doc.type.name() == 'WIND_MITIGATION'},
+               formTitle=${wm} ? 'Uniform Mitigation Verification Inspection Form' : '4-Point Inspection Form',
+               formId=${wm} ? 'OIR-B1-1802 (Rev. 04/26) Adopted by Rule 69O-170.0155, F.A.C.' : 'Based on Citizens Sample Form Insp4pt 03 25',
+               license=${doc.inspector.licenseFor(doc.type)},
+               special=${ {'owner', 'certification', 'photos'} }">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${formTitle} + ' ' + ${doc.number}">Form</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 18mm 14mm 24mm 14mm;
+            @top-center { content: element(header); }
+            @bottom-center { content: element(footer); }
+        }
+        body { font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif; font-size: 8.6pt; line-height: 1.35; color: #111827; }
+        .running-header { position: running(header); width: 100%; font-size: 7.5pt; color: #4b5563;
+            border-bottom: 0.5pt solid #9ca3af; padding-bottom: 1.5mm; }
+        .running-footer { position: running(footer); width: 100%; font-size: 7pt; color: #4b5563;
+            border-top: 0.5pt solid #9ca3af; padding-top: 1.5mm; }
+        .running-header table, .running-footer table { width: 100%; border-collapse: collapse; }
+        .pageno::before { content: counter(page); }
+        .pages::before { content: counter(pages); }
+        .right { text-align: right; }
+        .center { text-align: center; }
+        .muted { color: #4b5563; }
+        .small { font-size: 7.5pt; }
+        .pre { white-space: pre-line; }
+        h1 { font-size: 15pt; margin: 0 0 1mm 0; text-align: center; }
+        .subtitle { text-align: center; font-size: 8pt; margin: 0 0 4mm 0; color: #374151; }
+        h2 { font-size: 10.5pt; margin: 5mm 0 2mm 0; padding: 1.2mm 2mm; background-color: #e5e7eb;
+            border-left: 2.5pt solid #1f2937; page-break-after: avoid; }
+        table.fields { width: 100%; border-collapse: collapse; margin-bottom: 2mm; }
+        table.fields td { padding: 1.2mm 1.5mm; border-bottom: 0.4pt solid #d1d5db; vertical-align: top; }
+        table.fields .label { color: #374151; width: 22%; }
+        table.fields .value { font-weight: bold; }
+        .note { border: 0.6pt solid #9ca3af; padding: 2mm 2.5mm; margin: 2mm 0 3mm 0; font-size: 7.8pt; }
+        .question { padding: 1.6mm 0 1.8mm 0; border-bottom: 0.4pt solid #e5e7eb; page-break-inside: avoid; }
+        .q-title { font-weight: bold; }
+        .q-ref { color: #6b7280; font-weight: normal; margin-right: 1.5mm; }
+        .q-help { color: #4b5563; font-size: 7.6pt; margin-top: 0.6mm; }
+        .opt { margin-right: 4mm; white-space: nowrap; }
+        .opt-block { margin: 0.6mm 0 0 3mm; }
+        .box { font-size: 10pt; }
+        .checked { font-weight: bold; }
+        .answer { font-weight: bold; }
+        .blank { color: #9ca3af; }
+        .comment { margin-top: 0.8mm; padding-left: 2.5mm; border-left: 1.5pt solid #9ca3af; font-style: italic; }
+        .na { font-style: italic; color: #4b5563; }
+        table.sign { width: 100%; border-collapse: collapse; margin-top: 3mm; }
+        table.sign td { padding: 1mm 2mm 0.6mm 0; vertical-align: bottom; }
+        table.sign .line { border-bottom: 0.6pt solid #111827; height: 9mm; font-weight: bold; }
+        table.sign .cap { font-size: 7pt; color: #4b5563; padding-top: 0.6mm; vertical-align: top; }
+        .signature-img { max-height: 13mm; max-width: 60mm; }
+        .logo { max-height: 14mm; max-width: 50mm; }
+        .addendum { page-break-before: always; }
+        table.photos { width: 100%; border-collapse: collapse; }
+        table.photos td { width: 50%; padding: 1.5mm; vertical-align: top; page-break-inside: avoid; }
+        table.photos img { width: 100%; max-height: 82mm; }
+        .caption { font-size: 7.4pt; color: #374151; margin-top: 0.8mm; }
+        .warning { border: 0.8pt solid #111827; padding: 2mm; margin: 3mm 0; font-size: 7.6pt; font-weight: bold; }
+        .webbar { font-family: sans-serif; padding: 8px 12px; background: #f3f4f6; border-bottom: 1px solid #d1d5db; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="webbar" th:if="${web}">
+    <a th:href="@{/reports/{id}/edit(id=${doc.id})}" th:text="#{preview.backToEditor}">Back to the editor</a>
+    · <a th:href="@{/reports/{id}/pdf(id=${doc.id})}" th:text="#{report.pdf}">Download PDF</a>
+    <span th:if="${doc.status.name() == 'DRAFT'}"> · <strong th:text="#{preview.draft}">Draft</strong></span>
+</div>
+
+<!-- Running header / footer -->
+<div class="running-header">
+    <table><tr>
+        <td th:text="${formTitle}">Form</td>
+        <td class="right"><span th:text="#{report.number}">Report no.</span> <span th:text="${doc.number}">4P-2026-0001</span></td>
+    </tr></table>
+</div>
+<div class="running-footer">
+    <table th:if="${wm}"><tr>
+        <td colspan="2">Inspectors Initials <strong th:text="${doc.inspector.initials()}">J</strong>
+            &#160; Property Address <strong th:text="${doc.property.fullAddress()}">Address</strong></td>
+    </tr><tr>
+        <td>*This verification form is valid for up to five (5) years provided no material changes have been made to the structure
+            or inaccuracies found on the form. Some items listed may not qualify for a discount.</td>
+        <td class="right" style="width: 20%;">Page <span class="pageno"></span> of <span class="pages"></span></td>
+    </tr></table>
+    <table th:unless="${wm}"><tr>
+        <td><span th:text="${formId}">Form</span> · <span th:text="${doc.company.name} ?: 'home-inspect'">Company</span>
+            <span th:if="${doc.company.phone}" th:text="' · ' + ${doc.company.phone}"></span></td>
+        <td class="right">Page <span class="pageno"></span> of <span class="pages"></span></td>
+    </tr></table>
+</div>
+
+<!-- Title -->
+<table style="width: 100%; border-collapse: collapse;"><tr>
+    <td style="width: 50%;">
+        <img class="logo" th:if="${logoSrc}" th:src="${logoSrc}" alt=""/>
+        <div th:unless="${logoSrc}" style="font-weight: bold;" th:text="${doc.company.name} ?: 'home-inspect'">Company</div>
+    </td>
+    <td class="right small muted">
+        <div th:text="${formId}">Form id</div>
+        <div><span th:text="#{report.number}">Report no.</span> <strong th:text="${doc.number}">4P-2026-0001</strong></div>
+        <div th:if="${doc.status.name() == 'DRAFT'}" th:text="#{pdf.draft}">Draft</div>
+    </td>
+</tr></table>
+<h1 th:text="${formTitle}">Form</h1>
+<p class="subtitle" th:if="${wm}">Maintain a copy of this form and any documentation provided with the insurance policy.</p>
+<p class="subtitle" th:unless="${wm}">A Florida-licensed inspector must complete, sign and date this form.</p>
+
+<!-- Header: 4-Point -->
+<th:block th:unless="${wm}">
+    <table class="fields">
+        <tr><td class="label">Insured/Applicant Name:</td><td class="value" th:text="${doc.client.name}"></td>
+            <td class="label">Application / Policy #:</td><td class="value" th:text="${doc.client.policyNumber}"></td></tr>
+        <tr><td class="label">Address Inspected:</td><td class="value" colspan="3" th:text="${doc.property.fullAddress()}"></td></tr>
+        <tr><td class="label">Actual Year Built:</td><td class="value" th:text="${doc.property.yearBuilt}"></td>
+            <td class="label">Date Inspected:</td><td class="value" th:text="${#temporals.format(doc.inspectedAt, 'MM/dd/yyyy')}"></td></tr>
+        <tr th:if="${doc.client.insuranceCompany}"><td class="label">Insurance Company:</td><td class="value" colspan="3" th:text="${doc.client.insuranceCompany}"></td></tr>
+    </table>
+    <div class="note">
+        <strong>Minimum Photo Requirements:</strong> Dwelling: each side · Roof: each slope · Plumbing: water heater (incl. TPRV),
+        under cabinet plumbing/drains, exposed valves · Main electrical service panel with interior door label · Electrical box with
+        panel off · All hazards or deficiencies noted in this report.
+    </div>
+    <p class="small">Be advised that Underwriting will rely on the information in this sample form, or a similar form, that is obtained
+        from the Florida licensed professional of your choice. This information only is used to determine insurability and is not a
+        warranty or assurance of the suitability, fitness or longevity of any of the systems inspected.</p>
+</th:block>
+
+<!-- Header: wind mitigation -->
+<th:block th:if="${wm}" th:with="owner=${doc.section('owner')}">
+    <table class="fields">
+        <tr><td class="label">Inspection Date:</td><td class="value" colspan="3" th:text="${#temporals.format(doc.inspectedAt, 'MM/dd/yyyy')}"></td></tr>
+        <tr><td class="label">Owner Name:</td><td class="value" th:text="${doc.client.name}"></td>
+            <td class="label">Contact Person:</td><td class="value" th:text="${doc.item('owner', 'contact_person')?.question?.value()}"></td></tr>
+        <tr><td class="label">Address:</td><td class="value" th:text="${doc.property.address}"></td>
+            <td class="label">Home Phone:</td><td class="value" th:text="${doc.client.phone}"></td></tr>
+        <tr><td class="label">City:</td><td class="value" th:text="${doc.property.city} + ' ' + (${doc.property.zip} ?: '')"></td>
+            <td class="label">Work Phone:</td><td class="value" th:text="${doc.item('owner', 'work_phone')?.question?.value()}"></td></tr>
+        <tr><td class="label">County:</td><td class="value" th:text="${doc.property.county}"></td>
+            <td class="label">Cell Phone:</td><td class="value" th:text="${doc.item('owner', 'cell_phone')?.question?.value()}"></td></tr>
+        <tr><td class="label">Insurance Company:</td><td class="value" th:text="${doc.client.insuranceCompany}"></td>
+            <td class="label">Policy #:</td><td class="value" th:text="${doc.client.policyNumber}"></td></tr>
+        <tr><td class="label">Year of Home:</td><td class="value" th:text="${doc.property.yearBuilt} + '    # of Stories: ' + (${doc.property.floors} ?: '')"></td>
+            <td class="label">Email:</td><td class="value" th:text="${doc.client.email}"></td></tr>
+    </table>
+    <div class="note" th:with="fortified=${doc.item('owner', 'fortified')?.question}">
+        <strong>NOTE:</strong> Any documentation used in validating the compliance or existence of each construction or mitigation attribute
+        must accompany this form. At least one photograph or document providing proof must accompany this form to validate each attribute
+        marked in questions 2 through 9. A FORTIFIED Home® Roof, Silver, or Gold Certificate may be used to validate the attributes marked in
+        questions 4 through 6, and questions 8 through 9 (check type of certificate and attach photocopy). The insurer may ask additional
+        questions regarding the mitigated feature(s) verified on this form.
+        <div th:if="${fortified != null}" style="margin-top: 1mm;">FORTIFIED Home® certificate:
+            <span class="opt" th:each="o : ${fortified.options}" th:classappend="${fortified.checked(o)} ? 'checked'">
+                <span class="box" th:text="${fortified.checked(o)} ? '☒' : '☐'">☐</span> <span th:text="${o}">Roof</span></span>
+        </div>
+    </div>
+</th:block>
+
+<!-- Questions, section by section -->
+<th:block th:each="section : ${doc.sections}" th:unless="${#lists.contains(special, section.code)}">
+    <h2 th:text="${section.title}">Electrical System</h2>
+    <p class="na" th:if="${section.notApplicable}" th:text="#{doc.section.na}">Not applicable</p>
+    <th:block th:unless="${section.notApplicable}">
+        <div class="question" th:each="it : ${section.items}" th:with="q=${it.question}">
+            <div class="q-title"><span class="q-ref" th:text="${it.reference}">1.1</span><span th:text="${it.title} + (${q != null and !q.type.hasOptions()} ? ':' : '')">Question</span>
+                <th:block th:if="${q != null and !q.type.hasOptions()}">
+                    <span class="answer" th:if="${q.value()}" th:text="${q.value()}">200</span>
+                    <span class="blank" th:unless="${q.value()}">________</span>
+                </th:block>
+            </div>
+            <div class="q-help pre" th:if="${q != null and q.help != null}" th:text="${q.help}">Help</div>
+            <th:block th:if="${q != null and q.type.hasOptions()}">
+                <div th:if="${q.compact()}">
+                    <span class="opt" th:each="o : ${q.options}" th:classappend="${q.checked(o)} ? 'checked'">
+                        <span class="box" th:text="${q.checked(o)} ? '☒' : '☐'">☐</span> <span th:text="${o}">Yes</span></span>
+                </div>
+                <div th:unless="${q.compact()}">
+                    <div class="opt-block" th:each="o : ${q.options}" th:classappend="${q.checked(o)} ? 'checked'">
+                        <span class="box" th:text="${q.checked(o)} ? '☒' : '☐'">☐</span> <span th:text="${o}">A. Option</span></div>
+                </div>
+            </th:block>
+            <div class="comment pre" th:if="${it.observations}" th:text="${it.observations}">Comment</div>
+        </div>
+        <div class="comment pre" th:if="${section.generalComments}" th:text="${section.generalComments}">Section comments</div>
+    </th:block>
+</th:block>
+
+<!-- 4-Point: additional comments / observations -->
+<th:block th:unless="${wm}">
+    <h2>Additional Comments/Observations</h2>
+    <p class="small muted">Updates (types, dates completed and by whom), visible hazards or deficiencies, and any system not in good working order.</p>
+    <th:block th:each="section : ${doc.sections}">
+        <th:block th:each="it : ${section.items}">
+            <div th:if="${it.observations}" style="margin-bottom: 1.2mm;"><strong th:text="${it.reference} + ' ' + ${it.title} + ':'">1.1 Q:</strong>
+                <span class="pre" th:text="${it.observations}">Comment</span></div>
+        </th:block>
+    </th:block>
+    <p class="na" th:unless="${doc.hasItemComments()}">None.</p>
+
+    <!-- Photo checklist -->
+    <th:block th:with="photos=${doc.section('photos')}" th:if="${doc.section('photos') != null}">
+        <h2 th:text="${photos.title}">Photo requirements</h2>
+        <div class="question" th:each="it : ${photos.items}">
+            <span class="box" th:text="${#lists.isEmpty(it.photos)} ? '☐' : '☒'">☐</span>
+            <span th:text="${it.title}">Dwelling: front</span>
+            <span class="muted" th:text="' (' + ${#lists.size(it.photos)} + ' photo(s))'"> (1)</span>
+            <span class="na" th:if="${it.question != null and it.question.checked('Not applicable')}"> — Not applicable</span>
+            <div class="comment pre" th:if="${it.observations}" th:text="${it.observations}">Comment</div>
+        </div>
+    </th:block>
+
+    <h2>Inspector Certification</h2>
+    <p>All 4-Point Inspection Forms must be completed and signed by a verifiable Florida-licensed inspector.<br/>
+        I certify that the above statements are true and correct.</p>
+    <table class="sign">
+        <tr>
+            <td class="line" style="width: 34%;"><img class="signature-img" th:if="${signatureSrc}" th:src="${signatureSrc}" alt=""/></td>
+            <td class="line" style="width: 18%;">Inspector</td>
+            <td class="line" style="width: 24%;" th:text="${license?.number}"></td>
+            <td class="line" th:text="${#temporals.format(doc.finalizedAt ?: doc.inspectedAt, 'MM/dd/yyyy')}"></td>
+        </tr>
+        <tr><td class="cap">Inspector Signature (<span th:text="${doc.inspector.name}">Name</span>)</td><td class="cap">Title</td>
+            <td class="cap">License Number</td><td class="cap">Date</td></tr>
+        <tr>
+            <td class="line" th:text="${doc.company.name}"></td>
+            <td class="line" colspan="2" th:text="${license != null} ? #{'enum.LicenseType.' + ${license.type}} : ''"></td>
+            <td class="line" th:text="${doc.company.phone}"></td>
+        </tr>
+        <tr><td class="cap">Company Name</td><td class="cap" colspan="2">License Type</td><td class="cap">Work Phone</td></tr>
+    </table>
+</th:block>
+
+<!-- Wind mitigation: qualified inspector -->
+<th:block th:if="${wm}" th:with="qualified=${doc.item('certification', 'qualified_as')?.question},
+                                  employee=${doc.item('certification', 'employee')?.question?.value()}">
+    <h2 class="center">MITIGATION INSPECTIONS MUST BE CERTIFIED BY A QUALIFIED INSPECTOR.</h2>
+    <p class="center small">Section 627.711(2), Florida Statutes, provides a listing of individuals who may sign this form.</p>
+    <table class="fields">
+        <tr><td class="label">Qualified Inspector Name:</td><td class="value" th:text="${doc.inspector.name}"></td>
+            <td class="label">License Type:</td><td class="value" th:text="${license != null} ? #{'enum.LicenseType.' + ${license.type}} : ''"></td></tr>
+        <tr><td class="label">License or Certificate #:</td><td class="value" th:text="${license?.number}"></td>
+            <td class="label">Phone:</td><td class="value" th:text="${doc.company.phone}"></td></tr>
+        <tr><td class="label">Inspection Company:</td><td class="value" colspan="3" th:text="${doc.company.name}"></td></tr>
+    </table>
+    <p><strong>Qualified Inspector – I hold an active license as a: (check one)</strong></p>
+    <div th:if="${qualified != null}">
+        <div class="opt-block" th:each="o : ${qualified.options}" th:classappend="${qualified.checked(o)} ? 'checked'">
+            <span class="box" th:text="${qualified.checked(o)} ? '☒' : '☐'">☐</span> <span th:text="${o}">Home inspector</span></div>
+    </div>
+    <p class="small">Individuals other than licensed contractors licensed under Section 489.111, Florida Statutes, or professional engineer
+        licensed under Section 471.015, Florida Statutes, must inspect the structures personally and not through employees or other persons.
+        Licensees under Sections 471.015 or 489.111, Florida Statutes, may authorize a direct employee who possesses the requisite skill,
+        knowledge, and experience to conduct a mitigation verification inspection.</p>
+    <p>I, <strong th:text="${doc.inspector.name}">Name</strong>, am a qualified inspector and I personally performed the inspection or
+        (licensed contractors and professional engineers only) I had my employee, <strong th:text="${employee} ?: '....................'">employee</strong>,
+        perform the inspection, and I agree to be responsible for his/her work.</p>
+    <table class="sign">
+        <tr><td class="line" style="width: 60%;"><img class="signature-img" th:if="${signatureSrc}" th:src="${signatureSrc}" alt=""/></td>
+            <td class="line" th:text="${#temporals.format(doc.finalizedAt ?: doc.inspectedAt, 'MM/dd/yyyy')}"></td></tr>
+        <tr><td class="cap">Qualified Inspector Signature</td><td class="cap">Date</td></tr>
+    </table>
+    <div class="warning">An individual or entity who knowingly or through gross negligence provides a false or fraudulent mitigation
+        verification form is subject to investigation by the Criminal Investigations Division – Bureau of Insurance Fraud and may be subject
+        to administrative action by the appropriate licensing agency or to criminal prosecution (Section 627.711(4)-(7), Florida Statutes).
+        The Qualified Inspector who certifies this form shall be directly liable for the misconduct of employees as if the authorized
+        mitigation inspector personally performed the inspection.</div>
+    <p><strong>Homeowner to complete:</strong> I certify that the named Qualified Inspector, or his or her employee, did perform an inspection
+        of the residence identified on this form and that proof of identification was provided to me or my Authorized Representative.</p>
+    <table class="sign">
+        <tr><td class="line" style="width: 60%;"></td><td class="line"></td></tr>
+        <tr><td class="cap">Signature</td><td class="cap">Date</td></tr>
+    </table>
+    <div class="warning">An individual or entity who knowingly provides or utters a false or fraudulent mitigation verification form with the
+        intent to obtain or receive a discount on an insurance premium to which the individual or entity is not entitled commits a misdemeanor
+        of the first degree (Section 627.711(7), Florida Statutes).</div>
+    <p class="small">The definitions on this form are for inspection purposes only and cannot be used to certify any product or construction
+        feature as offering protection from hurricanes.</p>
+</th:block>
+
+<!-- Photo addendum -->
+<div class="addendum" th:unless="${#lists.isEmpty(doc.allPhotos())}">
+    <h2>Addendum – Photographs</h2>
+    <th:block th:each="section : ${doc.sections}">
+        <th:block th:each="it : ${section.items}" th:unless="${#lists.isEmpty(it.photos)}">
+            <p class="q-title"><span class="q-ref" th:text="${it.reference}">1.1</span><span th:text="${it.title}">Item</span></p>
+            <table class="photos">
+                <tr th:each="row : ${#numbers.sequence(0, (#lists.size(it.photos) - 1) / 2)}">
+                    <td th:each="col : ${#numbers.sequence(0, 1)}" th:with="idx=${row * 2 + col}">
+                        <th:block th:if="${idx < #lists.size(it.photos)}" th:with="p=${it.photos[idx]}">
+                            <img th:src="${web} ? @{${p.url}} : ${photoSrc[p.id]}" alt=""/>
+                            <div class="caption" th:text="${p.caption} ?: ${it.title}">Caption</div>
+                        </th:block>
+                    </td>
+                </tr>
+            </table>
+        </th:block>
+    </th:block>
+</div>
+
+</body>
+</html>

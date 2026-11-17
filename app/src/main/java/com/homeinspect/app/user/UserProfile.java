@@ -48,6 +48,9 @@ public class UserProfile {
 
     private boolean active = true;
 
+    /** Interface language ({@code en} / {@code es}); null = the browser language. */
+    private String language;
+
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 

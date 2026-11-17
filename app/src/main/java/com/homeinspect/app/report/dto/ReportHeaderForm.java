@@ -2,6 +2,7 @@ package com.homeinspect.app.report.dto;
 
 import com.homeinspect.app.report.Occupancy;
 import com.homeinspect.app.report.PropertyType;
+import com.homeinspect.app.report.ReportType;
 import com.homeinspect.app.report.SoilCondition;
 import com.homeinspect.app.report.Weather;
 import jakarta.validation.constraints.DecimalMax;
@@ -22,6 +23,13 @@ import java.time.LocalDateTime;
 @Data
 public class ReportHeaderForm {
 
+    /** Chosen when the report is created; cannot be changed afterwards. */
+    @NotNull
+    private ReportType type = ReportType.FULL;
+
+    /** Other reports to create for the same visit (only when creating). */
+    private java.util.Set<ReportType> alsoCreate = java.util.EnumSet.noneOf(ReportType.class);
+
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime inspectedAt;
@@ -34,6 +42,10 @@ public class ReportHeaderForm {
     private String clientEmail;
     @Size(max = 50)
     private String clientPhone;
+    @Size(max = 200)
+    private String insuranceCompany;
+    @Size(max = 100)
+    private String policyNumber;
 
     // ---- property ----
     @NotBlank
@@ -44,14 +56,16 @@ public class ReportHeaderForm {
     @Size(max = 120)
     private String city;
     @Size(max = 120)
-    private String province;
+    private String county;
+    @Size(max = 120)
+    private String state;
     private PropertyType propertyType;
     @Min(1000)
     @Max(2100)
     private Integer yearBuilt;
-    @DecimalMin("0")
-    @DecimalMax("100000")
-    private BigDecimal areaM2;
+    @Min(0)
+    @Max(1_000_000)
+    private Integer areaSqft;
     @Min(0)
     @Max(200)
     private Integer floors;
@@ -61,8 +75,8 @@ public class ReportHeaderForm {
 
     // ---- conditions ----
     private Weather weather;
-    @DecimalMin("-60")
-    @DecimalMax("60")
-    private BigDecimal temperatureC;
+    @DecimalMin("-40")
+    @DecimalMax("140")
+    private BigDecimal temperatureF;
     private SoilCondition soilCondition;
 }

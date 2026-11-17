@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}"
       th:with="r=${editor.report}, cur=${editor.current}">
 <head th:replace="~{fragments/layout :: head(${editor.report.number})}"></head>
 <body>
@@ -13,7 +13,11 @@
             <h1 class="h4 mb-0 text-truncate" th:text="${r.address}">Dirección</h1>
             <div class="small text-body-secondary">
                 <span class="font-monospace" th:text="${r.number}">2026-0001</span>
-                · <span th:text="${#temporals.format(r.inspectedAt, 'dd/MM/yyyy HH:mm')}">fecha</span>
+                · <span th:text="#{'enum.ReportType.' + ${r.type}}">Full</span>
+                <span th:unless="${#lists.isEmpty(visit)}"> · <i class="bi bi-link-45deg"></i> <span th:text="#{report.visit}">Misma visita</span>:
+                    <a th:each="v, vs : ${visit}" class="me-1" th:href="@{/reports/{id}/edit(id=${v.id})}"
+                       th:text="#{'enum.ReportType.' + ${v.type}} + ' ' + ${v.number}">4-Point</a></span>
+                · <span th:text="${#temporals.format(r.inspectedAt, #messages.msg('format.datetime'))}">fecha</span>
                 <span th:if="${r.clientName}"> · <span th:text="${r.clientName}">cliente</span></span>
                 · <span class="badge" th:classappend="${r.status.name() == 'FINAL'} ? 'text-bg-success' : 'text-bg-secondary'"
                         th:text="#{'enum.ReportStatus.' + ${r.status}}">Borrador</span>
@@ -146,12 +150,68 @@
                                   th:text="#{'enum.Rating.' + ${item.rating}}">Correcto</span>
                             <span class="badge text-bg-light border rating-badge" th:if="${item.status != null and item.status.name() != 'INSPECTED'}"
                                   th:text="#{'enum.ItemStatus.' + ${item.status}}">No presente</span>
+                            <span class="badge text-bg-light border text-truncate answer-badge" th:if="${item.question != null and !#lists.isEmpty(item.question.answers)}"
+                                  th:text="${#strings.listJoin(item.question.answers, ', ')}">Yes</span>
+                            <span class="badge text-bg-warning" th:if="${item.question != null and item.question.required and #lists.isEmpty(item.question.answers)}"
+                                  th:text="#{form.required}">Obligatorio</span>
                         </button>
                     </h3>
                     <div class="accordion-collapse collapse" th:id="'body-' + ${item.id}">
                         <div class="accordion-body">
                         <form th:attr="data-autosave=@{/reports/{id}/items/{i}(id=${r.id},i=${item.id})},data-kind='item',data-item-id=${item.id}">
                             <fieldset th:disabled="${!editor.editable}">
+                                <!-- Form question (4-Point, wind mitigation) -->
+                                <th:block th:if="${item.question != null}" th:with="q=${item.question}">
+                                    <p class="small text-body-secondary doc-text" th:if="${q.help}" th:text="${q.help}">Help</p>
+                                    <div class="mb-3" th:if="${q.type.hasOptions()}">
+                                        <div class="form-label fw-semibold" th:text="${q.type.multiple()} ? #{form.checkAll} : #{form.answer}">Respuesta</div>
+                                        <div class="d-flex flex-wrap gap-2" th:if="${!q.type.multiple() and q.compact()}">
+                                            <th:block th:each="o, os : ${q.options}">
+                                                <input type="radio" class="btn-check" name="answers" th:value="${o}" th:id="'an-' + ${item.id} + '-' + ${os.index}" th:checked="${#lists.contains(q.answers, o)}" autocomplete="off">
+                                                <label class="btn btn-outline-primary" th:for="'an-' + ${item.id} + '-' + ${os.index}" th:text="${o}">Yes</label>
+                                            </th:block>
+                                        </div>
+                                        <div th:if="${!q.type.multiple() and !q.compact()}">
+                                            <div class="form-check mb-2" th:each="o, os : ${q.options}">
+                                                <input class="form-check-input" type="radio" name="answers" th:value="${o}" th:id="'an-' + ${item.id} + '-' + ${os.index}" th:checked="${#lists.contains(q.answers, o)}">
+                                                <label class="form-check-label" th:for="'an-' + ${item.id} + '-' + ${os.index}" th:text="${o}">Option</label>
+                                            </div>
+                                        </div>
+                                        <div th:classappend="${q.compact()} ? 'option-grid'" th:if="${q.type.multiple()}">
+                                            <div class="form-check" th:classappend="${q.compact()} ? '' : 'mb-2'" th:each="o, os : ${q.options}">
+                                                <input class="form-check-input" type="checkbox" name="answers" th:value="${o}" th:id="'an-' + ${item.id} + '-' + ${os.index}" th:checked="${#lists.contains(q.answers, o)}">
+                                                <label class="form-check-label" th:for="'an-' + ${item.id} + '-' + ${os.index}" th:text="${o}">Option</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3" th:unless="${q.type.hasOptions()}">
+                                        <label class="form-label fw-semibold" th:for="'an-' + ${item.id}" th:text="#{form.answer}">Respuesta</label>
+                                        <input class="form-control" name="answers" th:id="'an-' + ${item.id}" th:value="${q.value()}" maxlength="500"
+                                               th:type="${q.type.name() == 'DATE'} ? 'date' : (${q.type.name() == 'NUMBER' or q.type.name() == 'YEAR'} ? 'number' : 'text')"
+                                               th:attr="inputmode=${q.type.name() == 'NUMBER' or q.type.name() == 'YEAR'} ? 'decimal' : null,step=${q.type.name() == 'NUMBER'} ? 'any' : null">
+                                    </div>
+                                    <p class="small text-body-secondary mb-2" th:unless="${#lists.isEmpty(q.explainOn)}">
+                                        <i class="bi bi-info-circle me-1"></i><span th:text="#{form.explainOn(${#strings.listJoin(q.explainOn, ', ')})}">Explica si…</span></p>
+                                    <p class="small text-body-secondary mb-2" th:if="${q.photoRequired}">
+                                        <i class="bi bi-camera me-1"></i><span th:text="#{form.photoRequired}">Foto obligatoria</span></p>
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <label class="form-label fw-semibold mb-0" th:for="'ob-' + ${item.id}" th:text="#{form.comments}">Comentarios</label>
+                                            <div class="dropdown" th:unless="${#lists.isEmpty(item.comments)}">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-chat-square-quote me-1"></i><span th:text="#{item.commentLibrary}">Comentarios</span>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end comment-menu shadow">
+                                                    <li th:each="c : ${item.comments}">
+                                                        <button type="button" class="dropdown-item text-wrap small" th:attr="data-insert-comment=${c},data-target='ob-' + ${item.id}" th:text="${c}">Comentario</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <textarea class="form-control" rows="3" name="observations" th:id="'ob-' + ${item.id}" th:text="${item.observations}"></textarea>
+                                    </div>
+                                </th:block>
+                                <th:block th:if="${item.question == null}">
                                 <!-- Status -->
                                 <div class="mb-3">
                                     <div class="form-label fw-semibold" th:text="#{item.status}">Estado</div>
@@ -220,6 +280,7 @@
                                     </select>
                                     <input type="text" class="form-control mt-2" name="recommendationText" th:value="${item.recommendationText}" th:placeholder="#{item.recommendationText}" th:aria-label="#{item.recommendationText}">
                                 </div>
+                                </th:block>
                             </fieldset>
                         </form>
                         <!-- Photos: outside the form, saved through their own endpoints -->

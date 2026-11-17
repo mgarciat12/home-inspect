@@ -22,9 +22,6 @@ spring:
   messages:
     basename: messages
     fallback-to-system-locale: false
-  web:
-    locale: es
-    locale-resolver: fixed
 
 server:
   port: ${PORT:9000}

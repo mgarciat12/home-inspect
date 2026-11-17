@@ -31,7 +31,7 @@ public class CompanySettingsService {
     public CompanyView view() {
         CompanySettings s = repository.findById(CompanySettings.ID).orElseGet(CompanySettings::new);
         return new CompanyView(s.getCompanyName(), s.getLogoPath() != null, s.getAddress(), s.getPhone(),
-                s.getEmail(), s.getWebsite(), s.getTaxId(), s.getLegalText(), s.getScopeText());
+                s.getEmail(), s.getWebsite(), s.getTaxId(), s.getLicenseNumber(), s.getLegalText(), s.getScopeText());
     }
 
     @Transactional(readOnly = true)
@@ -44,6 +44,7 @@ public class CompanySettingsService {
         form.setEmail(s.getEmail());
         form.setWebsite(s.getWebsite());
         form.setTaxId(s.getTaxId());
+        form.setLicenseNumber(s.getLicenseNumber());
         form.setLegalText(s.getLegalText());
         form.setScopeText(s.getScopeText());
         return form;
@@ -59,6 +60,7 @@ public class CompanySettingsService {
         s.setEmail(clean(form.getEmail()));
         s.setWebsite(clean(form.getWebsite()));
         s.setTaxId(clean(form.getTaxId()));
+        s.setLicenseNumber(clean(form.getLicenseNumber()));
         s.setLegalText(clean(form.getLegalText()));
         s.setScopeText(clean(form.getScopeText()));
         repository.save(s);

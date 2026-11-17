@@ -66,7 +66,7 @@ class AdminUsersWebTests {
         mvc.perform(get("/admin/users").with(users.login("admin.list", Role.ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Name maria")))
-                .andExpect(content().string(containsString("Desactivado")));
+                .andExpect(content().string(containsString("Disabled")));
     }
 
     @Test
@@ -83,7 +83,7 @@ class AdminUsersWebTests {
         mvc.perform(post("/admin/users").with(users.login("admin.invalid", Role.ADMIN)).with(csrf())
                         .param("username", "").param("displayName", "").param("role", "INSPECTOR"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Este campo es obligatorio")));
+                .andExpect(content().string(containsString("This field is required")));
         verify(client, never()).create(any());
     }
 
@@ -124,6 +124,6 @@ class AdminUsersWebTests {
         when(client.list()).thenThrow(new AdminApiException(null, "admin.error.unavailable", null));
         mvc.perform(get("/admin/users").with(users.login("admin.down", Role.ADMIN)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("No se pudo contactar con el servidor de acceso")));
+                .andExpect(content().string(containsString("Could not reach the authorization server")));
     }
 }

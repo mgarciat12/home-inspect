@@ -94,25 +94,25 @@ class PdfTests {
 
         PdfService.Pdf pdf = pdfs.render(id, user);
         assertThat(new String(pdf.content(), 0, 5)).isEqualTo("%PDF-");
-        assertThat(pdf.fileName()).isEqualTo("informe-" + reports.number(id, user) + "-calle-nandu-penon-12-3.pdf");
+        assertThat(pdf.fileName()).isEqualTo("home-inspection-" + reports.number(id, user) + "-calle-nandu-penon-12-3.pdf");
 
         try (PDDocument document = Loader.loadPDF(pdf.content())) {
             assertThat(document.getNumberOfPages()).isGreaterThanOrEqualTo(5);
             String text = new PDFTextStripper().getText(document);
             assertThat(text)
-                    .contains("Informe de inspección de vivienda")
+                    .contains("Home Inspection Report")
                     .contains(reports.number(id, user))
                     .contains("Calle Ñandú & Peñón 12, 3º")
                     .contains("María José Núñez")
-                    .contains("Alcance y limitaciones")
-                    .contains("Resumen de hallazgos")
-                    .contains("1.2 Tejado › Canalones y bajantes")
+                    .contains("Scope and limitations")
+                    .contains("Summary of findings")
+                    .contains("1.2 Roof Covering › Flashings")
                     .contains("Riesgo de caída <peligro> & golpes.")
                     .contains("Zinc, Bajante de fundición")
                     .contains("Canalón suelto")
-                    .contains("No presente")
-                    .contains("11. Garaje")
-                    .containsPattern("Página\\s+1\\s+de\\s+" + document.getNumberOfPages());
+                    .contains("Not present")
+                    .contains("8. Interior Components")
+                    .containsPattern("Page\\s+1\\s+of\\s+" + document.getNumberOfPages());
             // Images: cover + 3 photos + thumbnail + signature
             int images = 0;
             for (var page : document.getPages()) {
@@ -146,7 +146,7 @@ class PdfTests {
         long id = reports.create(form, user);
         try (PDDocument document = Loader.loadPDF(pdfs.render(id, user).content())) {
             String text = new PDFTextStripper().getText(document);
-            assertThat(text).contains("No se han registrado hallazgos").contains("Borrador");
+            assertThat(text).contains("No findings were recorded").contains("Draft");
         }
     }
 

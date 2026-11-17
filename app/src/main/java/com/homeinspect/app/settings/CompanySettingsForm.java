@@ -20,6 +20,8 @@ public class CompanySettingsForm {
     private String website;
     @Size(max = 50)
     private String taxId;
+    @Size(max = 100)
+    private String licenseNumber;
     @Size(max = 5000)
     private String legalText;
     @Size(max = 10000)

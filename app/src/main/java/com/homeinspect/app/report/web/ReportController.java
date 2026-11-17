@@ -1,12 +1,15 @@
 package com.homeinspect.app.report.web;
 
+import com.homeinspect.app.catalog.CatalogService;
 import com.homeinspect.app.report.ItemStatus;
 import com.homeinspect.app.report.Occupancy;
 import com.homeinspect.app.report.PropertyType;
 import com.homeinspect.app.report.Rating;
 import com.homeinspect.app.report.Recommendation;
+import com.homeinspect.app.report.ReportIncompleteException;
 import com.homeinspect.app.report.ReportService;
 import com.homeinspect.app.report.ReportStatus;
+import com.homeinspect.app.report.ReportType;
 import com.homeinspect.app.report.SoilCondition;
 import com.homeinspect.app.report.Weather;
 import com.homeinspect.app.report.dto.ReportFilter;
@@ -33,6 +36,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 
 /** Pages of the reports: list, header form, editor and lifecycle actions. */
 @Controller
@@ -43,12 +47,14 @@ class ReportController {
     static final int PAGE_SIZE = 20;
 
     private final ReportService reports;
+    private final CatalogService catalog;
     private final CurrentUserProvider currentUser;
     private final MessageSource messages;
     private final Clock clock;
 
     @ModelAttribute
     void options(Model model) {
+        model.addAttribute("reportTypes", ReportType.values());
         model.addAttribute("propertyTypes", PropertyType.values());
         model.addAttribute("occupancies", Occupancy.values());
         model.addAttribute("weathers", Weather.values());
@@ -70,16 +76,25 @@ class ReportController {
     }
 
     @GetMapping("/new")
-    String newForm(Model model) {
+    String newForm(@RequestParam(required = false) ReportType type, Model model) {
         ReportHeaderForm form = new ReportHeaderForm();
+        if (type != null) {
+            form.setType(type);
+        }
         form.setInspectedAt(LocalDateTime.now(clock).truncatedTo(ChronoUnit.MINUTES));
         model.addAttribute("form", form);
+        model.addAttribute("availableTypes", catalog.availableTypes());
         return "reports/header-form";
     }
 
     @PostMapping
-    String create(@Valid @ModelAttribute("form") ReportHeaderForm form, BindingResult result) {
+    String create(@Valid @ModelAttribute("form") ReportHeaderForm form, BindingResult result, Model model) {
+        Set<ReportType> available = catalog.availableTypes();
+        if (form.getType() != null && !available.contains(form.getType())) {
+            result.rejectValue("type", "report.type.unavailable");
+        }
         if (result.hasErrors()) {
+            model.addAttribute("availableTypes", available);
             return "reports/header-form";
         }
         long id = reports.create(form, currentUser.get());
@@ -94,12 +109,14 @@ class ReportController {
     @GetMapping("/{id}/edit")
     String editor(@PathVariable long id, @RequestParam(required = false) String section, Model model) {
         model.addAttribute("editor", reports.editor(id, section, currentUser.get()));
+        model.addAttribute("visit", reports.visit(id, currentUser.get()));
         return "reports/editor";
     }
 
     @GetMapping("/{id}/header")
     String headerForm(@PathVariable long id, Model model) {
         model.addAttribute("form", reports.headerForm(id, currentUser.get()));
+        model.addAttribute("visit", reports.visit(id, currentUser.get()));
         model.addAttribute("reportId", id);
         model.addAttribute("reportNumber", reports.number(id, currentUser.get()));
         return "reports/header-form";
@@ -109,6 +126,7 @@ class ReportController {
     String updateHeader(@PathVariable long id, @Valid @ModelAttribute("form") ReportHeaderForm form,
                         BindingResult result, Model model, RedirectAttributes redirect) {
         if (result.hasErrors()) {
+            model.addAttribute("visit", reports.visit(id, currentUser.get()));
             model.addAttribute("reportId", id);
             model.addAttribute("reportNumber", reports.number(id, currentUser.get()));
             return "reports/header-form";
@@ -120,7 +138,16 @@ class ReportController {
 
     @PostMapping("/{id}/finalize")
     String finalizeReport(@PathVariable long id, RedirectAttributes redirect) {
-        reports.finalizeReport(id, currentUser.get());
+        try {
+            reports.finalizeReport(id, currentUser.get());
+        } catch (ReportIncompleteException e) {
+            String details = e.problems().stream()
+                    .map(p -> p.item() + " (" + message(p.code()) + ")")
+                    .collect(java.util.stream.Collectors.joining("; "));
+            redirect.addFlashAttribute("error", messages.getMessage("report.finalize.incomplete",
+                    new Object[]{details}, LocaleContextHolder.getLocale()));
+            return "redirect:/reports/" + id + "/edit";
+        }
         redirect.addFlashAttribute("message", message("report.finalized"));
         return "redirect:/reports/" + id + "/edit";
     }

@@ -2,9 +2,11 @@ package com.homeinspect.app.pdf;
 
 import com.homeinspect.app.document.ReportDocument;
 import com.homeinspect.app.document.ReportDocumentService;
-import com.homeinspect.app.photo.PhotoService;
+import com.homeinspect.app.i18n.UserLocaleResolver;
 import com.homeinspect.app.photo.PhotoService.Variant;
+import com.homeinspect.app.photo.PhotoService;
 import com.homeinspect.app.report.Rating;
+import com.homeinspect.app.report.ReportType;
 import com.homeinspect.app.security.CurrentUser;
 import com.homeinspect.app.settings.CompanySettingsService;
 import com.homeinspect.app.user.SignatureService;
@@ -12,7 +14,6 @@ import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.FontStyle;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -69,7 +70,8 @@ public class PdfService {
         model.put("thumbSrc", uris(photos.files(reportId, Variant.THUMB)));
         model.put("signatureSrc", signatures.file(doc.inspector().profileId()).map(PdfService::uri).orElse(null));
         model.put("logoSrc", company.logoFile().map(PdfService::uri).orElse(null));
-        String html = templates.process("pdf/report", new Context(LocaleContextHolder.getLocale(), model));
+        model.put("web", false);
+        String html = templates.process(template(doc), new Context(UserLocaleResolver.REPORT_LOCALE, model));
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -84,7 +86,7 @@ public class PdfService {
         }
     }
 
-    /** {@code informe-2026-0001-calle-mayor-1.pdf}. */
+    /** {@code home-inspection-2026-0001-123-main-st.pdf}, {@code 4-point-2026-0001-...pdf}. */
     static String fileName(ReportDocument doc) {
         String street = Normalizer.normalize(doc.property().address(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
@@ -94,7 +96,8 @@ public class PdfService {
         if (street.length() > 50) {
             street = street.substring(0, 50).replaceAll("-+$", "");
         }
-        return "informe-" + doc.number() + (street.isEmpty() ? "" : "-" + street) + ".pdf";
+        String number = doc.number().substring(doc.type().numberPrefix().length());
+        return doc.type().fileSlug() + "-" + number + (street.isEmpty() ? "" : "-" + street) + ".pdf";
     }
 
     private void registerFonts(PdfRendererBuilder builder) {
@@ -114,6 +117,11 @@ public class PdfService {
         if (Files.isRegularFile(path)) {
             builder.useFont(path.toFile(), family, weight, style, true);
         }
+    }
+
+    /** Full inspection: report layout. 4-Point and wind mitigation: layout of the official form. */
+    public static String template(ReportDocument doc) {
+        return doc.type() == ReportType.FULL ? "pdf/report" : "pdf/form";
     }
 
     private static Map<Long, String> uris(Map<Long, Path> files) {

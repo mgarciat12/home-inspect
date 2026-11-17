@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head th:replace="~{fragments/layout :: head(${reportId} ? #{report.header.edit} : #{reports.new})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: nav}"></nav>
@@ -18,6 +18,36 @@
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body">
                 <h2 class="h6 text-uppercase text-body-secondary mb-3"><i class="bi bi-calendar-check me-2"></i><span th:text="#{report.header.inspection}">Inspección</span></h2>
+                <div class="mb-3" th:unless="${reportId}">
+                    <span class="form-label d-block" th:text="#{report.type}">Tipo de informe</span>
+                    <div class="list-group" role="radiogroup" th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'">
+                        <label class="list-group-item d-flex gap-3 align-items-start" th:each="t : ${reportTypes}"
+                               th:classappend="${!#sets.contains(availableTypes, t)} ? 'disabled text-body-secondary'">
+                            <input class="form-check-input flex-shrink-0 mt-1" type="radio" th:field="*{type}" th:value="${t}"
+                                   th:disabled="${!#sets.contains(availableTypes, t)}">
+                            <span>
+                                <span class="fw-semibold" th:text="#{'enum.ReportType.' + ${t}}">Full home inspection</span>
+                                <span class="badge text-bg-secondary ms-1" th:unless="${#sets.contains(availableTypes, t)}" th:text="#{report.type.soon}">Próximamente</span>
+                                <small class="d-block text-body-secondary" th:text="#{'report.type.hint.' + ${t}}">Estándar de Florida</small>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="invalid-feedback" th:errors="*{type}"></div>
+                    <div class="mt-3">
+                        <span class="form-label d-block" th:text="#{report.alsoCreate}">Crear también para la misma visita</span>
+                        <div class="form-check form-check-inline" th:each="t : ${reportTypes}" th:if="${#sets.contains(availableTypes, t)}">
+                            <input class="form-check-input" type="checkbox" th:field="*{alsoCreate}" th:value="${t}">
+                            <label class="form-check-label" th:for="${#ids.prev('alsoCreate')}" th:text="#{'enum.ReportType.' + ${t}}">4-Point</label>
+                        </div>
+                        <div class="form-text" th:text="#{report.alsoCreate.hint}">Comparten los datos generales.</div>
+                    </div>
+                </div>
+                <p class="mb-3" th:if="${reportId}"><span class="text-body-secondary" th:text="#{report.type} + ': '">Tipo: </span>
+                    <span class="fw-semibold" th:text="#{'enum.ReportType.' + *{type}}">Full</span></p>
+                <div class="alert alert-info py-2 small" th:if="${reportId != null and !#lists.isEmpty(visit)}">
+                    <i class="bi bi-link-45deg me-1"></i><span th:text="#{report.visit.headerShared}">Se aplican también a los demás borradores de la visita.</span>
+                    <span th:each="v : ${visit}" class="ms-1 fw-semibold" th:text="#{'enum.ReportType.' + ${v.type}} + ' ' + ${v.number}">4-Point</span>
+                </div>
                 <label for="inspectedAt" class="form-label" th:text="#{report.inspectedAt}">Fecha y hora</label>
                 <input type="datetime-local" th:field="*{inspectedAt}" class="form-control" th:classappend="${#fields.hasErrors('inspectedAt')} ? 'is-invalid'">
                 <div class="invalid-feedback" th:errors="*{inspectedAt}"></div>
@@ -44,6 +74,16 @@
                         <input type="tel" th:field="*{clientPhone}" class="form-control" inputmode="tel" autocomplete="off" th:classappend="${#fields.hasErrors('clientPhone')} ? 'is-invalid'">
                         <div class="invalid-feedback" th:errors="*{clientPhone}"></div>
                     </div>
+                    <div class="col-md-7">
+                        <label for="insuranceCompany" class="form-label" th:text="#{report.insuranceCompany}">Aseguradora</label>
+                        <input type="text" th:field="*{insuranceCompany}" class="form-control" autocomplete="off" th:classappend="${#fields.hasErrors('insuranceCompany')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{insuranceCompany}"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="policyNumber" class="form-label" th:text="#{report.policyNumber}">Póliza</label>
+                        <input type="text" th:field="*{policyNumber}" class="form-control" autocomplete="off" th:classappend="${#fields.hasErrors('policyNumber')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{policyNumber}"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,17 +98,21 @@
                         <input type="text" th:field="*{address}" class="form-control" th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'" required>
                         <div class="invalid-feedback" th:errors="*{address}"></div>
                     </div>
-                    <div class="col-5 col-md-3">
-                        <label for="postalCode" class="form-label" th:text="#{report.postalCode}">C.P.</label>
-                        <input type="text" th:field="*{postalCode}" class="form-control" inputmode="numeric" th:classappend="${#fields.hasErrors('postalCode')} ? 'is-invalid'">
-                    </div>
-                    <div class="col-7 col-md-5">
-                        <label for="city" class="form-label" th:text="#{report.city}">Localidad</label>
+                    <div class="col-12 col-md-5">
+                        <label for="city" class="form-label" th:text="#{report.city}">Ciudad</label>
                         <input type="text" th:field="*{city}" class="form-control" th:classappend="${#fields.hasErrors('city')} ? 'is-invalid'">
                     </div>
-                    <div class="col-12 col-md-4">
-                        <label for="province" class="form-label" th:text="#{report.province}">Provincia</label>
-                        <input type="text" th:field="*{province}" class="form-control" th:classappend="${#fields.hasErrors('province')} ? 'is-invalid'">
+                    <div class="col-6 col-md-3">
+                        <label for="state" class="form-label" th:text="#{report.state}">Estado</label>
+                        <input type="text" th:field="*{state}" class="form-control" placeholder="FL" th:classappend="${#fields.hasErrors('state')} ? 'is-invalid'">
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label for="postalCode" class="form-label" th:text="#{report.postalCode}">ZIP</label>
+                        <input type="text" th:field="*{postalCode}" class="form-control" inputmode="numeric" th:classappend="${#fields.hasErrors('postalCode')} ? 'is-invalid'">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="county" class="form-label" th:text="#{report.county}">Condado</label>
+                        <input type="text" th:field="*{county}" class="form-control" th:classappend="${#fields.hasErrors('county')} ? 'is-invalid'">
                     </div>
                     <div class="col-12 col-md-6">
                         <label for="propertyType" class="form-label" th:text="#{report.propertyType}">Tipo</label>
@@ -83,9 +127,9 @@
                         <div class="invalid-feedback" th:errors="*{yearBuilt}"></div>
                     </div>
                     <div class="col-6 col-md-3">
-                        <label for="areaM2" class="form-label" th:text="#{report.areaM2}">m²</label>
-                        <input type="number" th:field="*{areaM2}" class="form-control" inputmode="decimal" step="0.01" min="0" th:classappend="${#fields.hasErrors('areaM2')} ? 'is-invalid'">
-                        <div class="invalid-feedback" th:errors="*{areaM2}"></div>
+                        <label for="areaSqft" class="form-label" th:text="#{report.areaSqft}">sq ft</label>
+                        <input type="number" th:field="*{areaSqft}" class="form-control" inputmode="numeric" step="1" min="0" th:classappend="${#fields.hasErrors('areaSqft')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:errors="*{areaSqft}"></div>
                     </div>
                     <div class="col-6 col-md-3">
                         <label for="floors" class="form-label" th:text="#{report.floors}">Plantas</label>
@@ -120,10 +164,10 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-3">
-                        <label for="temperatureC" class="form-label" th:text="#{report.temperatureC}">Temperatura</label>
+                        <label for="temperatureF" class="form-label" th:text="#{report.temperatureF}">Temperatura</label>
                         <div class="input-group">
-                            <input type="number" th:field="*{temperatureC}" class="form-control" inputmode="decimal" step="0.5" th:classappend="${#fields.hasErrors('temperatureC')} ? 'is-invalid'">
-                            <span class="input-group-text">ºC</span>
+                            <input type="number" th:field="*{temperatureF}" class="form-control" inputmode="decimal" step="1" th:classappend="${#fields.hasErrors('temperatureF')} ? 'is-invalid'">
+                            <span class="input-group-text">°F</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-4">

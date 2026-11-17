@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head th:replace="~{fragments/layout :: head(#{loginError.title})}"></head>
 <body class="auth-bg">
 <main class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">

@@ -59,11 +59,15 @@ class AuthServerIntegrationTests {
     }
 
     @Test
-    void loginPageIsRenderedInSpanish() throws Exception {
+    void loginPageFollowsTheBrowserLanguage() throws Exception {
         mvc.perform(get("/login"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Iniciar sesión")))
+                .andExpect(content().string(containsString("Sign in")))
+                .andExpect(content().string(containsString("lang=\"en\"")))
                 .andExpect(content().string(containsString("name=\"_csrf\"")));
+        mvc.perform(get("/login").header("Accept-Language", "es-ES,es;q=0.9"))
+                .andExpect(content().string(containsString("Iniciar sesión")))
+                .andExpect(content().string(containsString("lang=\"es\"")));
     }
 
     @Test

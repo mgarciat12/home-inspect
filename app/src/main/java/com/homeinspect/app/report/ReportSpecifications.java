@@ -15,6 +15,10 @@ final class ReportSpecifications {
         return (root, query, cb) -> profileId == null ? null : cb.equal(root.get("inspector").get("id"), profileId);
     }
 
+    static Specification<Report> type(ReportType type) {
+        return (root, query, cb) -> type == null ? null : cb.equal(root.get("type"), type);
+    }
+
     static Specification<Report> status(ReportStatus status) {
         return (root, query, cb) -> status == null ? null : cb.equal(root.get("status"), status);
     }

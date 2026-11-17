@@ -5,6 +5,7 @@ import com.homeinspect.app.TestcontainersConfiguration;
 import com.homeinspect.app.catalog.CommentLibraryService;
 import com.homeinspect.app.photo.TestImages;
 import com.homeinspect.app.report.ReportService;
+import com.homeinspect.app.report.ReportType;
 import com.homeinspect.app.report.dto.ReportHeaderForm;
 import com.homeinspect.app.security.CurrentUser;
 import com.homeinspect.app.user.Role;
@@ -62,7 +63,7 @@ class AdminSettingsTests {
         var admin = users.login("set.admin", Role.ADMIN);
         mvc.perform(get("/admin/settings").with(admin))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Alcance y limitaciones")));
+                .andExpect(content().string(containsString("Scope and limitations")));
         mvc.perform(post("/admin/settings").with(admin).with(csrf())
                         .param("companyName", "Inspecciones Ejemplo S.L.")
                         .param("phone", "910 000 000")
@@ -77,7 +78,7 @@ class AdminSettingsTests {
 
         mvc.perform(post("/admin/settings").with(admin).with(csrf()).param("email", "no-es-un-email"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Revisa los campos marcados")));
+                .andExpect(content().string(containsString("Please check the highlighted fields")));
     }
 
     @Test
@@ -107,31 +108,31 @@ class AdminSettingsTests {
         // Also enforced in the service layer
         users.authenticate("set.inspector2", Role.INSPECTOR);
         assertThatThrownBy(() -> settings.update(new CompanySettingsForm())).isInstanceOf(AccessDeniedException.class);
-        assertThatThrownBy(() -> library.sections()).isInstanceOf(AccessDeniedException.class);
+        assertThatThrownBy(() -> library.sections(ReportType.FULL)).isInstanceOf(AccessDeniedException.class);
     }
 
     @Test
     void commentLibraryIsEditableAndUsedByTheEditor() throws Exception {
         var admin = users.login("set.comments", Role.ADMIN);
         users.authenticate("set.comments", Role.ADMIN);
-        var item = library.items("plumbing").getFirst();
+        var item = library.items(ReportType.FULL, "plumbing").getFirst();
         int before = item.comments().size();
         SecurityContextHolder.clearContext();
 
         mvc.perform(get("/admin/comments").param("section", "plumbing").with(admin))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Llave de paso general")));
+                .andExpect(content().string(containsString("Main water shut-off valve not located")));
         mvc.perform(post("/admin/comments").with(admin).with(csrf())
                         .param("itemId", String.valueOf(item.itemId()))
                         .param("text", "Llave de paso general agarrotada; se recomienda sustituirla."))
-                .andExpect(redirectedUrlPattern("/admin/comments?section=plumbing*"));
+                .andExpect(redirectedUrlPattern("/admin/comments?type=FULL&section=plumbing*"));
 
         users.authenticate("set.comments", Role.ADMIN);
-        var comments = library.items("plumbing").getFirst().comments();
+        var comments = library.items(ReportType.FULL, "plumbing").getFirst().comments();
         assertThat(comments).hasSize(before + 1);
         long added = comments.getLast().id();
         library.move(added, true);
-        assertThat(library.items("plumbing").getFirst().comments().get(before - 1).id()).isEqualTo(added);
+        assertThat(library.items(ReportType.FULL, "plumbing").getFirst().comments().get(before - 1).id()).isEqualTo(added);
         library.update(added, "Llave de paso agarrotada.");
         SecurityContextHolder.clearContext();
 

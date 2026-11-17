@@ -14,9 +14,6 @@ spring:
   messages:
     basename: messages
     fallback-to-system-locale: false
-  web:
-    locale: es
-    locale-resolver: fixed
   security:
     oauth2:
       client:
