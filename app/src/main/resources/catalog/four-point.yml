@@ -16,77 +16,134 @@ sections:
         field: CHOICE
         options: [Circuit breaker, Fuse]
         required: true
+        comments:
+          - "Main panel uses circuit breakers."
+          - "Main panel uses fuses. Many insurers require replacement with a circuit breaker panel."
       - code: main_panel_amps
         title: "Main panel: total amps"
         field: NUMBER
         required: true
+        comments:
+          - "Total amperage taken from the main breaker / service label."
+          - "Amperage could not be confirmed from a label; estimated from the main breaker rating."
       - code: main_panel_sufficient
         title: "Main panel: is amperage sufficient for current usage?"
         field: YES_NO
         required: true
         explain_on: ["No"]
+        comments:
+          - "Amperage is sufficient for the current usage of the home."
+          - "Amperage appears insufficient: breakers trip under normal loads. A service upgrade by a licensed electrician is recommended."
       - code: second_panel_type
         title: "Second panel: type"
         field: CHOICE
         options: [Circuit breaker, Fuse]
         help: Leave blank if there is no second panel.
+        comments:
+          - "Sub panel uses circuit breakers."
+          - "There is no second panel."
       - code: second_panel_amps
         title: "Second panel: total amps"
         field: NUMBER
+        comments:
+          - "Second panel amperage taken from its feeder breaker."
+          - "There is no second panel."
       - code: second_panel_sufficient
         title: "Second panel: is amperage sufficient for current usage?"
         field: YES_NO
         explain_on: ["No"]
+        comments:
+          - "Amperage of the second panel is sufficient for the circuits it serves."
+          - "Second panel appears undersized for the connected loads. Have a licensed electrician evaluate."
       - code: wiring_present
         title: Indicate presence of any of the following
         field: MULTI
         options: [Cloth wiring, Active knob and tube, Branch circuit aluminum wiring]
         explain_on: [Branch circuit aluminum wiring]
         help: If branch circuit aluminum wiring is present, describe the usage of all aluminum wiring in the comments.
+        comments:
+          - "No cloth wiring, active knob and tube, or branch circuit aluminum wiring was observed."
+          - "Branch circuit aluminum wiring was observed at the panel serving general lighting and receptacle circuits."
+          - "Cloth-insulated wiring was observed in the attic / at the panel."
       - code: aluminum_remediation
         title: Single strand (aluminum branch) wiring remediation
         field: MULTI
         options: [Connections repaired via COPALUM crimp, Connections repaired via AlumiConn]
         help: Provide details of all remediation. Separate documentation of all work, certified by a licensed electrician, must be provided.
         photo_required: false
+        comments:
+          - "All aluminum branch connections were repaired with COPALUM crimps; documentation from the licensed electrician is attached."
+          - "Connections repaired with AlumiConn connectors; documentation from the licensed electrician is attached."
+          - "No documentation of remediation was provided. A licensed electrician must certify the remediation."
       - code: hazards
         title: Hazards present
         field: MULTI
         options: [Blowing fuses, Tripping breakers, Empty sockets, Loose wiring, Improper grounding, Corrosion, Over fusing, Double taps, Exposed wiring, Unsafe wiring, Improper breaker size, Scorching, Other]
         explain_on: [Blowing fuses, Tripping breakers, Empty sockets, Loose wiring, Improper grounding, Corrosion, Over fusing, Double taps, Exposed wiring, Unsafe wiring, Improper breaker size, Scorching, Other]
         help: Every hazard requires a description and a photo.
+        comments:
+          - "Double-tapped breaker(s) observed. Have a licensed electrician correct."
+          - "Exposed / unsafe wiring observed. Have a licensed electrician correct."
+          - "Breaker oversized for the conductor (improper breaker size). Have a licensed electrician correct."
+          - "Scorching / overheating marks observed at the panel. Have a licensed electrician evaluate immediately."
+          - "Corrosion observed inside the panel."
       - code: general_condition
         title: General condition of the electrical system
         field: CHOICE
         options: [Satisfactory, Unsatisfactory]
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "The electrical system is in satisfactory condition with no visible hazards at the time of the inspection."
+          - "The electrical system is unsatisfactory due to the hazards noted above. Have a licensed electrician correct them."
       - code: main_panel_age
         title: "Supplemental: main panel age (years)"
         field: NUMBER
         required: true
+        comments:
+          - "Panel age taken from the manufacturer label / permit records."
+          - "Panel age estimated from the date of construction (original panel)."
       - code: main_panel_updated
         title: "Supplemental: main panel year last updated"
         field: YEAR
+        comments:
+          - "The main panel was replaced under permit in the year shown."
+          - "The main panel is original to the home."
       - code: main_panel_brand
         title: "Supplemental: main panel brand / model"
         field: TEXT
         required: true
+        comments:
+          - "Brand and model taken from the panel label."
+          - "Federal Pacific / Zinsco / Challenger panel; many insurers do not accept these brands."
       - code: second_panel_age
         title: "Supplemental: second panel age (years)"
         field: NUMBER
+        comments:
+          - "Second panel age taken from its label."
+          - "There is no second panel."
       - code: second_panel_updated
         title: "Supplemental: second panel year last updated"
         field: YEAR
+        comments:
+          - "The second panel was installed / updated in the year shown."
+          - "There is no second panel."
       - code: second_panel_brand
         title: "Supplemental: second panel brand / model"
         field: TEXT
+        comments:
+          - "Brand and model taken from the sub panel label."
+          - "There is no second panel."
       - code: wiring_types
         title: Wiring type(s)
         field: MULTI
         options: [Copper, Copper clad aluminum, "NM, BX or conduit", Single strand aluminum, Cloth (knob & tube), Other, Multistrand aluminum, Cloth jacket rubber insulated]
         required: true
         explain_on: [Other]
+        comments:
+          - "Copper NM (Romex) branch wiring throughout the visible areas."
+          - "Wiring in conduit (CBS construction)."
+          - "Other wiring type observed (describe)."
 
   - code: hvac
     title: HVAC System
@@ -95,56 +152,97 @@ sections:
         title: Central AC
         field: YES_NO
         required: true
+        comments:
+          - "Central split system air conditioning."
+          - "No central air conditioning; the home is cooled by window / wall units."
       - code: central_heat
         title: Central heat
         field: YES_NO
         required: true
+        comments:
+          - "Central heat provided by the heat pump / air handler heat strips."
+          - "No central heat; see the primary heat source."
       - code: primary_heat_source
         title: If not central heat, indicate primary heat source and fuel type
         field: TEXT
+        comments:
+          - "Electric wall / baseboard heaters."
+          - "Ductless mini-split heat pump."
+          - "Not applicable: central heat is present."
       - code: good_working_order
         title: Are the heating, ventilation and air conditioning systems in good working order?
         field: YES_NO
         required: true
         explain_on: ["No"]
+        comments:
+          - "The heating and cooling systems responded to normal controls and operated as intended."
+          - "The system is not in good working order: it did not cool / heat as intended. Have a licensed HVAC contractor evaluate and repair."
       - code: last_service
         title: Date of last HVAC servicing / inspection
         field: DATE
+        comments:
+          - "Date taken from the service sticker on the air handler."
+          - "No record of recent servicing was found. Servicing by a licensed HVAC contractor is recommended."
       - code: wood_stove
         title: "Hazards: is a wood-burning stove or central gas fireplace present?"
         field: YES_NO
         required: true
+        comments:
+          - "No wood-burning stove or central gas fireplace present."
+          - "A wood-burning fireplace / stove is present (see installation below)."
       - code: wood_stove_professional
         title: "Hazards: was it professionally installed?"
         field: YES_NO_NA
         explain_on: ["No"]
+        comments:
+          - "The unit appears professionally installed with proper clearances and venting."
+          - "Installation does not appear professional (improper clearances / venting). Have it evaluated."
       - code: space_heater_primary
         title: "Hazards: space heater used as primary heat source?"
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "Space heaters are not used as the primary heat source."
+          - "A space heater is used as the primary heat source. Many insurers will not accept this."
       - code: space_heater_portable
         title: "Hazards: is the source portable?"
         field: YES_NO_NA
         explain_on: ["Yes"]
+        comments:
+          - "Not applicable: no space heater is used as the primary heat source."
+          - "The space heater used for primary heat is portable."
       - code: condensate_leak
         title: Does the air handler / condensate line or drain pan show any signs of blockage or leakage, including water damage to the surrounding area?
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "No signs of blockage or leakage at the air handler, condensate line or drain pan."
+          - "Water in the secondary drain pan / rust staining indicates a past or present blockage. Have the condensate line cleared and the system serviced."
+          - "Water damage observed around the air handler."
       - code: system_age
         title: "Supplemental: age of system (years)"
         field: NUMBER
         required: true
+        comments:
+          - "Age taken from the dated manufacturer's plate (see photo)."
+          - "The system is more than 15 years old and near the end of its typical service life."
       - code: year_updated
         title: "Supplemental: year last updated"
         field: YEAR
+        comments:
+          - "The condenser and air handler were replaced in the year shown."
+          - "The system is original to the home."
       - code: equipment_photos
         title: HVAC equipment, including the dated manufacturer's plate
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Photos of the condenser, the air handler and the dated manufacturer's plates are attached."
+          - "The manufacturer's plate is illegible; the age was estimated."
 
   - code: plumbing
     title: Plumbing System
@@ -154,71 +252,123 @@ sections:
         field: YES_NO
         required: true
         explain_on: ["No"]
+        comments:
+          - "A temperature pressure relief valve with a discharge line is installed on the water heater."
+          - "No TPR valve on the water heater. Have a licensed plumber install one; this is a safety hazard."
       - code: active_leak
         title: Is there any indication of an active leak?
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "No active leaks were observed at the time of the inspection."
+          - "Active leak observed at the kitchen sink trap. Have a licensed plumber repair."
+          - "Active leak observed at the water heater connections. Have a licensed plumber repair."
       - code: prior_leak
         title: Is there any indication of a prior leak?
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "No indication of prior leaks was observed."
+          - "Stains in the sink base cabinet indicate a prior leak; the area was dry at the time of the inspection."
+          - "Repaired / replaced drywall suggests a prior leak. Ask the seller for details."
       - code: water_heater_location
         title: Water heater location
         field: TEXT
         required: true
+        comments:
+          - "Garage."
+          - "Interior utility closet."
+          - "Attic."
+          - "Exterior closet / laundry room."
       - code: dishwasher
         title: "Fixtures / connections: dishwasher"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Supply and drain connections are satisfactory with no leaks."
+          - "Leak observed at the dishwasher supply / drain connection."
+          - "Not applicable: no dishwasher."
       - code: refrigerator
         title: "Fixtures / connections: refrigerator"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Ice maker / water line connection is satisfactory."
+          - "Leak observed at the refrigerator water line."
+          - "Not applicable: no water line to the refrigerator."
       - code: washing_machine
         title: "Fixtures / connections: washing machine"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Washing machine supply hoses and drain are satisfactory. Braided stainless steel hoses are recommended."
+          - "Rubber supply hoses are cracked / bulging. Replace with braided stainless steel hoses."
+          - "Not applicable: no washing machine connection."
       - code: water_heater
         title: "Fixtures / connections: water heater"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Water heater connections are satisfactory with no leaks or corrosion."
+          - "Corrosion at the water heater connections. Have a licensed plumber evaluate."
+          - "Water heater tank shows rust / leakage and should be replaced."
       - code: showers_tubs
         title: "Fixtures / connections: showers / tubs"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Showers and tubs are satisfactory; grout and caulk are intact."
+          - "Deteriorated grout / caulk at the shower. Repair to prevent water damage."
+          - "Soft spot / water damage at the tub surround."
       - code: toilets
         title: "Fixtures / connections: toilets"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Toilets are secure and operate properly."
+          - "Toilet is loose at the floor / runs continuously. Repair."
+          - "Leak at the toilet supply line."
       - code: sinks
         title: "Fixtures / connections: sinks"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Sinks, faucets and drains are satisfactory."
+          - "Slow drain / leaking trap observed. Repair."
       - code: sump_pump
         title: "Fixtures / connections: sump pump"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Not applicable: no sump pump."
+          - "Sump pump operated when tested."
       - code: main_shutoff
         title: "Fixtures / connections: main shut off valve"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "Main shut off valve located and appears in satisfactory condition (not operated)."
+          - "Main shut off valve is corroded / leaking. Have a licensed plumber replace it."
       - code: other_visible
         title: "Fixtures / connections: all other visible"
         field: CONDITION
         required: true
         explain_on: [Unsatisfactory]
         help: "If unsatisfactory, provide comments / details (leaks, wet / soft spots, mold, corrosion, grout / caulk, etc.)."
+        comments:
+          - "All other visible plumbing is satisfactory."
+          - "Mold / corrosion observed at visible plumbing (describe location)."
       - code: supply_age
         title: Age of piping supply system
         field: CHOICE
@@ -226,6 +376,10 @@ sections:
         required: true
         explain_on: [Completely re-piped, Partially re-piped]
         help: Provide year and extent of renovation in the comments.
+        comments:
+          - "Supply piping is original to the home."
+          - "The home was completely re-piped with PEX in the year shown (permit on file)."
+          - "Partially re-piped: describe the year and extent of the renovation."
       - code: drain_age
         title: Age of piping drain system
         field: CHOICE
@@ -233,19 +387,34 @@ sections:
         required: true
         explain_on: [Completely re-piped, Partially re-piped]
         help: Provide year and extent of renovation in the comments.
+        comments:
+          - "Drain piping is original to the home."
+          - "Drain system completely replaced with PVC in the year shown."
+          - "Partially re-piped: describe the year and extent of the renovation."
       - code: pipe_types
         title: Type of pipes (check all that apply)
         field: MULTI
         options: [Copper, PVC/CPVC, Galvanized, PEX, Cast iron, Polybutylene, ABS, Other]
         required: true
         explain_on: [Other]
+        comments:
+          - "Copper supply and PVC drain piping."
+          - "PEX supply and PVC drain piping."
+          - "Polybutylene supply piping observed; many insurers will not accept it."
+          - "Cast iron drain piping observed."
       - code: pex_year
         title: PEX year installed
         field: YEAR
+        comments:
+          - "Year taken from the date printed on the PEX piping / permit records."
+          - "Not applicable: no PEX piping."
       - code: water_heater_age
         title: Age of water heater (years)
         field: NUMBER
         required: true
+        comments:
+          - "Age taken from the serial number / manufacturer's plate."
+          - "The water heater is more than 10 years old and near the end of its typical service life."
 
   - code: roof
     title: Roof (Predominant Roof)
@@ -255,53 +424,95 @@ sections:
         title: Covering material
         field: TEXT
         required: true
+        comments:
+          - "Architectural asphalt shingles."
+          - "3-tab asphalt shingles."
+          - "Concrete tile."
+          - "Metal (standing seam / 5V crimp)."
+          - "Modified bitumen (low-slope area)."
       - code: age
         title: Roof age (years)
         field: NUMBER
         required: true
+        comments:
+          - "Roof age taken from the permit records."
+          - "Roof age estimated from the condition of the covering; no permit records were provided."
       - code: remaining_life
         title: Remaining useful life (years)
         field: TEXT
         required: true
+        comments:
+          - "Estimated remaining useful life of 10+ years."
+          - "Estimated remaining useful life of 3-5 years."
+          - "The roof covering is at the end of its useful life (0-2 years)."
       - code: last_permit
         title: Date of last roofing permit
         field: TEXT
+        comments:
+          - "Date of the last roofing permit taken from the county permit records."
+          - "No roofing permit found in the county records."
       - code: last_update
         title: Date of last update
         field: TEXT
+        comments:
+          - "Date of the last update taken from the permit / invoice provided by the owner."
+          - "The roof covering is original to the home."
       - code: update_type
         title: If updated (check one)
         field: CHOICE
         options: [Full replacement, Partial replacement]
+        comments:
+          - "Full roof replacement under permit."
+          - "Partial replacement: only the low-slope area / one slope was replaced."
       - code: replacement_percent
         title: "% of replacement"
         field: NUMBER
+        comments:
+          - "Percentage of the roof area replaced, based on the permit description."
+          - "Percentage estimated from visual observation."
       - code: condition
         title: Overall condition
         field: CHOICE
         options: [Satisfactory, Unsatisfactory]
         required: true
         explain_on: [Unsatisfactory]
+        comments:
+          - "The roof covering is in satisfactory condition with no visible signs of damage or leaks."
+          - "The roof covering is unsatisfactory due to the damage noted below. Repair / replacement by a licensed roofing contractor is recommended."
       - code: damage
         title: Any visible signs of damage / deterioration? (check all that apply and explain)
         field: MULTI
         options: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
         explain_on: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
+        comments:
+          - "Excessive granule loss and cupping / curling consistent with the age of the shingles."
+          - "Missing / loose / cracked tabs or tiles observed. Repair by a licensed roofing contractor."
+          - "Soft spots in the decking were felt when walking the roof."
+          - "No visible hail damage was observed."
       - code: leaks
         title: Any visible signs of leaks?
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "No visible signs of leaks were observed."
+          - "Signs of leaks were observed (see attic and ceilings below)."
       - code: leaks_attic
         title: "Leaks: attic / underside of decking"
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "No stains on the underside of the decking."
+          - "Water stains on the underside of the decking; tested dry / wet with a moisture meter."
       - code: leaks_ceilings
         title: "Leaks: interior ceilings"
         field: YES_NO
         required: true
         explain_on: ["Yes"]
+        comments:
+          - "No ceiling stains related to the roof."
+          - "Ceiling stain below the roof; tested dry / wet with a moisture meter."
 
   - code: roof_secondary
     title: Roof (Secondary Roof)
@@ -311,47 +522,87 @@ sections:
       - code: covering
         title: Covering material
         field: TEXT
+        comments:
+          - "Modified bitumen on the low-slope area."
+          - "Metal roof on the porch / addition."
+          - "Not applicable: only one roof covering."
       - code: age
         title: Roof age (years)
         field: NUMBER
+        comments:
+          - "Roof age taken from the permit records."
+          - "Roof age estimated from the condition of the covering; no permit records were provided."
       - code: remaining_life
         title: Remaining useful life (years)
         field: TEXT
+        comments:
+          - "Estimated remaining useful life of 10+ years."
+          - "Estimated remaining useful life of 3-5 years."
+          - "The roof covering is at the end of its useful life (0-2 years)."
       - code: last_permit
         title: Date of last roofing permit
         field: TEXT
+        comments:
+          - "Date of the last roofing permit taken from the county permit records."
+          - "No roofing permit found in the county records."
       - code: last_update
         title: Date of last update
         field: TEXT
+        comments:
+          - "Date of the last update taken from the permit / invoice provided by the owner."
+          - "The roof covering is original to the home."
       - code: update_type
         title: If updated (check one)
         field: CHOICE
         options: [Full replacement, Partial replacement]
+        comments:
+          - "Full roof replacement under permit."
+          - "Partial replacement: only the low-slope area / one slope was replaced."
       - code: replacement_percent
         title: "% of replacement"
         field: NUMBER
+        comments:
+          - "Percentage of the roof area replaced, based on the permit description."
+          - "Percentage estimated from visual observation."
       - code: condition
         title: Overall condition
         field: CHOICE
         options: [Satisfactory, Unsatisfactory]
         explain_on: [Unsatisfactory]
+        comments:
+          - "The roof covering is in satisfactory condition with no visible signs of damage or leaks."
+          - "The roof covering is unsatisfactory due to the damage noted below. Repair / replacement by a licensed roofing contractor is recommended."
       - code: damage
         title: Any visible signs of damage / deterioration? (check all that apply and explain)
         field: MULTI
         options: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
         explain_on: [Cracking, Cupping/curling, Excessive granule loss, Exposed asphalt, Exposed felt, Missing/loose/cracked tabs or tiles, Soft spots in decking, Visible hail damage]
+        comments:
+          - "Excessive granule loss and cupping / curling consistent with the age of the shingles."
+          - "Missing / loose / cracked tabs or tiles observed. Repair by a licensed roofing contractor."
+          - "Soft spots in the decking were felt when walking the roof."
+          - "No visible hail damage was observed."
       - code: leaks
         title: Any visible signs of leaks?
         field: YES_NO
         explain_on: ["Yes"]
+        comments:
+          - "No visible signs of leaks were observed."
+          - "Signs of leaks were observed (see attic and ceilings below)."
       - code: leaks_attic
         title: "Leaks: attic / underside of decking"
         field: YES_NO
         explain_on: ["Yes"]
+        comments:
+          - "No stains on the underside of the decking."
+          - "Water stains on the underside of the decking; tested dry / wet with a moisture meter."
       - code: leaks_ceilings
         title: "Leaks: interior ceilings"
         field: YES_NO
         explain_on: ["Yes"]
+        comments:
+          - "No ceiling stains related to the roof."
+          - "Ceiling stain below the roof; tested dry / wet with a moisture meter."
 
   - code: photos
     title: Photo Requirements
@@ -363,61 +614,94 @@ sections:
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Front elevation."
+          - "Photo includes the street number of the home."
       - code: dwelling_rear
         title: "Dwelling: rear"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Rear elevation."
+          - "Rear elevation partially obstructed by vegetation / screen enclosure."
       - code: dwelling_left
         title: "Dwelling: left side"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Left side elevation."
+          - "Side elevation partially obstructed by a fence / vegetation."
       - code: dwelling_right
         title: "Dwelling: right side"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Right side elevation."
+          - "Side elevation partially obstructed by a fence / vegetation."
       - code: roof_slopes
         title: "Roof: each slope"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Photos of each roof slope are attached."
+          - "Roof slopes photographed from a ladder / with a drone."
       - code: water_heater
         title: "Plumbing: water heater, including the TPR valve"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Water heater, TPR valve and discharge line."
+          - "Manufacturer's label showing the date of manufacture."
       - code: under_cabinet
         title: "Plumbing: under cabinet plumbing / drains"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Plumbing and drains under the kitchen and bathroom sinks."
+          - "Under-cabinet photos show no leaks."
       - code: exposed_valves
         title: "Plumbing: exposed valves"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Exposed shut-off valves at the water heater, toilets and sinks."
+          - "Main water shut-off valve."
       - code: panel_label
         title: "Electrical: main service panel open, with the interior door label"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Main panel open with the interior door label visible."
+          - "Panel directory / label is illegible."
       - code: panel_cover_off
         title: "Electrical: electrical box with the panel cover off"
         field: PHOTO
         required: true
         photo_required: true
         explain_on: [Not applicable]
+        comments:
+          - "Main panel with the dead front cover removed."
+          - "Sub panel with the dead front cover removed."
       - code: hazards
         title: All hazards or deficiencies noted in this report
         field: PHOTO
         help: Answer "Not applicable" when no hazard or deficiency was noted.
+        comments:
+          - "Photos of every hazard or deficiency noted in this report."
+          - "Not applicable: no hazards or deficiencies were noted."

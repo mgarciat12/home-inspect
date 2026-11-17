@@ -92,6 +92,21 @@ class FormReportTests {
     }
 
     @Test
+    void theCommentLibraryCoversEveryItemOfEveryType() throws Exception {
+        for (ReportType type : ReportType.values()) {
+            var items = catalog.activeSections(type).stream().flatMap(s -> catalog.activeItems(s).stream()).toList();
+            var comments = catalog.commentsByItem(items.stream().map(i -> i.getId()).toList());
+            assertThat(items).as(type.name()).allSatisfy(i ->
+                    assertThat(comments.getOrDefault(i.getId(), List.of())).as(i.getCode()).isNotEmpty());
+        }
+        mvc.perform(get("/admin/comments").param("type", "WIND_MITIGATION").param("section", "roof_deck")
+                        .with(users.login("form.library", Role.ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Nail spacing verified in the attic")))
+                .andExpect(content().string(containsString("4-Point")));
+    }
+
+    @Test
     void answersAreValidatedAgainstTheQuestionType() {
         CurrentUser user = users.current("form.answers", Role.INSPECTOR);
         long id = create(ReportType.FOUR_POINT, "1 Answer Way", user);

@@ -14,17 +14,29 @@ sections:
       - code: contact_person
         title: Contact person
         field: TEXT
+        comments:
+          - "The owner was the contact person."
+          - "Contact person: buyer's / listing agent."
       - code: work_phone
         title: Work phone
         field: TEXT
+        comments:
+          - "No work phone provided by the owner."
+          - "Same as the home phone."
       - code: cell_phone
         title: Cell phone
         field: TEXT
+        comments:
+          - "No cell phone provided by the owner."
+          - "Same as the home phone."
       - code: fortified
         title: FORTIFIED Home® certificate used to validate questions 4 to 6, 8 and 9 (attach photocopy)
         field: MULTI
         options: [Roof, Silver, Gold]
         photo_required: false
+        comments:
+          - "A FORTIFIED Home certificate was provided; a copy is attached."
+          - "No FORTIFIED Home certificate was provided."
 
   - code: building_code
     title: "1. Building Code"
@@ -39,12 +51,22 @@ sections:
           - "B. Code in force at time of permit application was the FBC 2007 and later. For homes built in 2007/2008, provide a permit application with a date after 12/8/2006."
           - "C. For the HVHZ only: code in force at time of permit application was the SFBC-94. For homes built in 1994, 1995 and 1996, provide a permit application with a date after 9/1/1994."
           - "D. Unknown or does not meet the requirements of Answer A, B or C."
+        comments:
+          - "Permit application date verified in the county building department records."
+          - "Year built from the property appraiser records; no permit application date was available."
+          - "The permit application date predates the FBC; answer D applies."
       - code: year_built
         title: Year built
         field: YEAR
+        comments:
+          - "Year built from the county property appraiser records."
+          - "Year built from the certificate of occupancy."
       - code: permit_date
         title: Building permit application date
         field: DATE
+        comments:
+          - "Permit application date from the county building department records (copy attached)."
+          - "No permit application date was available."
 
   - code: region
     title: "2. Region"
@@ -57,6 +79,9 @@ sections:
         photo_required: true
         options: [HVHZ, "Region 1 (≥ 140 mph)", "Region 2 (130 mph – 139 mph)", "Region 3 (< 130 mph)"]
         help: Attach the ASCE hazard tool result (screenshot) as the photo / document.
+        comments:
+          - "Design windspeed from the ASCE 7-22 hazard tool (screenshot attached)."
+          - "The property is in the High-Velocity Hurricane Zone (Miami-Dade / Broward)."
 
   - code: roof_slope
     title: "3. Roof Slope"
@@ -68,6 +93,9 @@ sections:
         required: true
         photo_required: true
         options: ["Greater than or equal to (≥ 6:12)", "Less than (< 6:12)"]
+        comments:
+          - "Main roof slope measured with a slope gauge (photo attached)."
+          - "At least two thirds of the main roof area has a slope less than 6:12."
 
   - code: roof_covering
     title: "4. Roof Covering"
@@ -81,28 +109,52 @@ sections:
         options: [Asphalt/Fiberglass Shingle, Concrete/Clay Tile, Synthetic/Composite Tile, Metal, Built Up, Membrane, Other]
         explain_on: [Other]
         help: For "Other", describe the covering type in the comments.
+        comments:
+          - "All roof covering types in use are checked; photos of each covering are attached."
+          - "Other roof covering type (describe)."
       - code: shingle
         title: "Asphalt/Fiberglass Shingle: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
         help: "Example: 05/14/2019 · FL10124-R23 · 2019. Write 'No information provided for compliance' when nothing was available."
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: tile
         title: "Concrete/Clay Tile: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: synthetic_tile
         title: "Synthetic/Composite Tile: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: metal
         title: "Metal: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: built_up
         title: "Built Up: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: membrane
         title: "Membrane: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: other
         title: "Other: permit application date · FBC or MDC product approval # · year of original installation or replacement"
         field: TEXT
+        comments:
+          - "Permit application date, product approval number and year taken from the roofing permit (copy attached)."
+          - "No information provided for compliance."
       - code: product_approval
         title: 4.2 Product approval listing
         field: CHOICE
@@ -112,6 +164,9 @@ sections:
           - "B. All roof coverings have a Miami-Dade Product Approval listing current at time of installation OR (for the HVHZ only) a roofing permit application after 9/1/1994 and before 3/1/2002 OR the roof is original and built in 1997 or later."
           - "C. One or more roof coverings do not meet the requirements of Answer A or B."
           - "D. No roof coverings meet the requirements of Answer A or B."
+        comments:
+          - "Roofing permit application date on or after 3/1/2002 verified in the county records."
+          - "No permit or product approval documentation was available for one or more coverings."
 
   - code: roof_deck
     title: "5. Roof Deck Attachment"
@@ -133,6 +188,10 @@ sections:
           - "G. Unknown or unidentified."
           - "H. No attic access."
         help: If the nailing or rafter spacing is greater than specified, or the roof decking is less than specified, select F. Other and describe it in the comments.
+        comments:
+          - "Nail spacing verified in the attic with a magnet / measured at the sheathing edges and field (photos attached)."
+          - "Deck attachment could not be verified: no attic access."
+          - "Nailing is greater than specified; answer F. Other (describe)."
 
   - code: roof_to_wall
     title: "6. Roof to Wall Attachment"
@@ -154,6 +213,10 @@ sections:
           - "G. Unknown or unidentified."
           - "H. No attic access."
           - "I. Connection(s) not installed as intended."
+        comments:
+          - "Roof to wall connections verified in the attic at several locations (photos attached)."
+          - "Weakest connection observed: clips at the hip / gable end."
+          - "No attic access; connections could not be verified."
       - code: toenails
         title: "A. Toenails (check what applies)"
         field: MULTI
@@ -161,6 +224,9 @@ sections:
           - "Truss/rafter anchored to top plate of wall using nails driven at an angle through the truss/rafter and attached to the top plate of the wall"
           - "Metal connectors or structural fasteners that are not installed as intended do not meet the minimal conditions or requirements of B, C, or D"
           - "Other connection method documented to provide a substantiated wind allowable uplift capacity of 185 lbs. or greater"
+        comments:
+          - "Trusses are toe-nailed to the top plate."
+          - "Metal connectors are present but not installed as intended."
       - code: minimal_conditions
         title: Minimal conditions to qualify for categories B, C or D (all retrofit connectors or structural fasteners must meet option 3)
         field: MULTI
@@ -168,6 +234,9 @@ sections:
           - "1. Metal connectors secured to truss/rafter with a minimum of three (3) nails, attached to the side and/or bottom of the wall framing top plate or embedded into the bond beam, with less than 1/2\" gap from the blocking or truss/rafter, blocked no more than 1 1/2\" from the truss/rafter, and free of visible severe corrosion"
           - "2. Metal connectors consisting of a single strap that wraps over the truss/rafter, secured to the side of the wall and/or bottom of the top plate with a minimum of three nails on each side and free of visible severe corrosion"
           - "3. Purpose-made metal connector(s) or structural fastener(s) installed per the manufacturer's installation specifications to meet the substantiated wind allowable capacity detailed below"
+        comments:
+          - "Connectors have at least three nails and no visible severe corrosion."
+          - "Retrofit connectors installed per the manufacturer's specifications (documentation attached)."
       - code: clips
         title: "B. Clips (check what applies)"
         field: MULTI
@@ -175,12 +244,18 @@ sections:
           - "Metal connectors that do not wrap over the truss/rafter"
           - "Metal connectors with a minimum of one (1) strap that wraps over the truss/rafter and does not meet the nail position requirements of C or D but is secured with a minimum of three (3) nails"
           - "Purpose-made metal connector(s) or structural fastener(s) with a substantiated wind allowable uplift capacity of 386 lbs. or greater (requires site-specific documentation)"
+        comments:
+          - "Metal clips that do not wrap over the truss were observed."
+          - "Straps wrap over the truss but do not meet the nailing of C or D."
       - code: single_wraps
         title: "C. Single Wraps (check what applies)"
         field: MULTI
         options:
           - "Metal connectors consisting of a single strap that wraps over the truss/rafter and are secured with a minimum of two (2) nails on one side and a minimum of one (1) nail on the opposing side"
           - "Purpose-made metal connector(s) or structural fastener(s) with a substantiated wind allowable uplift capacity of 535 lbs. or greater (requires site-specific documentation)"
+        comments:
+          - "Single straps wrap over the truss with at least 2 nails on one side and 1 on the other."
+          - "Purpose-made connectors with documented capacity of 535 lbs. or greater (documentation attached)."
       - code: double_wraps
         title: "D. Double Wraps (check what applies)"
         field: MULTI
@@ -188,6 +263,9 @@ sections:
           - "Metal connectors consisting of two (2) separate straps, one on either side of the truss/rafter, each wrapping over the truss/rafter and secured with a minimum of two (2) nails on one side and one (1) nail on the opposing side"
           - "Metal connectors consisting of a single strap that wraps over the truss/rafter, secured to the side of the wall and/or bottom of the top plate with a minimum of three (3) nails on each side"
           - "Purpose-made metal connector(s) or structural fastener(s) with a substantiated wind allowable uplift capacity of 891 lbs. or greater (requires site-specific documentation)"
+        comments:
+          - "Two straps, one on each side of the truss, each wrapping over the truss."
+          - "Single strap with three nails on each side of the top plate."
 
   - code: roof_geometry
     title: "7. Roof Geometry"
@@ -202,18 +280,34 @@ sections:
           - "A. Hip Roof: hip roof with no other roof shapes greater than 10% of the total roof system perimeter."
           - "B. Flat Roof: roof on a building with five (5) or more units where at least 90% of the main roof area has a roof slope of less than 2:12."
           - "C. Other Roof: any roof that does not qualify as either (A) or (B) above."
+        comments:
+          - "Hip roof: non-hip features are less than 10% of the total roof perimeter (measurements below)."
+          - "Other roof: gable ends exceed 10% of the roof perimeter."
+          - "Flat roof on a building with five or more units."
       - code: non_hip_length
         title: "Hip roof: total length of non-hip features (feet)"
         field: NUMBER
+        comments:
+          - "Measured on site / from the aerial image (attached)."
+          - "Includes the gable ends over the garage."
       - code: perimeter
         title: "Hip roof: total roof system perimeter (feet)"
         field: NUMBER
+        comments:
+          - "Measured on site / from the aerial image (attached)."
+          - "Total roof system perimeter excluding porches and carports attached only to the fascia."
       - code: flat_area
         title: "Flat roof: roof area with slope less than 2:12 (sq ft)"
         field: NUMBER
+        comments:
+          - "Measured from the aerial image / building plans."
+          - "Not applicable: not a flat roof."
       - code: total_area
         title: "Flat roof: total roof area (sq ft)"
         field: NUMBER
+        comments:
+          - "Measured from the aerial image / building plans."
+          - "Not applicable: not a flat roof."
 
   - code: swr
     title: "8. Sealed Roof Deck / Secondary Water Resistance (SWR)"
@@ -225,6 +319,10 @@ sections:
         required: true
         photo_required: true
         options: ["A. Sealed Roof Deck (also called SWR)", "B. No Sealed Roof Deck.", "C. Unknown or undetermined."]
+        comments:
+          - "Secondary water resistance verified from the attic (taped seams visible) / from the roofing permit."
+          - "No sealed roof deck was observed."
+          - "Could not be determined: no attic access and no documentation."
       - code: sealed_type
         title: "A. Sealed roof deck type (check what applies)"
         field: MULTI
@@ -234,6 +332,9 @@ sections:
           - "Double layer of felt or synthetic with no tape (two layers of ASTM D226 Type II, ASTM D4869 Type III or Type IV or ASTM D8257 underlayment)"
           - "Spray foam products (installed along rafter deck intersections, all panel joints, etc.)"
           - "Entire roof deck underside covered (spray foam)"
+        comments:
+          - "Self-adhered underlayment over the entire deck per the roofing invoice / permit (copy attached)."
+          - "Seam tape visible from the attic at the deck joints."
 
   - code: openings
     title: "9. Opening Protection"
@@ -244,26 +345,45 @@ sections:
         field: MULTI
         options: &levels ["N/A", "A", "B", "C", "D", "N", "X", "Z"]
         help: "Mark every form of protection in use. N/A: no openings of this type. A: verified cyclic pressure & large missile (9 lb. windows/doors, 4.5 lb. skylights). B: verified cyclic pressure & large missile (4-8 lb. windows/doors, 2 lb. skylights). C: verified plywood/OSB meeting Table 1609.1.2 of the FBC 2007. D: verified non-glazed entry or garage doors (ASTM E 330, ANSI/DASMA 108 or PA/TAS 202). N: products that appear to be A or B but are not verified, or other coverings that cannot be identified as A, B or C. X: no windborne debris protection. Z: damaged openings in need of repair/replacement."
+        comments:
+          - "Impact-rated windows and doors with product approval labels (photos attached)."
+          - "Accordion / panel shutters without documentation (level N)."
+          - "No protection on some windows (level X)."
       - code: glazed_garage
         title: "Level chart, glazed openings: garage doors"
         field: MULTI
         options: *levels
+        comments:
+          - "Not applicable: the garage door has no glazing."
+          - "Impact-rated glazed garage door with label (photo attached)."
       - code: glazed_skylights
         title: "Level chart, glazed openings: skylights"
         field: MULTI
         options: *levels
+        comments:
+          - "Not applicable: no skylights."
+          - "Skylight without impact rating (level X)."
       - code: glazed_glass_block
         title: "Level chart, glazed openings: glass block"
         field: MULTI
         options: *levels
+        comments:
+          - "Not applicable: no glass block."
+          - "Glass block observed; no documentation."
       - code: nonglazed_entry
         title: "Level chart, non-glazed openings: entry doors"
         field: MULTI
         options: *levels
+        comments:
+          - "Solid entry doors with product approval label (level D / A)."
+          - "Entry door without documentation (level N)."
       - code: nonglazed_garage
         title: "Level chart, non-glazed openings: garage doors"
         field: MULTI
         options: *levels
+        comments:
+          - "Wind-rated garage door with label meeting ANSI/DASMA 108 (level D)."
+          - "Garage door without wind rating label (level X)."
       - code: answer
         title: Opening protection (check one, based on the weakest form of protection)
         field: CHOICE
@@ -285,10 +405,17 @@ sections:
           - "X. None or some glazed openings: one or more glazed openings classified as Level X or Z."
           - "Z. Damaged openings: one or more openings are damaged and in need of repair or replacement."
         help: "A: products listed in the Florida or Miami-Dade product approval system meeting Miami-Dade PA 201, 202 and 203; FBC TAS 201, 202 and 203; ASTM E 1886 and ASTM E 1996; SSTD 12; skylights ASTM E 1886/E 1996; garage doors ANSI/DASMA 115. B: ASTM E 1886 and E 1996 (4.5 lb.), SSTD 12 (4 to 8 lb.), skylights ASTM E 1886/E 1996 (2 to 4.5 lb.)."
+        comments:
+          - "All glazed openings protected with verified impact-rated products (documentation attached)."
+          - "Weakest protection: unverified shutters on some openings."
+          - "One or more openings without protection; answer X applies."
       - code: panels
         title: "C. Wood structural panels covering the glazed openings"
         field: MULTI
         options: [Plywood, OSB]
+        comments:
+          - "Plywood panels meeting Table 1609.1.2 of the FBC 2007 with pre-installed anchors."
+          - "OSB panels meeting Table 1609.1.2 of the FBC 2007."
 
   - code: certification
     title: Qualified Inspector
@@ -305,7 +432,13 @@ sections:
           - "Professional engineer licensed under Section 471.015, Florida Statutes."
           - "Professional architect licensed under Section 481.213, Florida Statutes."
           - "Any other individual or entity recognized by the insurer as possessing the necessary qualifications to properly complete a uniform mitigation verification form pursuant to Section 627.711(2), Florida Statutes."
+        comments:
+          - "Home inspector with the statutory hurricane mitigation training and proficiency exam."
+          - "General contractor licensed under section 489.111, F.S."
       - code: employee
         title: Employee who performed the inspection (licensed contractors and professional engineers only)
         field: TEXT
         help: Leave blank if you personally performed the inspection.
+        comments:
+          - "The qualified inspector personally performed the inspection."
+          - "Inspection performed by a direct employee of the licensed contractor / engineer."

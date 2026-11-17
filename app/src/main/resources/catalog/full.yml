@@ -171,6 +171,10 @@ sections:
       - code: ceiling_structure
         title: Ceiling structure
         materials: [Wood trusses, Ceiling joists, Concrete]
+        comments:
+          - "No visible deficiencies were observed in the accessible ceiling framing."
+          - "Sagging ceiling framing was observed. Have a qualified contractor evaluate."
+          - "Ceiling framing was concealed by insulation and finishes and could not be fully evaluated."
       - code: roof_structure
         title: Roof structure and decking
         materials: [Wood trusses, Rafters, Plywood decking, OSB decking, Dimensional lumber decking]
@@ -180,6 +184,10 @@ sections:
       - code: posts_beams
         title: Posts, beams and columns
         materials: [Concrete columns, Wood posts, Steel columns, Tie beam]
+        comments:
+          - "No visible deficiencies were observed in the accessible posts, beams and columns."
+          - "Cracked or spalling concrete column with exposed reinforcing steel. Have a structural engineer evaluate."
+          - "Wood post shows rot / termite damage at its base. Repair and treat."
       - code: foundation_ventilation
         title: Ventilation of foundation areas (crawl space)
         materials: [Foundation vents, Sealed / conditioned crawl space, Not applicable (slab)]
@@ -200,6 +208,10 @@ sections:
       - code: main_disconnect
         title: Main service equipment and main disconnect (amperage / voltage)
         materials: [100 amp, 125 amp, 150 amp, 200 amp, 400 amp, 120/240 volt]
+        comments:
+          - "Main service disconnect is located at the exterior meter / main panel."
+          - "Main disconnect is not labeled. Label it so it can be found in an emergency."
+          - "The service amperage appears undersized for the current electrical loads. Have a licensed electrician evaluate."
       - code: grounding
         title: Service grounding
         materials: [Ground rod, Water pipe bond, Ufer (concrete-encased), Not visible]
@@ -278,6 +290,10 @@ sections:
       - code: vents
         title: Vents, flues and chimneys
         materials: [Metal flue, PVC (high-efficiency furnace), Not applicable (all electric)]
+        comments:
+          - "Flue vent is properly connected and terminates above the roof."
+          - "Flue pipe is disconnected / not sealed at the appliance. Have a licensed HVAC contractor correct; carbon monoxide risk."
+          - "Inadequate clearance between the flue and combustible materials. Correct promptly."
       - code: fuel
         title: Fuel storage and distribution
         materials: [Natural gas, Propane tank (above ground), Propane tank (buried), Not applicable (all electric)]
@@ -301,6 +317,10 @@ sections:
       - code: fuel_valve
         title: Main fuel shut-off valve
         materials: [At the gas meter, At the propane tank, Not applicable (all electric)]
+        comments:
+          - "Main fuel shut-off valve located at the gas meter."
+          - "Main fuel shut-off valve not located. Ask the seller / utility for its location."
+          - "Corrosion at the gas meter / supply piping. Have the gas utility or a licensed plumber evaluate."
       - code: supply
         title: Water supply piping and distribution
         materials: [Copper, CPVC, PEX, Galvanized steel, Polybutylene]
@@ -330,9 +350,17 @@ sections:
       - code: pumps
         title: Drainage sumps, sump pumps and related piping
         materials: [Sump pump, Sewage ejector pump, Lift station, Not present]
+        comments:
+          - "The sump / ejector pump operated when tested."
+          - "The pump did not operate when tested. Have a licensed plumber evaluate."
+          - "No backup / alarm observed on the sewage ejector pump. Consider installing a high-water alarm."
       - code: plumbing_vents
         title: Plumbing vent systems, flues and chimneys
         materials: [Through-roof vents, Air admittance valves]
+        comments:
+          - "Plumbing vents terminate through the roof as expected."
+          - "Air admittance valve observed; these can fail over time. Monitor for sewer odors."
+          - "Gurgling drains suggest an obstructed vent. Have a licensed plumber evaluate."
 
   - code: interior
     title: Interior Components
@@ -383,6 +411,10 @@ sections:
       - code: insulation
         title: Insulation and vapor retarders in unfinished spaces
         materials: [Fiberglass, Cellulose, Spray foam, Foil-faced, None observed]
+        comments:
+          - "Insulation in the unfinished spaces appears adequate for the age of the home."
+          - "Insulation is missing or displaced in areas. Add / reinstall insulation."
+          - "Vapor retarder faces the wrong side / is damaged. Have it corrected."
       - code: fireplaces
         title: Fireplaces and solid fuel burning appliances (vents, flues and chimneys)
         materials: [Masonry fireplace, Prefabricated metal fireplace, Gas log set, Wood stove, None]
