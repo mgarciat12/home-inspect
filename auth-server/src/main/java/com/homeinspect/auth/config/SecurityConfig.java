@@ -17,7 +17,12 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+
+import java.util.Set;
 
 /**
  * Three filter chains:
@@ -66,9 +71,10 @@ class SecurityConfig {
     SecurityFilterChain webFilterChain(HttpSecurity http, LoginSuccessHandler successHandler,
                                        LoginFailureHandler failureHandler) {
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/css/**", "/js/**", "/webjars/**", "/favicon.ico", "/error").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/webjars/**", "/favicon.ico", "/apple-touch-icon*.png", "/error").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .anyRequest().authenticated())
+                .requestCache(cache -> cache.requestCache(pageRequestCache()))
                 .formLogin(form -> form.loginPage("/login")
                         .successHandler(successHandler)
                         .failureHandler(failureHandler)
@@ -79,6 +85,19 @@ class SecurityConfig {
                                 "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
                                         + "img-src 'self' data:; font-src 'self'; frame-ancestors 'none'")));
         return http.build();
+    }
+
+    /**
+     * Only page navigations (GET, Accept text/html) are remembered to continue after the login.
+     * Otherwise a request the browser makes on its own in the meantime, such as Safari's
+     * {@code /apple-touch-icon.png}, replaces the saved one and the user lands on a 404 after logging in.
+     */
+    static RequestCache pageRequestCache() {
+        MediaTypeRequestMatcher html = new MediaTypeRequestMatcher(MediaType.TEXT_HTML);
+        html.setIgnoredMediaTypes(Set.of(MediaType.ALL));
+        HttpSessionRequestCache cache = new HttpSessionRequestCache();
+        cache.setRequestMatcher(new AndRequestMatcher(request -> "GET".equals(request.getMethod()), html));
+        return cache;
     }
 
     @Bean

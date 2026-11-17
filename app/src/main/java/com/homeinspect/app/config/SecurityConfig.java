@@ -5,6 +5,7 @@ import com.homeinspect.app.security.ProfileSyncingOidcUserService;
 import com.homeinspect.app.user.UserProfileService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +16,12 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+
+import java.util.Set;
 
 /**
  * The whole application requires a login through the auth-server (OIDC, authorization code + PKCE).
@@ -40,10 +47,11 @@ class SecurityConfig {
         logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/");
 
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico", "/error", "/login-error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico", "/apple-touch-icon*.png", "/error", "/login-error").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
+                .requestCache(cache -> cache.requestCache(pageRequestCache()))
                 .oauth2Login(login -> login
                         .loginPage("/oauth2/authorization/" + REGISTRATION_ID)
                         .authorizationEndpoint(endpoint -> endpoint.authorizationRequestResolver(authorizationRequestResolver))
@@ -62,5 +70,18 @@ class SecurityConfig {
                         .referrerPolicy(referrer -> referrer.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)));
         return http.build();
+    }
+
+    /**
+     * Only page navigations (GET, Accept text/html) are remembered to continue after the login.
+     * Otherwise a request the browser makes on its own in the meantime, such as Safari's
+     * {@code /apple-touch-icon.png}, replaces the saved one and the user lands on a 404 after logging in.
+     */
+    static RequestCache pageRequestCache() {
+        MediaTypeRequestMatcher html = new MediaTypeRequestMatcher(MediaType.TEXT_HTML);
+        html.setIgnoredMediaTypes(Set.of(MediaType.ALL));
+        HttpSessionRequestCache cache = new HttpSessionRequestCache();
+        cache.setRequestMatcher(new AndRequestMatcher(request -> "GET".equals(request.getMethod()), html));
+        return cache;
     }
 }

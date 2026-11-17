@@ -21,7 +21,7 @@ public class LoginStepFilter extends OncePerRequestFilter {
     public static final String SESSION_ATTRIBUTE = LoginStepFilter.class.getName() + ".STEP";
 
     private static final List<String> ALWAYS_ALLOWED =
-            List.of("/logout", "/css/", "/js/", "/webjars/", "/error", "/actuator/", "/favicon.ico");
+            List.of("/logout", "/css/", "/js/", "/webjars/", "/error", "/actuator/", "/favicon.ico", "/apple-touch-icon");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

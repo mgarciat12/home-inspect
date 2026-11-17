@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -124,6 +125,24 @@ class AuthServerIntegrationTests {
                         .param("state", "xyz")
                         .session(session))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void iconRequestedByTheBrowserDoesNotReplaceTheSavedAuthorizationRequest() throws Exception {
+        String password = createUserWithPassword("inspector.icon", Role.INSPECTOR);
+        MockHttpSession session = new MockHttpSession();
+        mvc.perform(get(URI.create(authorizeUrl())).session(session).accept(MediaType.TEXT_HTML))
+                .andExpect(redirectedUrl("/login"));
+
+        // Safari asks for the home screen icon while the login page is shown
+        mvc.perform(get("/apple-touch-icon.png").session(session).accept(MediaType.IMAGE_PNG, MediaType.ALL))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/apple-touch-icon-precomposed.png").session(session).accept(MediaType.ALL))
+                .andExpect(status().isNotFound());
+        // Neither does any other non-page request
+        mvc.perform(get("/js/missing.js").session(session).accept(MediaType.ALL));
+
+        assertThat(login(session, "inspector.icon", password)).contains("/oauth2/authorize");
     }
 
     @Test
