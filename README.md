@@ -206,7 +206,7 @@ Flyway crea las tablas al arrancar cada servicio.
 ### 2. Configurar `.env`
 
 ```bash
-git clone --branch v1.0.0 https://github.com/mgarciat12/home-inspect.git
+git clone --branch v1.1.0 https://github.com/mgarciat12/home-inspect.git
 cd home-inspect
 cp .env.example .env
 ```
@@ -525,6 +525,7 @@ notas y los jars de los dos servicios en la página de [Releases](https://github
 
 | Versión | Novedades |
 |---------|-----------|
+| [v1.1.0](https://github.com/mgarciat12/home-inspect/releases/tag/v1.1.0) | Despliegue con Coolify (`docker-compose.coolify.yml`), variables de entorno con los mismos nombres que featuretoggle y corrección de la redirección a `apple-touch-icon.png` tras el login |
 | [v1.0.0](https://github.com/mgarciat12/home-inspect/releases/tag/v1.0.0) | Primera versión: servidor de acceso OAuth2/OIDC con 2FA opcional, informes según el SOP con editor y autoguardado, fotos, resumen de hallazgos, PDF y despliegue con Docker |
 
 ## Licencia
